@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h2 id="어트리뷰트-키워드">@어트리뷰트 키워드</h2>
+<ul>
+  <li>선언에 추가 정보 제공
+    <ul>
+      <li>ex) <code class="language-plaintext highlighter-rouge">@available(iOS 10.0)</code>
+</li>
+    </ul>
+  </li>
+  <li>타입에 추가정보 제공
+    <ul>
+      <li>ex) <code class="language-plaintext highlighter-rouge">@escaping</code>
+</li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="discardableresult"><code class="language-plaintext highlighter-rouge">@discardableResult</code></h1>
+<ul>
+  <li>함수의 <code class="language-plaintext highlighter-rouge">return</code> 값을 활용하지 않는 경우</li>
+</ul>
+
+<pre><code class="language-Swift">func sayHelloString() -&gt; String {
+	print("Hi!")
+	return "Hello"
+}
+sayHelloString() // 함수의 print 부분만 원한다면..?
+</code></pre>
+
+<p>위 예시의 경우 <code class="language-plaintext highlighter-rouge">sayHelloString</code> 함수를 호출하는 과정에서 개발자는 <code class="language-plaintext highlighter-rouge">print</code> 함수의 기능만을 원할 수 있지만 <code class="language-plaintext highlighter-rouge">return</code> 값이 있기 때문에 경고 표시가 뜬다.
+그래서 보통 어떤 방식으로 쓰느냐..?
+<code class="language-plaintext highlighter-rouge">_ = sayHelloString()</code>
+이렇게 썼습니다.</p>
+
+<p>하지만 Swift 5.2에서 새로운 기능이 출시되었습니다. 바로 <code class="language-plaintext highlighter-rouge">@discardableResult</code> 기능이죠! 함수의 결과값을 사용하지 않을 수도 있다는 간단한 기능을 제공합니다.
+사용법은 파이썬의 데코레이터와 같이 함수의 앞에 붙여주면 끝입니다.</p>
+
+<pre><code class="language-Swift">@discardableResult
+func sayHello() -&gt; String {
+	print("Hi!")
+	return "Hello"
+}
+sayHello()
+</code></pre>
+</body></html>

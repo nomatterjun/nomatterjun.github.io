@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1 id="rx-없이-view-️-viewmodel-binding하기">Rx 없이 View ➡️ ViewModel Binding하기</h1>
+
+<p>Rx라는 놈 공부할 땐 어려웠는데..
+한 번 써보니까 없이 기능 구현을 할 때 갈증이 계속해서 일어나는 현상을 겪고 있습니다.</p>
+
+<p>하지만 라이브러리에 의존하는 것은 좋지 않으니까 Rx 없이 데이터 바인딩을 하는 방법을 공부해보았습니다.</p>
+
+<blockquote>
+  <p>코드의 경우 검색해본 거의 모든 게시물에서 동일한 형태로 사용되고 있었습니다. 내부적인 동작 과정도 모른채로 가져다쓰긴 싫어서 공부 겸 작성한 게시물입니다!</p>
+</blockquote>
+
+<p>체크 리스트 앱을 만든다고 가정합시다.
+할 일을 완료할 때마다 그 날 일의 완료율 Label을 계속해서 바꿔주고 싶어요.
+딱 Rx를 사용하면 편리한 상황이지만 다른 기능을 찾아봅시다.</p>
+
+<p>값이 바뀔 때마다 수행하는 동작..
+정확히 해당 기능을 하는 친구가 있었던 것 같아요.</p>
+
+<p>바로 <code class="language-plaintext highlighter-rouge">didSet</code>입니다.</p>
+
+<h2 id="didset">didSet</h2>
+
+<pre><code class="language-Swift">var donePercentage: Int = 0 {
+	didSet {
+		print(oldValue)
+	}
+}
+</code></pre>
+
+<p><code class="language-plaintext highlighter-rouge">donePercentage</code>의 값이 바뀔 때마다 <code class="language-plaintext highlighter-rouge">didSet</code>에 있는 <code class="language-plaintext highlighter-rouge">print</code> 함수가 자동으로 호출됩니다.
+이 <code class="language-plaintext highlighter-rouge">didSet</code>을 키워드로 잡고 시작해보겠습니다.</p>
+
+<h2 id="observable">Observable</h2>
+
+<p>Rx에서 우리는</p>
+
+<pre><code class="language-Swift">viewModel.todos
+	.subscribe(onNext: { todo in
+		print(todo.count)
+	})
+	.disposed(by: self.disposeBag)
+</code></pre>
+
+<p>이런 식으로 <code class="language-plaintext highlighter-rouge">Observable</code>한 데이터를 만들어주고 <code class="language-plaintext highlighter-rouge">subscribe</code>하여 필요한 동작들을 처리해주었습니다.</p>
+
+<p>먼저 필요한 <code class="language-plaintext highlighter-rouge">Observable</code> 타입을 차근차근 만들어봅시다.</p>
+
+<h3 id="value-t">value: T</h3>
+
+<pre><code class="language-Swift">class Observable&lt;T&gt; {
+	var value: T
+
+	init(_ value: T) {
+		self.value = value
+	}
+}
+</code></pre>
+
+<p><code class="language-plaintext highlighter-rouge">Observable</code>은 모든 타입에 대해서 관찰이 가능해야하기 때문에 <code class="language-plaintext highlighter-rouge">Generic</code> 타입을 <code class="language-plaintext highlighter-rouge">T</code>라는 이름으로 사용해주었습니다.
+그리고 생성자를 통해 알맹이인 <code class="language-plaintext highlighter-rouge">value</code> 값을 넣어주었죠.</p>
+
+<p>이 <code class="language-plaintext highlighter-rouge">value</code> 값이 바뀔 때마다 어떤 함수를 실행해주어야 하기 때문에 <code class="language-plaintext highlighter-rouge">didSet</code>을 사용해줍시다.</p>
+
+<pre><code class="language-Swift">var value: T {
+	didSet {
+		// 실행할 함수
+	}
+}
+</code></pre>
+
+<h3 id="listener-클로저">listener (클로저)</h3>
+
+<p>다시 Rx의 경우를 봐볼까요?</p>
+
+<p>저 <code class="language-plaintext highlighter-rouge">didSet</code> 안에 들어가게 될 함수를 찾아봅시다.</p>
+
+<pre><code class="language-Swift">.subscribe(onNext: { todo in
+	print(todo)
+})
+</code></pre>
+
+<p><code class="language-plaintext highlighter-rouge">subscribe</code>라는 함수를 호출하고 클로저의 형태로 함수를 전달받아 실행하는 것 같네요.</p>
+
+<p>그렇다면 안에 들어갈 함수를 담을 클로저 변수를 정의해줍시다.</p>
+
+<pre><code class="language-Swift">var listener: ((T) -&gt; Void)?
+</code></pre>
+
+<p><code class="language-plaintext highlighter-rouge">return</code> 받는 값은 없으니 <code class="language-plaintext highlighter-rouge">Void</code>로 주고 <code class="language-plaintext highlighter-rouge">value</code> 값을 받아 처리해주어야 하니 <code class="language-plaintext highlighter-rouge">input</code> 파라미터로 <code class="language-plaintext highlighter-rouge">T</code>(제너릭 타입)을 받아줍시다.</p>
+
+<p>이제 이 <code class="language-plaintext highlighter-rouge">listener</code> 클로저를 <code class="language-plaintext highlighter-rouge">Observable</code> 코드에 적용시켜줍시다.</p>
+
+<pre><code class="language-Swift">class Observable&lt;T&gt; {
+	var value: T {
+		didSet {
+			self.listener?(value)
+		}
+	}
+
+	var listener: ((T) -&gt; Void)?
+
+	init(_ value: T) {
+		self.value = value
+	}
+}
+</code></pre>
+
+<h3 id="subscribe">subscribe</h3>
+
+<p><code class="language-plaintext highlighter-rouge">View</code>쪽에서 <code class="language-plaintext highlighter-rouge">subscribe</code> 안에서 클로저로 받는 함수를 <code class="language-plaintext highlighter-rouge">listener</code>에 담고 있다가 <code class="language-plaintext highlighter-rouge">didSet</code>이 호출되면 실행되야합니다.</p>
+
+<p>따라서 파라미터로 <code class="language-plaintext highlighter-rouge">@escaping</code> 클로저를 받아주고 클래스 내부의 <code class="language-plaintext highlighter-rouge">listener</code>에 담아줍시다.</p>
+
+<pre><code class="language-Swift">func subscribe(listener: @escaping (T) -&gt; Void) {
+	listener(value)
+	self.listener = listener
+}
+</code></pre>
+
+<p>이 때 <code class="language-plaintext highlighter-rouge">listener(value)</code>와 같이 한 번 실행해줬기 때문에, <code class="language-plaintext highlighter-rouge">subscribe</code>와 동시에 무조건 한 번은 실행됩니다.</p>
+
+<p>binding과 동시에 실행을 하지 않고 싶은 경우에는 빼주어도 아무 문제 없습니다.</p>
+
+<h3 id="종합">종합</h3>
+
+<p>이제 코드들을 합쳐봅시다!</p>
+
+<pre><code class="language-Swift">class Observable&lt;T&gt; {
+	var value: T {
+		didSet {
+			self.listener?(value)
+		}
+	}
+
+	var listener: ((T) -&gt; Void)?
+
+	init(_ value: T) {
+		self.value = value
+	}
+
+	func subscribe(listener: @escaping (T) -&gt; Void) {
+		listener(value)
+		self.listener = listener
+	}
+}
+</code></pre>
+
+<h2 id="사용">사용</h2>
+
+<pre><code class="language-Swift">class HomeViewModel {
+	var todoData: Observable&lt;[ToDo]&gt; = Observable([])
+}
+
+class HomeViewController: UIViewController {
+	private var viewModel = HomeViewModel()
+
+	lazy var progressLabel = UILabel().then { ... }
+
+	override func viewDidLoad() {
+		self.viewDidLoad()
+		self.viewModel.todoData.subscribe { todo in
+			DispatchQueue.main.async {
+				self.progressLabel.text = todo.count
+			}
+		}
+
+		DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+			self.viewModel.todoData.value = [
+				ToDo(title: "Test", state: .completed)
+			]
+		}
+	}
+}
+</code></pre>
+</body></html>

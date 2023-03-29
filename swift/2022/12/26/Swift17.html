@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1 id="property-wrapper">Property Wrapper</h1>
+
+<p>오늘은 UserDefaults를 어떻게 하면 조금이라도 더 편하게 사용할 수 있을까 고민하다가 아주 좋은 친구를 발견했습니다.</p>
+
+<p>바로 Property Wrapper라는 친구인데요.</p>
+
+<p>이 친구는 SwiftUI와 Combine의 기능을 UIKit에서도 적용할 수 있도록 Swift 5.1버전에 등장했습니다.</p>
+
+<p>많은 게시물에서 SwiftUI의 <code class="language-plaintext highlighter-rouge">@State</code>를 예시로 들며 설명하고 있는데, 저는 경험이 없어서.. 넘어가구요…</p>
+
+<p>이름을 보면 프로퍼티를 감싸서 뭔가를 하는 친구인 것 같죠?</p>
+
+<p>바로 알아보도록 하겠습니다.</p>
+
+<h2 id="용도">용도</h2>
+
+<p>일단 어떤 개념으로 사용되는 건지부터 알아봅시다.</p>
+
+<p>Swift에는 <code class="language-plaintext highlighter-rouge">lazy</code>프로퍼티 라는 것이 있습니다.</p>
+
+<p>해당 프로퍼티가 사용될 때 로드를 시작하도록 해주는 키워드이죠.</p>
+
+<p>이 <code class="language-plaintext highlighter-rouge">lazy</code> 키워드는 모든 키워드들에 붙일 수 있고 동일한 동작을 합니다.</p>
+
+<p>만약 이 키워드가 없다면 해당 기능을 구현하기 위해서 어떤 과정을 밟게 될까요?</p>
+
+<pre><code class="language-Swift">func getMyClass() -&gt; MyClass {
+	if self.myVar == nil {
+		self.myVar = MyClass()
+	}
+	return self.myVar
+}
+</code></pre>
+
+<p>위와 같이 해당 프로퍼티가 초기화가 됐는지 확인을 한 후에 값을 불러오는 함수를 만들어 모든 프로퍼티에 직접 구현하며 적용시켜주어야 할 거에요.</p>
+
+<p>다행히도 위 동작을 우리는</p>
+
+<pre><code class="language-Swift">lazy var myClass = MyClass()
+</code></pre>
+
+<p>이렇게 간편하게 구현할 수 있습니다.</p>
+
+<p>Property Wrapper는 <code class="language-plaintext highlighter-rouge">lazy</code>와 같이 동일한 동작을 하는 프로퍼티들에 대해서 공통적으로 미리 구현된 동작들을 부여할 수 있는 기능입니다.</p>
+
+<h2 id="정의">정의</h2>
+
+<p>프로퍼티를 감싸는 기능이기 때문에 우선 프로퍼티를 가질 수 있는 class, struct, enum 앞에 <code class="language-plaintext highlighter-rouge">@propertyWrapper</code>를 붙여 정의합니다.</p>
+
+<p>예시로 UserDefaults로 자동으로 동기화 작업을 하는 프로퍼티를 만들어보겠습니다.</p>
+
+<pre><code class="language-Swift">@propertyWrapper
+struct UserDeafult&lt;T&gt; {
+	var key: String
+	var defaultValue: T
+}
+</code></pre>
+
+<p>그런데 이렇게까지만 하면 해당 프로퍼티에 변경이 있을 때마다 어떤 작업이 실행되는지에 대한 명시가 없죠.</p>
+
+<p>그래서 에러가 발생하고, 그 에러를 살펴보면 <code class="language-plaintext highlighter-rouge">wrappedValue</code>가 정의되지 않았다는 것을 알 수 있습니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">wrappedValue</code>를 정의해주고,  <code class="language-plaintext highlighter-rouge">get-set</code>을 사용하여 해당 프로퍼티가 변경될 때마다 발생하는 로직을 넣어줍니다.</p>
+
+<pre><code class="language-Swift">var wrappedValue: T {
+	get {
+		UserDefaults.standard.object(forKey: key) as? T ?? defaultValue
+	}
+	set {
+		UserDefaults.standard.set(newValue, forKey: key)
+	}
+}
+</code></pre>
+
+<p>이제 합쳐볼까요?</p>
+
+<pre><code class="language-Swift">@propertyWrapper
+struct UserDefault&lt;T&gt; {
+	var key: String
+	var defaultValue: T
+
+	var wrappedValue: T {
+		get {
+			UserDefaults.standard.object(forKey: key) as? T ?? defaultValue
+		}
+		set {
+			UserDefaults.standard.get(newValue, forKey: key)
+		}
+	}
+}
+</code></pre>
+
+<h2 id="사용">사용</h2>
+
+<p>자 그럼 적용은 어떻게 할까요?</p>
+
+<p><code class="language-plaintext highlighter-rouge">lazy</code>와 마찬가지로 앞에 명시해주면 됩니다.</p>
+
+<pre><code class="language-Swift">struct AppData {
+	@UserDefault(key: "isLoggedIn", defaultValue: false)
+	static var isLoggedIn: Bool
+
+	@UserDefault(key: "username", defaultValue: "")
+	static var username: String
+}
+
+AppData.isLoggedIn = true
+print(AppData.isLoggedIn) // true
+
+print(AppData.username) // ""
+</code></pre>
+
+<p>조금 더 나아가서 커스텀 타입에도 적용될 수 있도록 바꿔봅시다.</p>
+
+<pre><code class="language-Swift">@propertyWrapper
+struct UserDefault&lt;T: Codable&gt; {
+	// key와 default 값은 바뀔 일이 없으니 let으로 변경
+	private let key: String
+	private let defaultValue: T
+
+	init(key: String, defaultValue: T) {
+		self.key = key
+		self.defaultValue = defaultValue
+	}
+
+	var wrappedValue: T {
+		get {
+			guard let data = Userdefaults.standard.object(forKey: key) as? Data else {
+				return defaultValue
+			}
+			let value = try? JSONDecoder().decode(T.self, from: data)
+			return value ?? defaultValue
+		}
+		set {
+			let data = try? JSONEncoder().encode(newValue)
+			UserDefaults.standard.set(data, forKey: key)
+		}
+	}
+}
+</code></pre>
+
+<p>이렇게 자동으로 UserDefaults로 값을 동기화시켜주는 Property Wrapper를 만들고 적용해보았습니다.</p>
+
+<h3 id="참고-게시물">참고 게시물</h3>
+
+<p><a href="https://medium.com/better-programming/create-the-perfect-userdefaults-wrapper-using-property-wrapper-42ca76005ac8"># Create the Perfect UserDefaults Wrapper Using Property Wrapper</a></p>
+</body></html>

@@ -1,0 +1,455 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p>오늘은 모두가 쓰지만 저만 안쓰고 있던 RxSwift가 무엇이고, 어떻게 쓰는건지 알아보겠습니다.</p>
+
+<p>우선 RxSwift는 Swift만 갖고 있는 라이브러리는 아닙니다. 원래의 프로젝트 명은 ReactiveX이고 이 이름으로는 어디선가 들어봤던 것 같기도 하죠. RxSwift는 이 ReactiveX를 Swift에 이식한 버전의 이름입니다.</p>
+
+<h1 id="reactivex">ReactiveX</h1>
+
+<p>그렇다면 <strong>ReactiveX</strong>는 무엇일까요?</p>
+
+<p>보통 우리가 짜는 코드는 <strong>동기적(Synchronous)</strong>으로 실행됩니다. 우리가 적은 윗 줄부터 아래 줄까지 순서대로 <strong>한 번에 한 줄씩 차근차근</strong> 실행되죠. 하지만 <strong>ReactiveX</strong>에서는 작업들을 우선 <strong>병렬(parallel)적으로 실행</strong>하고, <strong>“observers”</strong>라는 놈들로 나중에 결과물을 받아옵니다.</p>
+
+<p>ReactiveX에서 작업은 아래 구조로 실행됩니다.
+<strong>Observable &lt;–Subscribe– Observer</strong></p>
+
+<p>Observable에서 어떤 행동이 포착되면 Observer는 그에 맞는 반응을 보내줍니다.</p>
+
+<h2 id="observable">Observable</h2>
+<h3 id="observer-발행">Observer 발행</h3>
+
+<p>비동기성(Asynchronous) 모델의 흐름은 아래와 같습니다.</p>
+<ol>
+  <li>비동기성 호출의 return 값을 활용하여 method를 정의한다: <strong>Observer</strong>의 일부분</li>
+  <li>비동기성 호출을 정의한다: <strong>Observable</strong>
+</li>
+  <li>
+<strong>Observer</strong>를 <strong>Observable</strong>에 연결한다: <strong>Subscribe</strong>
+</li>
+  <li>return value와 value를 활용한다.</li>
+</ol>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def myOnNext = { it -&gt; do something useful with it };
+def myObservable = someObservable(itsParameters);
+myObservable.subscribe(myOnNext);
+</code></pre></div></div>
+
+<h3 id="onnext-oncompleted-onerror">onNext, onCompleted, onError</h3>
+
+<p>Subscribe된 Observer는 상황에 따라 subset을 가집니다.</p>
+
+<h5 id="onnext">onNext</h5>
+<p>Observable이 어떤 정보를 내보내면, <strong>onNext</strong> method의 인자로 받아옵니다.</p>
+<h5 id="onerror">onError</h5>
+<p>예상한 데이터를 생성하는 데 <strong>실패</strong>하거나 <strong>에러</strong>가 발생하면 <strong>onError</strong> method를 호출합니다. onError method를 호출한 이후에는 onNext, onCompleted method를 호출하지 않습니다. onError method의 인자로는 무엇이 에러를 일으켰는지 받아옵니다.</p>
+<h5 id="oncompleted">onCompleted</h5>
+<p>에러가 발생하지 않았을 때, 마지막 onNext method를 호출한 후에 호출됩니다.</p>
+
+<p>정리해보면, onNext는 여러번 발생할 수도 있지만 onError와 onCompleted는 좋든 싫든 한 번만 발생하게 됩니다!</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def myOnNext     = { item -&gt; /* do something userful with item */ };
+def myError      = { throwable -&gt; /* react sensibly to a failed call */ };
+def myComplete   = { /* clean up after the final response */ };
+def myObservable = someMethod(itsParameters);
+myObservable.subscribe(myOnNext, myError, myComplete);
+</code></pre></div></div>
+
+<h3 id="unsubscribing">Unsubscribing</h3>
+
+<p>Observable이 더 이상 모니터링이 필요 없어질 경우, Subscribe를 해제할 수도 있습니다.</p>
+
+<p>Observable이 unsubscribe 되면, 새로운 방출값을 생성하는 것을 멈출 수도 있습니다.</p>
+
+<p>그런데 주의할 점은, 이 과정은 약간의 딜레이가 발생할 수 있기 때문에 방출값이 조금 더 생성된 후에 멈출 수도 있습니다.</p>
+
+<h3 id="hot--cold-observables">Hot &amp; Cold Observables</h3>
+
+<h5 id="hot-observable">Hot Observable</h5>
+<p><strong>생성됨과 동시에 방출값이 생성</strong>됩니다. Subscribe하는 Observer는 중간값부터 값을 받아가게 됩니다.</p>
+
+<h5 id="cold-observable">Cold Observable</h5>
+<p><strong>Subscribe 되면, 그때부터 방출값이 발생</strong>합니다. 때문에 Subscribe하는 Observer는 생성된 모든 값을 받아갈 수 있습니다.</p>
+
+<h2 id="operators">Operators</h2>
+
+<h3 id="chaining-operators">Chaining Operators</h3>
+
+<p>거의 대부분의 operator들은 Observable 안에서 작동하고, Observable을 반환하기 때문에 서로가 서로에게 연결되어 일종의 <strong>체인</strong>을 만들 수 있습니다.</p>
+
+<p>이때 Operator들 간의 chain은 독립적으로 시행되지 않습니다. 연결된 순서에 따라 <strong>순서대로 하나씩 시행</strong>되게 됩니다.</p>
+
+<h3 id="operators-by-category">Operators by Category</h3>
+
+<p>공식 문서를 보면 각 operator의 기능을 카테고리화 하여 분류해두었는데, 이를 한 번씩 살펴보며 정리해보겠습니다!</p>
+
+<h4 id="creating-observables">Creating Observables</h4>
+
+<h5 id="create">Create</h5>
+
+<p>Observable을 생성할 수 있습니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Swift/220304/cap01.png?raw=true" width="550"></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>let source: Observable = Observable.create { observer in
+    for i in 1...5 {
+        observer.on(.next(i))
+    }
+    observer.on(.completed)
+
+    return Disposables.create {
+        print("disposed")
+    }
+}
+</code></pre></div></div>
+<blockquote>
+  <p>next(1)</p>
+</blockquote>
+
+<blockquote>
+  <p>next(2)</p>
+</blockquote>
+
+<blockquote>
+  <p>next(3)</p>
+</blockquote>
+
+<blockquote>
+  <p>next(4)</p>
+</blockquote>
+
+<blockquote>
+  <p>next(5)</p>
+</blockquote>
+
+<blockquote>
+  <p>completed</p>
+</blockquote>
+
+<blockquote>
+  <p>disposed</p>
+</blockquote>
+
+<h5 id="just">Just</h5>
+
+<p>간단하게 어떤 하나의 값을 Observable로 만들고 싶을 때 사용합니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Swift/220304/cap02.png?raw=true" width="550"></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>let source = Observable.just(1, 2, 3)
+let source2 = Observable.just([1,2,3])
+</code></pre></div></div>
+<blockquote>
+  <p>1, 2, 3</p>
+</blockquote>
+
+<blockquote>
+  <p>[1, 2, 3]</p>
+</blockquote>
+
+<h5 id="from">From</h5>
+
+<p>여러개의 값이 있고 각각을 Observable로 만들고 싶을 때 사용합니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Swift/220304/cap03.png?raw=true" width="550"></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>let numbers = [1,2,3,4,5]
+let source = Observable.from(numbers)
+</code></pre></div></div>
+<blockquote>
+  <p>1</p>
+</blockquote>
+
+<blockquote>
+  <p>2</p>
+</blockquote>
+
+<blockquote>
+  <p>3</p>
+</blockquote>
+
+<blockquote>
+  <p>4</p>
+</blockquote>
+
+<blockquote>
+  <p>5</p>
+</blockquote>
+
+<h5 id="of">Of</h5>
+
+<p>여러개의 값을 Observable로 만들고 싶을 때 사용합니다.</p>
+
+<p><strong>From</strong>과 <strong>Just</strong>의 중간 정도로 생각하면 됩니다.</p>
+
+<p>배열을 사용했을 때는 배열 그대로 방출하고, 아닐때는 각각의 값을 하나씩 방출합니다.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>let source = Observable.of(1, 2, 3)
+let source2 = Observable.of([1, 2, 3])
+</code></pre></div></div>
+<blockquote>
+  <p>1</p>
+</blockquote>
+
+<blockquote>
+  <p>2</p>
+</blockquote>
+
+<blockquote>
+  <p>3</p>
+</blockquote>
+
+<blockquote>
+  <p>1, 2, 3</p>
+</blockquote>
+
+<hr>
+
+<h4 id="transforming-observables">Transforming Observables</h4>
+
+<h5 id="map">Map</h5>
+
+<p>각각의 값을 원하는 형태로 변환하여 Observable로 만들고 싶을 때 사용합니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Swift/220304/cap04.png?raw=true" width="550"></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>let source = Observable.from([1, 2, 3]).map { $0 * 2 }
+</code></pre></div></div>
+<blockquote>
+  <p>2</p>
+</blockquote>
+
+<blockquote>
+  <p>4</p>
+</blockquote>
+
+<blockquote>
+  <p>6</p>
+</blockquote>
+
+<h5 id="flatmap">FlatMap</h5>
+
+<p>각각의 Observable이 방출한 값에 대해 지정한 함수를 적용합니다. 이 떄, 각 함수는 자체적으로 값을 방출하는 Observalbe을 반환합니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Swift/220304/cap05.png?raw=true" width="550"></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>let observableInt = Observable.of(1, 2, 3)
+let observableString = Observable.of("A", "B", "C")
+
+observableInt
+    .flatMap { (x: Int) -&gt; Observable&lt;String&gt; in
+        return observableString
+    }
+</code></pre></div></div>
+<blockquote>
+  <p>next(A)</p>
+</blockquote>
+
+<blockquote>
+  <p>next(B)</p>
+</blockquote>
+
+<blockquote>
+  <p>next(A)</p>
+</blockquote>
+
+<blockquote>
+  <p>next(C)</p>
+</blockquote>
+
+<blockquote>
+  <p>next(B)</p>
+</blockquote>
+
+<blockquote>
+  <p>next(A)</p>
+</blockquote>
+
+<blockquote>
+  <p>next(C)</p>
+</blockquote>
+
+<blockquote>
+  <p>next(B)</p>
+</blockquote>
+
+<blockquote>
+  <p>next(C)</p>
+</blockquote>
+
+<blockquote>
+  <p>completed</p>
+</blockquote>
+
+<h5 id="scan">Scan</h5>
+
+<p>각각의 값에 대해 이전에 방출된 값과 함께 연산을 하고 싶을 때 사용됩니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Swift/220304/cap05.png?raw=true" width="550"></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>let observable = Observable.of(1, 2, 3).scan(0) { $0 + $1 }
+</code></pre></div></div>
+<blockquote>
+  <p>1</p>
+</blockquote>
+
+<blockquote>
+  <p>3</p>
+</blockquote>
+
+<blockquote>
+  <p>6</p>
+</blockquote>
+
+<hr>
+
+<h4 id="filtering-observables">Filtering Observables</h4>
+
+<h5 id="filter">Filter</h5>
+
+<p>결과를 원하는 조건에 맞게 필터링하여 방출합니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Swift/220304/cap07.png?raw=true" width="550"></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>let observable = Observable.from([1, 2, 3]).filter { $0 &gt; 1 }
+</code></pre></div></div>
+<blockquote>
+  <p>2</p>
+</blockquote>
+
+<blockquote>
+  <p>3</p>
+</blockquote>
+
+<h5 id="first-last">First, Last</h5>
+
+<p>결과 중 가장 첫번째/마지막을 방출합니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Swift/220304/cap08.png?raw=true" width="550"></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>let observable = Observable.from([1, 2, 3]).first
+</code></pre></div></div>
+<blockquote>
+  <p>Optional(1)</p>
+</blockquote>
+
+<h5 id="take-takelast">Take, TakeLast</h5>
+
+<p>결과 중 마지막/처음부터 n번째까지 방출할지 정해서 방출합니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Swift/220304/cap09.png?raw=true" width="550"></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>let observable = Observable.from([1, 2, 3]).takeLast(2)
+</code></pre></div></div>
+<blockquote>
+  <p>2</p>
+</blockquote>
+
+<blockquote>
+  <p>3</p>
+</blockquote>
+
+<h5 id="elementat">ElementAt</h5>
+
+<p>n번째 인덱스의 결과를 방출합니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Swift/220304/cap10.png?raw=true" width="550"></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>let observable = Observable.from([1, 2, 3]).elementAt(2)
+</code></pre></div></div>
+<blockquote>
+  <p>3</p>
+</blockquote>
+
+<hr>
+
+<h4 id="combining-observables">Combining Observables</h4>
+
+<h5 id="merge">Merge</h5>
+
+<p>여러 Observable의 결과를 하나의 Observable로 합하여 반환합니다. 이 때, 하나의 Observable이라도 에러가 발생하면, 합쳐진 Observable도 종료됩니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Swift/220304/cap11.png?raw=true" width="550"></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>let observableInt = Observable.of(1, 2, 3)
+let observableInt2 = Observable.of(4, 5, 6)
+let observableMerge = Observable.of(observableInt, observableInt2).merge()
+</code></pre></div></div>
+<blockquote>
+  <p>1</p>
+</blockquote>
+
+<blockquote>
+  <p>2</p>
+</blockquote>
+
+<blockquote>
+  <p>4</p>
+</blockquote>
+
+<blockquote>
+  <p>3</p>
+</blockquote>
+
+<blockquote>
+  <p>5</p>
+</blockquote>
+
+<blockquote>
+  <p>6</p>
+</blockquote>
+
+<h5 id="zip">Zip</h5>
+
+<p>각 Observable의 순서대로 짝을 맞추어 연산 결과를 방출합니다. 짝이 맞지 않는 값은 버립니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Swift/220304/cap12.png?raw=true" width="550"></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>let observableInt = Observable.of(1, 2, 3, 4)
+let observableString = Observable.of("A", "B", "C")
+let observableZip = Observable.zip(observableInt, observableString) {
+    "\($0)" + $1
+}
+</code></pre></div></div>
+<blockquote>
+  <p>1A</p>
+</blockquote>
+
+<blockquote>
+  <p>2B</p>
+</blockquote>
+
+<blockquote>
+  <p>3C</p>
+</blockquote>
+
+<h5 id="combinelatest">CombineLatest</h5>
+
+<p>각 Observable의 마지막 값끼리의 연산 결과를 방출합니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Swift/220304/cap13.png?raw=true" width="550"></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>let observableInt = Observable.of(1, 2, 3)
+let observableString = Observable.of("A", "B", "C")
+let observableCombineLatest = Observable.combineLatest(observableInt, observableString) {
+    "\($0)" + $1
+}
+</code></pre></div></div>
+<blockquote>
+  <p>1A</p>
+</blockquote>
+
+<blockquote>
+  <p>1B</p>
+</blockquote>
+
+<blockquote>
+  <p>2B</p>
+</blockquote>
+
+<blockquote>
+  <p>3B</p>
+</blockquote>
+
+<blockquote>
+  <p>3C</p>
+</blockquote>
+</body></html>

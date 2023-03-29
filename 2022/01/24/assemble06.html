@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h3 id="db-재설계">DB 재설계</h3>
+
+<p>이전의 DB는 관계형DB로서의 기능을 하지 못하였습니다. 각 인스턴스 사이의 관계를 설명할 수 없었고, 자연스럽게 외래키도 잘못 연결되어 있었습니다. 그래서 다음과 같이 처음부터 다시 뜯어고쳤습니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220124_06/cap01.png?raw=true" alt="table" width="550"></p>
+
+<p>film과 filmInfo 테이블이 분리되어 있는 것이 비효율적이라 생각하여 통합하였고, 추가적인 정보를 더 제공하기 위해 새로운 테이블도 추가하였습니다. 관계를 설명하는 테이블에도 id를 부여하여 추후에 수정할 때 편하게 설계하였습니다.</p>
+
+<h3 id="1-current_timestamp">1. CURRENT_TIMESTAMP</h3>
+
+<p>films 테이블에 정보가 언제 마지막으로 수정되었는지 확인할 수 있도록 fLastUpdate 행을 새로 만들어 주었습니다. 이 부분은 AWS의 Lambda에서 직접 수정해주지 않아도 DB에서 자체적으로 update 시켜주길 원해서 방법을 찾아보았습니다.</p>
+
+<p>아래와 같이 원하는 행에 DEFAULT와 ON UPDATE를 이용해줍니다.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>'fLastUpdate' TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+</code></pre></div></div>
+<p><strong>DEFAULT CURRENT_TIMESTAMP</strong>: INSERT 시에 자동으로 현재 timestamp가 입력된다.
+<strong>ON UPDATE CURRENT_TIMESTAMP</strong>: UPDATE 시에 자동으로 현재 timestamp가 입력된다.</p>
+
+<h3 id="2-char-varchar-text">2. CHAR, VARCHAR, TEXT</h3>
+<p>films 테이블의 fPlot 행은 영화의 대략적인 줄거리를 설명하는 글이 저장되는 공간입니다. 이 공간은 다른 행에 비해서 많은 양의 데이터가 들어갈 것이기 때문에 저장공간의 낭비없이 공간을 할당해줄 수 있을까 싶어 SQL이 지원하는 데이터 타입을 둘러보게 되었습니다.</p>
+
+<p>문자열을 저장하는 데이터타입 중 많이 사용되는 <strong>VARCHAR, CHAR, TEXT</strong> 타입이 있습니다. 이 셋에는 차이점이 존재하는데 정리해보면 아래와 같습니다.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>데이터 타입</th>
+      <th style="text-align: center">사이즈 (byte)</th>
+      <th style="text-align: center">가변형</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>CHAR</strong></td>
+      <td style="text-align: center">&lt;= 255</td>
+      <td style="text-align: center">X</td>
+    </tr>
+    <tr>
+      <td><strong>VARCHAR</strong></td>
+      <td style="text-align: center">&lt;= 65535</td>
+      <td style="text-align: center">O</td>
+    </tr>
+    <tr>
+      <td><strong>TEXT</strong></td>
+      <td style="text-align: center">&lt;= 65535</td>
+      <td style="text-align: center">O</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>1. CHAR</strong>
+고정된 크기를 갖는 데이터 타입입니다. 예를 들면, CHAR(4)로 선언된 행은 고정적으로 4-byte의 크기를 할당받습니다.
+<strong>2. VARCHAR, TEXT</strong>
+가변형 크기를 갖는 데이터 타입입니다. 예를 들면, VARCHAR(45)로 45-byte 크기의 행을 설정해줘도, 실제로 갖는 내용이 4-byte라면 4-byte를 할당받습니다. 45-byte는 들어가는 값의 최대 크기가 됩니다.</p>
+
+<p>그렇다면 이 둘의 차이는 또 무엇일까요?
+<strong>TEXT</strong> 타입은 최대 크기를 지정해주지 못합니다. 고정적으로 <strong>65535</strong> 사이즈의 최대 크기를 갖게되는 것이죠.
+반대로 <strong>VARCHAR</strong> 타입은 최대 크기를 지정해줄 수 있습니다. 위 예시의 VARCHAR(<strong>45</strong>)는 <strong>45-byte</strong>의 최대 크기를 지정해준 것입니다.</p>
+
+<p>또, 이 두 데이터 타입은 실제로 갖는 데이터 외에도 자신의 사이즈를 저장하기 위해 추가적인 공간을 사용하는데, VARCHAR 타입은 1~255 사이즈일 경우 1-byte, 256~65535 사이즈일 경우 2-byte를 사용하지만 TEXT 타입은 최대 크기가 고정적으로 65535-byte이므로 2-byte를 사용합니다.</p>
+
+<p>추가적으로 TEXT 타입의 행은 INDEX로 사용될 수 없고, 메모리가 아닌 하드디스크에 저장되기 때문에 쿼리시에 속도가 느릴 수 있습니다.</p>
+
+<h3 id="3-blob">3. BLOB</h3>
+
+<p>TEXT 타입과 비슷한 타입이 하나 더 있습니다. BLOB(Binary Large OBject)이라는 데이터 타입인데, 이 두 데이터 타입은 모두 문자열을 저장하지만 BLOB 타입은 문자셋과 콜레이션이 없는 바이너리 데이터를 저장하고, TEXT 타입은 문자셋과 콜레이션이 있는 텍스트 데이터를 저장한다는 점이다. 대표적인 문자셋으로는 utf-8이 있고, 콜레이션을 통해 대소문자 등 글자를 서로 구분하는 법칙을 지정할 수 있다.</p>
+
+<p>BLOB 타입의 데이터는 이미지 파일을 저장할 수 있다. 이미지를 Base64로 인코딩한 후, utf-8로 디코드하면 바이너리 형식의 긴 텍스트를 얻어낼 수 있다. 이 텍스트를 DB에 저장하고, 다시 SELECT로 불러올 때도 디코딩 과정을 거치면 이미지 파일을 얻어낼 수 있다.</p>
+
+<h3 id="4-이미지-저장">4. 이미지 저장?</h3>
+
+<p>작은 이미지 파일을 저장할 때는 BLOB 타입으로 충분히 감당이 가능하다. 하지만 현재의 이미지는 BLOB 타입으로 DB에 직접 저장하기에는 너무 커졌다. DB에 이미지 파일을 직접 저장하면 안되는 이유는 다음과 같다.</p>
+<ol>
+  <li>백업과 복원에 상당한 시간이 소요된다. 오랜 기간 소요되는 복원은 DB의 성능에 심각한 저하를 가져오고, DB가 손상되어 급하게 복원이 필요할 때 시간이 소요되어 소비자들이 불편을 갖게 된다.</li>
+  <li>상당한 자원을 소모한다. Azure나 AWS와 같은 서비스를 사용한다면 제한된 용량을 빠르게 소모할 것이고, 예상치 못한 금액을 지불해야 할 수도 있다.</li>
+  <li>직관적이지 않다. BLOB으로 변환된 이미지 파일은 사람이 알아볼 수 없다.</li>
+</ol>
+
+<p>그렇다면 어떻게 하는 것이 좋을까?</p>
+
+<p>물리적인 하드디스크를 하나 사용하여 모든 이미지 파일들을 그 곳에 저장하고, DB에는 그 파일과의 연결 관계를 만들어준다. 클라우드에 저장하는 것보다 훨씬 빠르고, 저렴하게 이미지 파일을 저장할 수 있다. 이미지 파일을 열어보는 것 조차 너무나도 쉬워진다.</p>
+</body></html>

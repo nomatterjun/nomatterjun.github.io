@@ -1,0 +1,328 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h1 id="열거형-enumeration">열거형 (Enumeration)</h1>
+<ul>
+  <li>타입 자체를 한정된 사례(case) 안에서 정의할 수 있는 타입</li>
+  <li>연관된 상수들을 하나의 이름으로 묶음</li>
+</ul>
+
+<pre><code class="language-Swift">enum Weekday {
+	case monday
+	case tuesday
+	case wednesday
+	case thursday
+	case friday
+	case saturday
+	case sunday
+}
+
+enum CompassPoint {
+	case north, south, east, west
+}
+</code></pre>
+
+<ul>
+  <li>한정된 사례 안에서 정의되는 경우에 매우 유용!
+    <ul>
+      <li>ex) 월화수목금토일, 동서남북, 왼쪽가운데오른쪽, 남여, 가위바위보</li>
+    </ul>
+  </li>
+  <li>코드의 가독성과 안정성 ⬆️
+    <ul>
+      <li>명확한 분기 처리 가능</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="열거형은-타입이다">열거형은 타입이다!</h2>
+
+<pre><code class="language-Swift">var today: Weekday = Weekday.monday
+today = .wednesday // Weekday 생략 (타입이 명확할 때)
+
+if today == .sunday {
+	print("오늘은 일요일입니다.")
+} else if today == .monday {
+	print("오늘은 월요일입니다.")
+}
+
+switch todya {
+case .monday:
+	print("오늘은 월요일입니다.")
+case .tuesday:
+	print("오늘은 화요일입니다.")
+	...
+case .sunday:
+	print("오늘은 일요일입니다.")
+}
+</code></pre>
+
+<h2 id="열거형의-원시값과-연관값">열거형의 원시값과 연관값</h2>
+
+<h3 id="원시값-raw-value">원시값 (Raw Value)</h3>
+<ul>
+  <li>매칭되는 기본값을 정하여 열거형을 좀 더 쉽게 활용 가능할 수 있도록 돕는 값
+    <ul>
+      <li>원시값은 Hashable한 타입은 모두 가능하다.</li>
+      <li>하지만 일반적으로 <code class="language-plaintext highlighter-rouge">Int</code>와 <code class="language-plaintext highlighter-rouge">String</code> 타입을 사용한다.</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">enum Alignment: Int { // Int 타입 원시값
+	case left
+	case center
+	case right
+}
+
+enum Alignment2: String { // String 타입 원시값
+	case left
+	case center = "C"
+	case right
+}
+</code></pre>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">Int</code> 타입 원시값
+위의 경우처럼 원시값을 따로 지정해주지 않으면, 앞에서부터 순서대로 0, 1, 2, …가 원시값으로 부여됩니다.
+부분적으로 설정해준다면, 설정된 다음의 원시값 또한 자동으로 1씩 증가되며 부여됩니다.
+    <ul>
+      <li>ex) 0, 2(설정), 3, 4 , …</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">String</code> 타입 원시값
+원시값을 따로 지정해주지 않으면, <code class="language-plaintext highlighter-rouge">case</code>의 이름을 그대로 가져다 부여됩니다.
+    <ul>
+      <li>ex) left, center, right</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">let align = Alignment(rawValue: 0) // Optional (해당 rawValue를 지니지 않을 수도 있기 때문에)
+let leftValue = Alignment.center.rawValue // 1
+</code></pre>
+
+<h4 id="활용">활용</h4>
+
+<pre><code class="language-Swift">enum RpsGame: Int {
+	case "Rock", "Scissor", "Paper"
+}
+
+let number = Int.random(in: 0...100) % 3
+print(RpsGame(rawValue: number)!)
+</code></pre>
+
+<h3 id="연관값-associative-value">연관값 (Associative Value)</h3>
+<ul>
+  <li>구체적인 추가 정보를 저장하기 위해 사용</li>
+</ul>
+
+<pre><code class="language-Swift">enum Computer {
+	case cpu(core: Int, ghz: Double)
+	case ram(Int, String)
+	case hardDisk(gb: Int)
+}
+
+var chip = Computer.cpu(core: 8, ghz: 3.1)
+
+switch chip {
+case .cpu(let a, let b):
+	print("CPU ](a)코어 \(b)GHZ입니다.")
+case let .ram(a, _):
+	print("램 \(a) 기가램입니다.")
+}
+</code></pre>
+
+<h5 id="잠깐-이제-optional을-정확하게-이해할-수-있다">잠깐! 이제 Optional을 정확하게 이해할 수 있다!</h5>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">Optional</code> 타입의 내부는 열거형이다.</li>
+  <li>결국 Optional 타입은 값이 없을 때 에러가 나지 않도록 임시로 열거형 타입의 값을 넣어두는 것..!</li>
+</ul>
+
+<pre><code class="language-Swift">enum Optional&lt;Wrapped&gt; {
+	case some(Wrapped)
+	case none // nil
+}
+</code></pre>
+
+<h2 id="열거형과-switch문">열거형과 <code class="language-plaintext highlighter-rouge">switch</code>문</h2>
+<ul>
+  <li>열거형은 <code class="language-plaintext highlighter-rouge">switch</code>문과 함께 사용했을 때 사용성이 높아진다!
+    <ul>
+      <li>열거형은 한정된 사례로 만든 타입이고, 스위치문은 표현식에 대한 분기 처리에 최적화되어 있기 때문에, 서로 잘 맞는다.</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">enum LoginProvider: String {
+	case email
+	case facebook
+	case google
+}
+
+let userLogin = LoginProvider.email
+
+switch userLogin {
+case .email:
+	print("이메일 로그인")
+case .facebook:
+	print("페이스북 로그인")
+case .google:
+	print("구글 로그인")
+}
+</code></pre>
+
+<h3 id="옵셔널-열거형과-switch문">옵셔널 열거형과 <code class="language-plaintext highlighter-rouge">switch</code>문</h3>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">enum</span> <span class="kt">SomeEnum</span> <span class="p">{</span>
+	<span class="k">case</span> <span class="n">left</span>
+	<span class="k">case</span> <span class="n">right</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">x</span><span class="p">:</span> <span class="kt">SomeEnum</span><span class="p">?</span> <span class="o">=</span> <span class="o">.</span><span class="n">left</span> <span class="c1">// Optional은 열거형</span>
+<span class="c1">// 열거형 안에 열거형이 있는 형태</span>
+
+<span class="c1">// 따라서 원칙적으로는 아래와 같이 처리해야 한다.</span>
+<span class="k">switch</span> <span class="n">x</span> <span class="p">{</span>
+<span class="k">case</span> <span class="o">.</span><span class="nf">some</span><span class="p">(</span><span class="k">let</span> <span class="nv">value</span><span class="p">):</span>
+	<span class="k">switch</span> <span class="n">value</span> <span class="p">{</span>
+	<span class="k">case</span> <span class="o">.</span><span class="nv">left</span><span class="p">:</span>
+		<span class="nf">print</span><span class="p">(</span><span class="s">"왼쪽으로 돌기"</span><span class="p">)</span>
+	<span class="k">case</span> <span class="o">.</span><span class="nv">right</span><span class="p">:</span>
+		<span class="nf">print</span><span class="p">(</span><span class="s">"오른쪽으로 돌기"</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="k">case</span> <span class="o">.</span><span class="nv">none</span><span class="p">:</span>
+	<span class="nf">print</span><span class="p">(</span><span class="s">"계속 전진"</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// 하지만 너무 불편하다.</span>
+<span class="c1">// 편의적 장치가 당연히 마련되어 있다.</span>
+<span class="k">switch</span> <span class="n">x</span> <span class="p">{</span>
+<span class="k">case</span> <span class="o">.</span><span class="nf">some</span><span class="p">(</span><span class="o">.</span><span class="n">left</span><span class="p">):</span>
+	<span class="nf">print</span><span class="p">(</span><span class="s">"왼쪽으로 돌기"</span><span class="p">)</span>
+<span class="k">case</span> <span class="o">.</span><span class="nf">some</span><span class="p">(</span><span class="o">.</span><span class="n">right</span><span class="p">):</span>
+	<span class="nf">print</span><span class="p">(</span><span class="s">"오른쪽으로 돌기"</span><span class="p">)</span>
+<span class="k">case</span> <span class="o">.</span><span class="nv">none</span><span class="p">:</span>
+	<span class="nf">print</span><span class="p">(</span><span class="s">"계속 전진"</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// 조금 더 편하게!</span>
+<span class="k">switch</span> <span class="n">x</span> <span class="p">{</span>
+<span class="k">case</span> <span class="o">.</span><span class="nv">left</span><span class="p">:</span>
+	<span class="nf">print</span><span class="p">(</span><span class="s">"왼쪽으로 돌기"</span><span class="p">)</span>
+<span class="k">case</span> <span class="o">.</span><span class="nv">right</span><span class="p">:</span>
+	<span class="nf">print</span><span class="p">(</span><span class="s">"오른쪽으로 돌기"</span><span class="p">)</span>
+<span class="k">case</span> <span class="nv">nil</span><span class="p">:</span>
+	<span class="nf">print</span><span class="p">(</span><span class="s">"계속 전진"</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="열거형에-연관값이-있는-경우의-활용">열거형에 연관값이 있는 경우의 활용</h2>
+<ul>
+  <li>열거형 <code class="language-plaintext highlighter-rouge">case</code> 패턴
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">case Enum.case(let 변수이름):</code></li>
+      <li><code class="language-plaintext highlighter-rouge">case let Enum.case(변수이름):</code></li>
+    </ul>
+  </li>
+  <li>특이하게도 이 패턴은 <code class="language-plaintext highlighter-rouge">if / guard / for-in / while</code>에서도 사용 가능하다.</li>
+</ul>
+
+<pre><code class="language-Swift">if case Computer.hardDisk(gb: let gB) = chip {
+	print("\(gB)기가 바이트 하드디스크")
+}
+</code></pre>
+<ul>
+  <li>원래는 <code class="language-plaintext highlighter-rouge">switch</code>문에서 시작되었다.
+    <ul>
+      <li>한 가지 값만 체크하고 싶을 때도 <code class="language-plaintext highlighter-rouge">switch</code>문을 사용해야하는 불편함</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="열거형-케이스-패턴-for">열거형 케이스 패턴 (<code class="language-plaintext highlighter-rouge">for</code>)</h3>
+
+<pre><code class="language-Swift">let arrays: [Int?] = [nil, 2, 3, nil, 5]
+
+for case let .some(number) in arrays {
+	print("Found a \(number)")
+}
+for case .some(let number) in arrays {
+	print("Found a \(number)")
+}
+</code></pre>
+
+<h2 id="옵셔널-패턴-optional-pattern">옵셔널 패턴 (Optional Pattern)</h2>
+<ul>
+  <li>옵셔널 타입에서 열거형 케이스 패턴을 더 간소화</li>
+</ul>
+
+<pre><code class="language-Swift">let a: Int? = 1
+
+// 열거형 케이스 패턴
+switch a {
+case .some(let z):
+	print(z)
+case .none:
+	print("nil")
+}
+
+// 옵셔널 패턴
+switch a {
+case let z?: // .some 간소화
+	print(z)
+case nil: // == .none
+	print("nil")
+}
+</code></pre>
+
+<pre><code class="language-Swift">let arrays: [Int?] = [nil, 2, 3, nil, 5]
+
+// 열거형 케이스 패턴
+for case .some(let number) in arrays {
+	print("Found a \(number)")
+}
+
+// 옵셔널 패턴
+for case let number? in arrays {
+	print("Found a \(number)")
+}
+</code></pre>
+
+<h2 id="unknown"><code class="language-plaintext highlighter-rouge">@unknown</code></h2>
+<ul>
+  <li>열거형 케이스가 늘어난다면 올바른 처리를 하고 있는 것일까?</li>
+</ul>
+
+<p>아래 에시는 열거형 타입을 <code class="language-plaintext highlighter-rouge">switch</code>문으로 사용하고 있다. 이 때 열거형 <code class="language-plaintext highlighter-rouge">LoginProvider</code>에 <code class="language-plaintext highlighter-rouge">case</code>가 추가되었을 경우, 아래의 <code class="language-plaintext highlighter-rouge">switch</code>문에서 매번 제대로 처리를 할 수 있을까?
+<code class="language-plaintext highlighter-rouge">default</code>문에 의해 개발자가 캐치하지 못할 수 있다. 이 때 에러 처리를 할 수 있는 방법이 있다면, 발견하기 어려웠던 에러를 처리하기 쉬워질 것이다.</p>
+
+<pre><code class="language-Swift">enum LoginProvider: String {
+	case email
+	case facebook
+	case google
+	case kakaotalk
+}
+
+let userLogin = LoginProvider.email
+
+switch userLogin {
+case .email:
+	print("이메일 로그인")
+case .facebook:
+	print("페이스북 로그인")
+case .google:
+	print("구글 로그인")
+case .kakaotalk:
+	print("카카오톡 로그인")
+@unknown default:
+	print("그 외 로그인")
+}
+</code></pre>
+
+<p><code class="language-plaintext highlighter-rouge">default</code>의 앞에 <code class="language-plaintext highlighter-rouge">@unknown</code> 키워드를 추가함으로서 열거형의 모든 <code class="language-plaintext highlighter-rouge">case</code>를 다루지 않았음을 <strong>경고</strong>로서 알려준다.</p>
+</body></html>

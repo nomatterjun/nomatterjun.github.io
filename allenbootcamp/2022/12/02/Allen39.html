@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h1 id="defer">Defer</h1>
+
+<p>우리가 할 일을 미루는 것처럼 코드 실행도 미룰 수 있다면 어떨까요?</p>
+
+<p>Swift는 <code class="language-plaintext highlighter-rouge">defer</code> 키워드를 제공해서 블럭 안에 있는 구문들을 해당 스코프의 마지막까지 미뤄줄 수 있습니다.</p>
+
+<pre><code class="language-Swift">func deferStatement() {
+	defer {
+		print("나중에 실행하기")
+	}
+	print("먼저 실행하기")
+}
+// 먼저 실행하기
+// 나중에 실행하기
+</code></pre>
+
+<p>위 예시에서 <code class="language-plaintext highlighter-rouge">defer</code> 키워드로 묶어둔 블럭이 아래에 있는 <code class="language-plaintext highlighter-rouge">print</code>문보다 늦게 실행된 것을 알 수 있습니다.</p>
+
+<h2 id="defer문도-호출되어-실행된다">defer문도 호출되어 실행된다</h2>
+
+<p>그런데 주의할 점이 하나 있습니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">defer</code>도 하나의 함수이기 때문에 일단 호출이 되어야 제대로 실행된다는 것입니다.</p>
+
+<pre><code class="language-Swift">func deferStatement2() {
+	if true {
+		print("먼저 실행하기")
+		return
+	}
+	defer {
+		print("나중에 실행하기")
+	}
+}
+
+// 먼저 실행하기
+</code></pre>
+
+<p>위 예시의 경우, 무조건 진입되는 <code class="language-plaintext highlighter-rouge">if</code> 분기에 있는 <code class="language-plaintext highlighter-rouge">return</code> 에 의해 아래에 있는 <code class="language-plaintext highlighter-rouge">defer</code>문은 한 번도 실행되지 못하였습니다.</p>
+
+<p>결과적으로 “나중에 실행하기”는 출력되지 못하였네요.</p>
+
+<h2 id="defer문이-여러개-있다면">defer문이 여러개 있다면?</h2>
+
+<p><code class="language-plaintext highlighter-rouge">defer</code>문이 꼭 하나만 오리란 법은 없겠죠.</p>
+
+<p>혹시라도 여러개의 <code class="language-plaintext highlighter-rouge">defer</code>문이 같은 스코프 안에 있다면 어떻게 동작할까요?</p>
+
+<pre><code class="language-Swift">func deferStatement3() {
+	defer {
+		print(1)
+	}
+	defer {
+		print(2)
+	}
+	defer {
+		print(3)
+	}
+}
+// 3
+// 2
+// 1
+</code></pre>
+
+<p>조금 극단적인 예시지만, 실행의 순서를 알아보기엔 딱 좋은 예시입니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">defer</code>문은 등록한 역순으로 실행됩니다.</p>
+
+<p>가장 먼저 나온 <code class="language-plaintext highlighter-rouge">defer</code>문이 가장 뒤에 배치되고, 그 이후에 나오는 <code class="language-plaintext highlighter-rouge">defer</code>문들이 순서대로 그 앞에 배치됩니다.</p>
+
+<p>스택과 같이 동작한다고 보면 될 것 같습니다!</p>
+
+<p>그런데 사실, <code class="language-plaintext highlighter-rouge">defer</code>문을 하나의 스코프에서 여러 번 사용하는 것은 추천되지 않습니다.</p>
+
+<p>하나일 땐 도움이 될 수 있지만 여러개의 <code class="language-plaintext highlighter-rouge">defer</code>문이 배치되면 가시성도 안좋기 때문이죠.. 😂</p>
+</body></html>

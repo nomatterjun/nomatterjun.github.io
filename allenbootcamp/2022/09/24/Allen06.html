@@ -1,0 +1,310 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h1 id="프로그래밍의-기본-원리">프로그래밍의 기본 원리</h1>
+
+<p>모든 프로그램은 세 가지 논리로 이루어진다.</p>
+<ol>
+  <li>순차</li>
+  <li>조건</li>
+  <li>반복
+    <ul>
+      <li>
+        <ul>
+          <li>데이터</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="순차">순차</h2>
+<ul>
+  <li>개발자가 정한 규칙에 따라 순서대로 실행한다.</li>
+</ul>
+
+<pre><code class="language-Swift">print("1")
+print("2")
+print("3")
+</code></pre>
+
+<blockquote>
+  <p>“1”
+“2”
+“3”</p>
+</blockquote>
+
+<h2 id="조건">조건</h2>
+
+<h3 id="조건문-if문">조건문 (if문)</h3>
+<ul>
+  <li>
+    <p>참(true) 또는 거짓(false)의 특정 조건에 따라 특정 코드만 실행하게 할 수 있는 문장</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">if</code></p>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">var number = 5
+if number &lt; 7 {
+	print("7보다 작다.")
+}
+</code></pre>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">if</code> - <code class="language-plaintext highlighter-rouge">else</code>
+</li>
+</ul>
+
+<pre><code class="language-Swift">number = 20
+if number &lt;= 10 {
+	print("10보다 작거나 같다.")
+} else {
+	print("10보다 크다.")
+}
+</code></pre>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">if</code> - <code class="language-plaintext highlighter-rouge">else if</code> - <code class="language-plaintext highlighter-rouge">else</code>
+</li>
+</ul>
+
+<pre><code class="language-Swift">number = 40
+if number &lt;= 10 {
+	print("10보다 작거나 같다.")
+} else if number &gt;= 30 {
+	print("30보다 크거나 같다.")
+} else {
+	print("10보다 크고 30보다 작거나 같다.")
+}
+</code></pre>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">if</code> - <code class="language-plaintext highlighter-rouge">else if</code>
+</li>
+</ul>
+
+<pre><code class="language-Swift">number = 72
+if number &lt;= 10 {
+	print("10보다 작거나 같다.")
+} else if number &gt;= 30 {
+	print("30보다 크거나 같다.")
+}
+</code></pre>
+
+<h4 id="if문에서-논리적인-구조-및-조건의-순서가-중요하다">
+<code class="language-plaintext highlighter-rouge">if</code>문에서 논리적인 구조 및 조건의 순서가 중요하다.</h4>
+
+<h5 id="논리적-오류">논리적 오류</h5>
+
+<ul>
+  <li>잘못된 예시</li>
+</ul>
+
+<pre><code class="language-Swift">var num = 8
+
+if num &gt;= 0 {
+	print("0 또는 양수입니다.")
+} else if num % 2 == 0 {
+	print("양의 짝수입니다.")
+} else if num % 2 == 1 {
+	print("양의 홀수입니다.")
+} else {
+	print("음수입니다.")
+}
+// 0 또는 양수입니다. (아래의 조건들 확인 X)
+</code></pre>
+
+<ul>
+  <li>올바르게 수정한 예시</li>
+</ul>
+
+<pre><code class="language-Swift">if num &gt;= 0 {
+	if num % 2 == 0 {
+		print("양의 짝수입니다.")
+	} else if num % 2 == 1 {
+		print("양의 홀수입니다.")
+	}
+} else {
+	print("음수입니다.")
+}
+</code></pre>
+
+<h5 id="조건의-확인-순서">조건의 확인 순서</h5>
+
+<ul>
+  <li>잘못된 예시</li>
+</ul>
+
+<pre><code class="language-Swift">var score = 100
+
+if score &gt;= 70 {
+    print("70점이상입니다.")
+} else if score &gt;= 80 {
+    print("80점이상입니다.")
+} else if score &gt;= 90 {
+    print("90점이상입니다.")
+} else {
+    print("70점미만입니다.")
+}
+// 70점이상입니다.
+</code></pre>
+
+<ul>
+  <li>올바르게 수정한 예시</li>
+</ul>
+
+<pre><code class="language-Swift">if score &gt;= 90 { // 범위가 작은 조건이 먼저 와야함
+    print("90점이상입니다.")
+} else if score &gt;= 80 {
+    print("80점이상입니다.")
+} else if score &gt;= 70 {
+    print("70점이상입니다.")
+} else {
+    print("70점미만입니다.")
+}
+</code></pre>
+
+<h4 id="조건을--로-연결하는-것도-가능">조건을 <code class="language-plaintext highlighter-rouge">&amp;&amp;</code>, <code class="language-plaintext highlighter-rouge">||</code>로 연결하는 것도 가능</h4>
+
+<pre><code class="language-Swift">var email = "a@gmail.com"
+var password = "1234"
+
+if email == "a@gmail.com" &amp;&amp; password == "1234" {
+    print("메인페이지로 이동")
+}
+
+if email != "a@gmail.com" || password != "1234" {
+    print("경고메세지 띄우기")
+    print("이메일주소 또는 패스워드가 올바르지 않습니다.")
+}
+</code></pre>
+
+<h3 id="조건문-switch문">조건문 (switch문)</h3>
+<ul>
+  <li>표현식/변수를 매칭시켜 분기처리할 때 사용하는 조건문</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">if</code>문 보다 한정적인 상황에서 사용</li>
+</ul>
+
+<pre><code class="language-Swift">var choice: String = "가위"
+
+switch choice {
+case "가위":
+	print("가위입니다.")
+case "바위":
+	print("바위입니다.")
+case "보":
+	print("보입니다.")
+default:
+	break
+}
+</code></pre>
+
+<h4 id="switch의-특징">
+<code class="language-plaintext highlighter-rouge">switch</code>의 특징</h4>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">switch</code>문에서 <code class="language-plaintext highlighter-rouge">case</code>의 <code class="language-plaintext highlighter-rouge">,</code>(콤마)는 “또는”의 의미로 하나의 케이스에 여러 조건을 넣을 수 있다.</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">switch</code>문은 값의 가능한 모든 경우의 수를 다루어야 한다.
+    <ul>
+      <li>exhaustive</li>
+      <li>모든 사례를 다루지 않을 경우, <code class="language-plaintext highlighter-rouge">default</code>가 반드시 있어야 한다.</li>
+    </ul>
+  </li>
+  <li>각 <code class="language-plaintext highlighter-rouge">case</code>에는 문장이 최소 하나 이상 있어야 한다.
+    <ul>
+      <li>실행하지 않으려면 <code class="language-plaintext highlighter-rouge">break</code>를 반드시 입력해야 한다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="fallthrough"><code class="language-plaintext highlighter-rouge">fallthrough</code></h4>
+<ul>
+  <li>매칭된 값에 상관없이 무조건 다음 블럭을 실행한다.</li>
+</ul>
+
+<pre><code class="language-Swift">var num = 10
+
+switch num {
+case ..&lt;10:
+	print("1")
+	fallthrough
+case 10:
+	print("2")
+	fallthrough
+default:
+	print("3")
+}
+</code></pre>
+
+<blockquote>
+  <p>2
+3</p>
+</blockquote>
+
+<h4 id="패턴-매칭-연산자">패턴 매칭 연산자</h4>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">~=</code></li>
+  <li>
+<code class="language-plaintext highlighter-rouge">true</code> / <code class="language-plaintext highlighter-rouge">false</code>
+</li>
+</ul>
+
+<pre><code class="language-Swift">var num = 30
+0...50 ~= num // true
+</code></pre>
+
+<pre><code class="language-Swift">switch num {
+case 0...50: // 0...50 ~= 30 내부적으로 패턴매칭으로 확인
+    print("숫자의 범위: 0 ~ 50")
+case 51...100:
+    print("숫자의 범위: 51 ~ 100")
+default:
+    print("그 외의 범위")
+}
+</code></pre>
+
+<h4 id="밸류-바인딩-value-binding">밸류 바인딩 (Value Binding)</h4>
+<ul>
+  <li>바인딩: 다른 새로운 변수/상수 식별자로 할당</li>
+</ul>
+
+<pre><code class="language-Swift">var num = 6
+
+switch num {
+case let a: // let a = num
+	print("숫자: \(a)")
+default:
+	break
+}
+</code></pre>
+
+<pre><code class="language-Swift">num = 7
+
+switch num {
+// case num % 2 == 0: 으로 하고 싶지만 얘는 결과가 true/false
+case let x where x % 2 == 0:
+	print("짝수 숫자: \(x)")
+case let x where x % 2 != 0:
+	print("홀수 숫자: \(x)")
+default:
+	break
+}
+</code></pre>
+
+<pre><code class="language-Swift">switch num {
+case var x where x &gt; 5: // var로 선언할 경우 내부에서 변형도 가능
+	x = 7
+	print(x)
+default:
+	print(num)
+}
+</code></pre>
+</body></html>

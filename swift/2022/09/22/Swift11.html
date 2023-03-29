@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p>오늘은 면접을 볼 일이 하나 있었는데요.. 대답을 제대로 못해서 끝나자마자 황급하게 공부하려고 작성해둔 목록들을 열어보았습니다. 전부 다 있더라고요.. ㅎㅎ;;
+공부를 좀 더 열심히 했으면 답 할 수 있었을텐데 아쉽네요..</p>
+
+<p>그래서 오늘은 그 중에 하나였던 <strong>View Controller의 Life Cycle</strong>에 대해서 알아보려고 합니다.</p>
+
+<h1 id="view-controller의-life-cycle">View Controller의 Life Cycle</h1>
+
+<p>View Controller도 다른 모든 객체들처럼 <code class="language-plaintext highlighter-rouge">init</code>과 <code class="language-plaintext highlighter-rouge">deinit</code> 과정을 거쳐야합니다. 그리고 Life Cycle에 해당되는 내용 중 어떤 것은 저희에게 아주아주 익숙한 모습이죠.
+View Controller 파일을 처음 만들면 보통 아래와 같이 코드가 자동으로 입력되어 있습니다. 너무 익숙한 친구죠?</p>
+
+<pre><code class="language-Swift">import UIKit
+
+class HomeViewController: UIViewController {
+	override func viewDidLoad() {
+		super.viewDidLoad()
+		// Do any additional setup after loading the view, typically from a nib.
+	}
+}
+</code></pre>
+
+<p>말 그대로 View가 Load 될 때 실행되는 코드인데요, View Controller의 Life Cycle에는 이 <code class="language-plaintext highlighter-rouge">viewDidLoad</code>외에도 많은 함수들이 있습니다.</p>
+
+<p><img src="https://i.imgur.com/W10j0YX.jpg" alt=""></p>
+
+<p>이해하기 쉽게 메소드들의 이름들이 직관적으로 명명되어 있는 걸 볼 수 있네요. 그럼 하나하나 살펴봅시다. 별 거 없답니다!</p>
+
+<h2 id="viewdidload">viewDidLoad</h2>
+<p>가장 익숙한 친구부터 알아봅시다. 애플의 설명에 따르면 <code class="language-plaintext highlighter-rouge">viewDidLoad</code>는</p>
+
+<blockquote>
+  <p>Controller의 View가 메모리에 로드된 후에 호출됩니다.</p>
+</blockquote>
+
+<p>라고 합니다. View를 표현하려면 우선 로드해야하고, 메모리에 리소스를 올려주어야 하겠죠. 해당 과정이 모두 끝난 후에 자동으로 호출되는 메소드가 바로 <code class="language-plaintext highlighter-rouge">viewDidLoad</code>인 것입니다.
+그래서 보통 <code class="language-plaintext highlighter-rouge">viewDidLoad</code>에서는 화면에 필요한 데이터들을 로드하거나 View가 로드된 후 딱 한 번만 실행해야 하는 코드가 있을 경우 이 곳에서 호출하면 됩니다.</p>
+
+<h2 id="viewwillappear">viewWillAppear</h2>
+<p>View가 로드된 후에는 어떤 일이 일어날까요?
+바로 <code class="language-plaintext highlighter-rouge">viewWillAppear</code>가 호출됩니다. View가 화면에 띄워지기 직전에 호출되는 메소드인데요, <code class="language-plaintext highlighter-rouge">viewDidLoad</code>와 호출 시점이 굉장히 유사해보입니다.</p>
+
+<p>하지만 Appear와 Load라는 명확하게 다른 시점을 갖고 있는 만큼 아주 큰 차이가 있습니다. <code class="language-plaintext highlighter-rouge">viewDidLoad</code>는 View가 로드된 후 딱 한 번만 호출되기 때문에, 여러 View를 로드하고 서로를 오갈때는 호출되지 않습니다.
+반면 <code class="language-plaintext highlighter-rouge">viewWillAppear</code>는 여러 View를 오갈 때도 어쨋던 화면에 띄워지는 것이기 때문에 호출됩니다.</p>
+
+<p>따라서 View가 화면에 뜰 때마다 수행되어야 하는 기능이 있다면 <code class="language-plaintext highlighter-rouge">viewWillAppear</code>에 구현해주면 됩니다!</p>
+
+<h2 id="viewdidappear">viewDidAppear</h2>
+<p><code class="language-plaintext highlighter-rouge">viewDidAppear</code>는 말 그대로 View가 화면에 띄워진 직후에 호출됩니다. View가 화면에 띄워질 때마다 수행되어야 할 후처리 기능이 있다면 바로 여기에 구현해주면 됩니다.</p>
+
+<h2 id="viewwilldisappear--viewdiddisappear">viewWillDisappear / viewDidDisappear</h2>
+<p>사실 위의 <code class="language-plaintext highlighter-rouge">viewWillAppear</code>와 <code class="language-plaintext highlighter-rouge">viewDidAppear</code> 메소드를 이해하셨다면, 이 두 메소드는 뽀너스입니다. View가 사라질 때마다 동일한 방식으로 호출되는 메소드이기 때문이죠.</p>
+
+<h5 id="참고">참고</h5>
+<p><img src="https://zeddios.tistory.com/43" alt="iOS ) View Controller의 생명주기(Life-Cycle)">
+<img src="https://developer.apple.com/documentation/uikit/uiviewcontroller/1621495-viewdidload/" alt="Apple Developer Documentation"></p>
+</body></html>

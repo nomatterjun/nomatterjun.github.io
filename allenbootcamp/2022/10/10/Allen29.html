@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h1 id="상속과-다형성">상속과 다형성</h1>
+
+<pre><code class="language-Swift">class Person {
+	var id = 0
+	var name = "이름"
+	var email = "abc@gmail.com"
+
+	func walk() {
+		print("사람이 걷는다.")
+	}
+}
+
+class Student: Person {
+	var studentId = 1
+
+	override walk() { // 재정의 메서드
+		print("학생이 걷는다.")
+	}
+
+	func study() {
+		print("학생이 공부한다.")
+	}
+}
+
+let person = Person()
+person.walk() // "사람이 걷는다."
+
+let student: Person = Student() // 업캐스팅
+student.walk() // "학생이 걷는다."
+// 업캐스팅한 Person의 walk() 메서드가 실행되지 않고
+// 원래의 Student의 walk() 메서드가 실행되었다.
+</code></pre>
+
+<h2 id="다형성polymorphism에-대한-이해">다형성(Polymorphism)에 대한 이해</h2>
+<ul>
+  <li>스택 영역에 인스턴스를 가리키는 변수나 상수가 있다.</li>
+  <li>인스턴스는 힙 공간에 캐스팅 이전의 원래의 형태로 저장되어 있다.</li>
+  <li>힙 영역의 인스턴스는 데이터 영역에 있는 본인의 클래스를 가리킨다.</li>
+</ul>
+
+<h2 id="다형성-polymorphism">다형성 (Polymorphism)</h2>
+<ul>
+  <li>하나의 인스턴스가 여러가지 형태로 표현될 수 있다.
+    <ul>
+      <li>하나의 타입을 여러가지 형태로 해석할 수 있다.</li>
+    </ul>
+  </li>
+  <li>다향성의 구현은 클래스의 상속과 깊게 연관되어 있다.
+    <ul>
+      <li>이후 배울 <code class="language-plaintext highlighter-rouge">protocol</code> 또한 연관되어 있음</li>
+    </ul>
+  </li>
+</ul>
+
+</body></html>

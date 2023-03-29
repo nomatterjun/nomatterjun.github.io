@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h1 id="타입-캐스팅-type-casting">타입 캐스팅 (Type Casting)</h1>
+
+<h2 id="is-연산자-type-check-operator">is 연산자 (Type Check Operator)</h2>
+<ul>
+  <li>타입에 대한 검사를 수행하는 연산자</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">[instance] is [type]</code>
+    <ul>
+      <li>참: <code class="language-plaintext highlighter-rouge">true</code>
+</li>
+      <li>거짓: <code class="language-plaintext highlighter-rouge">false</code>
+</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">class Person {
+	var id = 0
+	var name = "이름"
+	var email = "abc@gmail.com"
+}
+
+class Student: Person {
+	var grade = 1
+}
+
+class Undergraduate: Student {
+	var major = "Alchemy"
+}
+
+let person = Person()
+print(person is Person) // true
+print(person is Student) // false
+
+let student = Student()
+print(student is Person) // true
+print(student is Student) // true
+</code></pre>
+
+<p>상위 타입의 인스턴스들이 하위 타입의 인스턴스에 포함되는 것을 알 수 있습니다. 상속을 받았기 때문에 당연한 이야기이죠..!</p>
+
+<h2 id="as-연산자-type-cast-operator">as 연산자 (Type Cast Operator)</h2>
+<ul>
+  <li>인스턴스 타입의 메모리 구조에 대한 힌트 정보를 변경하는 연산자</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">as</code>, <code class="language-plaintext highlighter-rouge">as?</code>, <code class="language-plaintext highlighter-rouge">as!</code>
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">as</code>: 업캐스팅(Upcasting)
+        <ul>
+          <li>항상 성공</li>
+          <li>상위 클래스의 메모리 구조로 인식</li>
+        </ul>
+      </li>
+      <li>
+<code class="language-plaintext highlighter-rouge">as?</code>, <code class="language-plaintext highlighter-rouge">as!</code>: 다운캐스팅(Downcasting)
+        <ul>
+          <li>
+<code class="language-plaintext highlighter-rouge">as?</code>
+            <ul>
+              <li>성공: Optional 타입으로 리턴</li>
+              <li>실패: <code class="language-plaintext highlighter-rouge">nil</code> 리턴</li>
+            </ul>
+          </li>
+          <li>
+<code class="language-plaintext highlighter-rouge">as!</code>
+            <ul>
+              <li>성공: Optional 타입을 강제 언래핑하여 리턴</li>
+              <li>실패: 런타임 에러</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">let person: Person = Undergraduate()
+print(person.id)
+print(person.name)
+print(person.email)
+print(person.grade) // Error: Value of 'Person' has no member 'grade'
+print(person.major) // Error: Value of 'Person' has no member 'major'
+</code></pre>
+
+<p>위 예시에서 <code class="language-plaintext highlighter-rouge">person</code> 상수는 사실은 5개의 모든 저장속성을 갖고 있습니다. 다만 이 경우에는 <code class="language-plaintext highlighter-rouge">Person</code>으로 캐스팅 했기 떄문에 <code class="language-plaintext highlighter-rouge">grade</code>와 <code class="language-plaintext highlighter-rouge">major</code> 저장속성을 숨겨서 <code class="language-plaintext highlighter-rouge">Person</code>의 세 개의 저장속성에만 접근할 수 있습니다.</p>
+
+<p>그런데 메모리 관점에서 어떻게 저장속성을 숨기느냐..?
+변수는 스택 영역에 있습니다. 인스턴스는 힙 영역에 있죠. 어떻게 캐스팅을 하던 인스턴스는 처음에 <strong>초기화한 형태 그대로 힙 영역</strong>에 있습니다. 
+그런데 업캐스팅한 변수를 선언하면, 그 변수는 힙 영역의 캐스팅 하기 전의 <strong>온전한 형태를 갖고 있는 인스턴스의 주소</strong>를 가리킵니다. 대신 <strong>범위를 제한</strong>하여 특정 저장속성들을 숨길 수 있는 것입니다.
+따라서 업캐스팅을 하던 다운캐스팅을 하던 힙 영역의 인스턴스는 <strong>동일한 데이터 영역의 클래스 주소</strong>를 가리키고 있습니다.</p>
+
+<pre><code class="language-Swift">if let jake = person as? Undergraduate { // Unbind Optional
+	jake.name = "Jake"
+	jake.major = "Architecture"
+}
+
+let jane = person as! Undergraduate
+</code></pre>
+
+<p>위 예시의 경우에는 <code class="language-plaintext highlighter-rouge">person</code> 상수를 처음에 <code class="language-plaintext highlighter-rouge">Undergraduate()</code>로 가장 하위 클래스로 업캐스팅 했기 때문에 반대로 다운캐스팅할 때 에러가 발생하지 않습니다.
+그런데 <code class="language-plaintext highlighter-rouge">let jake = Person()</code>처럼 상위 클래스로 초기화하고 <code class="language-plaintext highlighter-rouge">as?</code>나 <code class="language-plaintext highlighter-rouge">as!</code>를 사용해서 다운캐스팅을 하면 <code class="language-plaintext highlighter-rouge">Student</code>와 <code class="language-plaintext highlighter-rouge">Undergraduate</code> 클래스의 저장속성은 지니지 않기 때문에 실패합니다.</p>
+
+<h5 id="as-연산자의-활용">as 연산자의 활용</h5>
+<p><code class="language-plaintext highlighter-rouge">String</code> &lt;-<code class="language-plaintext highlighter-rouge">as</code>-&gt; <code class="language-plaintext highlighter-rouge">NSString</code></p>
+<ul>
+  <li>Swift 언어는 내부적으로는 여전히 Obj-C 기반의 프레임워크를 사용하기 때문에 두 타입은 상호 호환될 수 있도록 설계되어 있다.</li>
+  <li>브릿징(Bridging)</li>
+</ul>
+
+<pre><code class="language-Swift">let str: String = "Hello"
+let anotherStr = str as NSString
+</code></pre>
+</body></html>

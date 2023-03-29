@@ -1,0 +1,288 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h1 id="반복문">반복문</h1>
+
+<h2 id="for문">
+<code class="language-plaintext highlighter-rouge">for</code>문</h2>
+<ul>
+  <li>특정 조건을 만족하는 동안 반복</li>
+  <li><code class="language-plaintext highlighter-rouge">for [item] in [범위 / 컬렉션] { [반복될 코드] }</code></li>
+</ul>
+
+<pre><code class="language-Swift">for index in 1...5 {
+	print("\(index)번째 반복 중")
+}
+</code></pre>
+
+<h4 id="주의">주의!</h4>
+<ol>
+  <li>
+<code class="language-plaintext highlighter-rouge">for</code>문에서 선언하는 변수는 상수이다!
+    <ul>
+      <li>반복 상수 (임시 상수)</li>
+    </ul>
+  </li>
+</ol>
+
+<pre><code class="language-Swift">// 변수로 사용하고 싶다면?
+for a in 1...10 {
+	var b = a // 따로 선언해서 저장해야함
+}
+
+var name = "홍길동"
+for name in 1...5 {
+	print(name, terminator: " ")
+}
+// 1 2 3 4 5
+for n in 1...5 {
+	print(name, terminator: " ")
+}
+// 홍길동 홍길동 홍길동 홍길동 홍길동
+</code></pre>
+
+<ol>
+  <li>
+<code class="language-plaintext highlighter-rouge">for</code>문에서 선언한 상수는 외부에서 사용할 수 없다!</li>
+</ol>
+
+<pre><code class="language-Swift">for a in 1...10 {
+	print(a)
+}
+
+print(a) // Error : Cannot find 'a' in scope
+</code></pre>
+
+<h3 id="와일드-카드-패턴">와일드 카드 패턴</h3>
+<ul>
+  <li>언더바의 등장</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">_</code>: 생략을 의미</li>
+</ul>
+
+<pre><code class="language-Swift">for _ in 0...10 {
+	print("Hello!")
+}
+// 위 예시는 반복을 사용하지만 변수를 사용하지 않는다.
+// 따라서 굳이 변수를 생성해 줄 필요가 없으니 _(언더바)를 사용!
+</code></pre>
+
+<h3 id="범위연산자를-거꾸로-쓰고-싶을-때">범위연산자를 거꾸로 쓰고 싶을 때</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">reversed</code></li>
+</ul>
+
+<pre><code class="language-Swift">let a = (1...10).reversed()
+print(a) // 10 9 8 ... 2 1
+</code></pre>
+
+<h3 id="반복문은-컬렉션-타입에서도-사용할-수-있다">반복문은 컬렉션 타입에서도 사용할 수 있다!</h3>
+<ul>
+  <li>컬렉션에서 각 아이템을 차례대로 뽑아내서 사용할 때 활용 가능</li>
+</ul>
+
+<pre><code class="language-Swift">let list = ["Swift", "Programming", "Language"]
+
+for str in list {
+	print(str)
+} 
+// "Swift"
+// "Programming"
+// "Language"
+
+for chr in "Hello" {
+	print(chr, terminator: " ")
+	// terminator: \n 대신 사용
+}
+// H e l l o
+</code></pre>
+
+<h3 id="반복문의-조건범위에-사용-가능한-특수-함수들">반복문의 조건범위에 사용 가능한 특수 함수들</h3>
+
+<h4 id="reversed"><code class="language-plaintext highlighter-rouge">reversed</code></h4>
+<ul>
+  <li>역순으로</li>
+</ul>
+
+<pre><code class="language-Swift">for number in (1...5).reversed() {
+	print(number, terminator: " ")
+}
+// 5 4 3 2 1
+</code></pre>
+
+<h4 id="stride"><code class="language-plaintext highlighter-rouge">stride</code></h4>
+<ul>
+  <li>건너뛰며 뽑아내기</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">stride(from: 1, to: 15, by: 2)</code> == [1, 3, 5, 7, 9, 11, 13]
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">to</code> 에 해당되는 값은 해당되지 않는다.</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">StrideTo&lt;Int&gt;.Type</code>, <code class="language-plaintext highlighter-rouge">StrideThrough&lt;Int&gt;.Type</code>
+</li>
+</ul>
+
+<pre><code class="language-Swift">for number in stride(from: 1, to: 15, by: 2) {
+	print(number, terminator: " ")
+}
+// 1 3 5 7 9 11 13
+</code></pre>
+
+<h2 id="while문">
+<code class="language-plaintext highlighter-rouge">while</code>문</h2>
+<ul>
+  <li>마찬가지로 조건을 만족하는 동안 반복</li>
+  <li><code class="language-plaintext highlighter-rouge">while [조건] { [코드] }</code></li>
+  <li>
+<code class="language-plaintext highlighter-rouge">for</code>문과 다른 점은 조건을 만족하는 동안 무한히 반복한다.
+    <ul>
+      <li>따라서 반복되는 코드 안에서 조건의 변화가 이루어져야 한다!</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">var num = 0
+while num &lt;= 50 {
+	print(num)
+} // 무한 루프..!
+
+while num &lt;= 50 {
+	print(num)
+	num += 1
+} // 0..&lt;50 반복
+</code></pre>
+
+<h2 id="repeat-while문">
+<code class="language-plaintext highlighter-rouge">repeat-while</code>문</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">repeat { [코드] } while [조건]</code></li>
+  <li>
+<code class="language-plaintext highlighter-rouge">while</code>문과의 차이점
+    <ul>
+      <li>일단은 한 번 실행하고 나서 조건을 판단</li>
+      <li>조건 판별의 시점 (<code class="language-plaintext highlighter-rouge">while</code>: 반복코드 전에, <code class="language-plaintext highlighter-rouge">repeat-while</code>: 반복코드 후에)</li>
+    </ul>
+  </li>
+  <li>다른 언어에서는 <code class="language-plaintext highlighter-rouge">do-while</code>문이라고 불린다.</li>
+</ul>
+
+<pre><code class="language-Swift">var i = 1
+repeat {
+	print("\(3) * \(i) = \(3 * i)")
+	i += 1
+} while i &lt;= 9
+</code></pre>
+
+<h2 id="제어전송문-control-transfer-statement">제어전송문 (Control Transfer Statement)</h2>
+
+<h3 id="continue"><code class="language-plaintext highlighter-rouge">continue</code></h3>
+<ul>
+  <li>이번 반복은 넘어가고, 다음 반복문으로 진행시킨다.</li>
+</ul>
+
+<pre><code class="language-Swift">for num in 1...20 {
+	if num % 2 == 0 {
+		continue
+	}
+	print(num, terminator: " ")
+}
+// 1 3 5 ... 19
+</code></pre>
+
+<h3 id="break"><code class="language-plaintext highlighter-rouge">break</code></h3>
+<ul>
+  <li>반복문을 중단하고 탈출한다.</li>
+</ul>
+
+<pre><code class="language-Swift">for num in 1...20 {
+	if num % 2 == 0 {
+		break
+	}
+	print(num, terminator: " ")
+}
+// 1
+</code></pre>
+
+<h4 id="주의-1">주의</h4>
+<ul>
+  <li>중첩 사용 시의 적용 범위
+    <ul>
+      <li>인접한 반복문에만 적용된다!</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">for i in 0...3 {
+    print("OUTER \(i)")
+    for j in 0...3 {
+        if i &gt; 1 {
+            print("  j :", j)
+            continue
+            //break
+        }
+        print("  INNER \(j)")
+    }
+}
+</code></pre>
+
+<pre><code class="language-Swift">OUTER 0
+  INNER 0
+  INNER 1
+  INNER 2
+  INNER 3
+OUTER 1
+  INNER 0
+  INNER 1
+  INNER 2
+  INNER 3
+OUTER 2
+  j : 0
+  j : 1
+  j : 2
+  j : 3
+OUTER 3
+  j : 0
+  j : 1
+  j : 2
+  j : 3
+</code></pre>
+
+<h3 id="labeled-statements">Labeled Statements</h3>
+<ul>
+  <li>Label이 매겨진 문장과 <code class="language-plaintext highlighter-rouge">continue</code>, <code class="language-plaintext highlighter-rouge">break</code>의 사용</li>
+  <li>반복문에 Label을 매겨 제어전송문을 제어</li>
+</ul>
+
+<pre><code class="language-Swift">OUTER: for i in 0...3 {
+    print("OUTER \(i)")
+    INNER: for j in 0...3 {
+        if i &gt; 1 {
+            print("  j :", j)
+            continue OUTER
+            //break OUTER
+        }
+        print("  INNER \(j)")
+    }
+}
+</code></pre>
+
+<pre><code class="language-Swift">OUTER 0
+  INNER 0
+  INNER 1
+  INNER 2
+  INNER 3
+OUTER 1
+  INNER 0
+  INNER 1
+  INNER 2
+  INNER 3
+OUTER 2
+  j : 0
+OUTER 3
+  j : 0
+</code></pre>
+</body></html>

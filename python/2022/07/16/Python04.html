@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1 id="contextmanager">contextManager</h1>
+
+<p>Context Manager는 많은 코드 시간과 리소스 중에 정확히 원하는 시간과 리소스를 사용할 수 있도록 도와주는 기능입니다. 우리가 무심결에도 사용하던 <code class="language-plaintext highlighter-rouge">with</code>문 또한 Context Manager 중의 하나입니다. 이 <code class="language-plaintext highlighter-rouge">with</code>문은 보통 파일 하나를 열어 수정할 때 자주 사용됩니다.</p>
+
+<script src="https://gist.github.com/StanSign/16199d4ad0828d798c8266dbfd3e0ad6.js?file=open.py"></script>
+
+<script src="https://gist.github.com/StanSign/16199d4ad0828d798c8266dbfd3e0ad6.js?file=with.py"></script>
+
+<p>위 두가지 코드는 같은 역할을 수행합니다. 아래의 <code class="language-plaintext highlighter-rouge">with</code>문을 사용한 경우가 훨씬 가독성에도 좋고 사용하기도 편해보입니다. 이런 장점들 덕분에 Context Manager는 여러 프로그래머들이 애용하는 기능이 되었습니다.</p>
+
+<h1 id="contextlib">contextlib</h1>
+
+<p><code class="language-plaintext highlighter-rouge">with</code>문은 이미 굉장히 편리하고 유용하지만, contextlib 모듈을 통해 직접 Context Manager를 만들 수도 있습니다. <code class="language-plaintext highlighter-rouge">.__enter__()</code>와 <code class="language-plaintext highlighter-rouge">.__exit__()</code>를 사용해서 구현하는 방법과 <code class="language-plaintext highlighter-rouge">contextlib.contextManager()</code> 데코레이터를 사용하는 방법이 있습니다. 하나씩 살펴보도록 하겠습니다.</p>
+
+<h2 id="__enter__--__exit__">
+<code class="language-plaintext highlighter-rouge">__enter__()</code> + <code class="language-plaintext highlighter-rouge">__exit__()</code>
+</h2>
+
+<script src="https://gist.github.com/StanSign/16199d4ad0828d798c8266dbfd3e0ad6.js?file=enter_exit.py"></script>
+
+<p><code class="language-plaintext highlighter-rouge">File</code> 클래스는 <code class="language-plaintext highlighter-rouge">__enter__</code> 메서드를 호출하여 <code class="language-plaintext highlighter-rouge">f_name</code>과 <code class="language-plaintext highlighter-rouge">method</code>를 받아와 <code class="language-plaintext highlighter-rouge">__init__()</code> 메서드를 통해 파일을 열고 반환합니다. 이렇게 열린 파일은 <code class="language-plaintext highlighter-rouge">self.f</code>로서 접근 가능하고 블록 안에서는 <code class="language-plaintext highlighter-rouge">with as</code>문을 통해 <code class="language-plaintext highlighter-rouge">file</code>이라는 이름으로 명명하였기 떄문에 <code class="language-plaintext highlighter-rouge">file.write("abc")</code>와 같이 파일을 수정할 수 있습니다. 블록이 끝나면 <code class="language-plaintext highlighter-rouge">__exit__()</code>문이 호출되고 파일을 닫습니다.</p>
+
+<p>이떄 <code class="language-plaintext highlighter-rouge">__exit__()</code>  메서드의 <code class="language-plaintext highlighter-rouge">type, value, traceback</code> 변수는 사용되지 않은 것을 볼 수 있는데요, 이 세 변수는 예외처리가 발생할 경우에 사용됩니다. <code class="language-plaintext highlighter-rouge">__exit__()</code> 메서드가 <code class="language-plaintext highlighter-rouge">True</code>를 반환한다면 예외 처리가 적용된 것을 의미하고, 아니라면 처리되지 않은 것으로 여겨 <code class="language-plaintext highlighter-rouge">with</code>문의 부분에서 에러가 발생하게 됩니다.</p>
+
+<h2 id="contextmanager-데코레이터">@contextmanager 데코레이터</h2>
+
+<p><code class="language-plaintext highlighter-rouge">@contextmanager</code> 데코레이터를 사용하여 Context Manager를 만들 수도 있습니다. <code class="language-plaintext highlighter-rouge">contextlib</code> 모듈은 이때 사용되게 됩니다. 위 <code class="language-plaintext highlighter-rouge">__enter__()</code> + <code class="language-plaintext highlighter-rouge">__exit__()</code>의 방법보다 더욱 간단하게 작성할 수 있습니다.</p>
+
+<script src="https://gist.github.com/StanSign/16199d4ad0828d798c8266dbfd3e0ad6.js?file=contextmanager.py"></script>
+
+<p><code class="language-plaintext highlighter-rouge">open_file()</code> 메서드의 위에 데코레이터의 형식으로 <code class="language-plaintext highlighter-rouge">@contextlib.contextmanager</code>가 작성되어 있는 것을 볼 수 있습니다. 그런데 처음 보는 문법들이 보입니다. 저는 <code class="language-plaintext highlighter-rouge">yield</code>문이 생소했는데요, 이를 이해하기 위해서는 <code class="language-plaintext highlighter-rouge">yield</code>문 뿐만 아니라  <code class="language-plaintext highlighter-rouge">Generator</code> 또한 이해해야 합니다.</p>
+
+<h3 id="yield">yield</h3>
+
+<p><code class="language-plaintext highlighter-rouge">yield</code>는 흔히 사용되는 <code class="language-plaintext highlighter-rouge">return</code>과 유사한 기능을 하는 키워드입니다. 한가지 예시를 보겠습니다.</p>
+
+<script src="https://gist.github.com/StanSign/16199d4ad0828d798c8266dbfd3e0ad6.js?file=return.py"></script>
+
+<p><code class="language-plaintext highlighter-rouge">return</code>의 경우 모든 결과값을 얻어내기 전까지는 결과값을 받아낼 수 없습니다. 따라서 이 예시는 실행에 최소 16초가 걸리게 됩니다.</p>
+
+<blockquote>
+  <p>ABCDEFGHIJKLMNOP</p>
+</blockquote>
+
+<p>이번에는 비슷한 동작을 하는 <code class="language-plaintext highlighter-rouge">yield</code>의 경우를 보겠습니다.</p>
+
+<script src="https://gist.github.com/StanSign/16199d4ad0828d798c8266dbfd3e0ad6.js?file=yield.py"></script>
+
+<blockquote>
+  <p>A</p>
+
+  <p>B</p>
+
+  <p>C</p>
+
+  <p>…</p>
+
+  <p>P</p>
+</blockquote>
+
+<p>사용법이 <code class="language-plaintext highlighter-rouge">return</code>과는 조금 다른 것을 볼 수 있습니다. <code class="language-plaintext highlighter-rouge">yield</code>는 일반적인 형태의 변수를 반환하는 것이 아닌, <code class="language-plaintext highlighter-rouge">generator</code> 타입의 객체를 반환합니다. <code class="language-plaintext highlighter-rouge">generator</code> 객체는 어떤 시점에 필요한 데이터를 즉석에서 만들어내어 반환하는 객체입니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">generator</code>의 장점은 여기에 있습니다. 수행 시간이 오래 걸리는 작업에서 모든 결과값이 나오지 않고 일부분만 나오더라도 해당 결과값으로 다른 작업을 수행할 수 있다는 점이 매우 매력적입니다.</p>
+
+<p>그러면 다시 Context Manager로 돌아갑시다. 위의 예시를 다시 한번 가지고 오겠습니다.</p>
+
+<script src="https://gist.github.com/StanSign/16199d4ad0828d798c8266dbfd3e0ad6.js?file=contextmanager.py"></script>
+
+<p>우리는 이제  <code class="language-plaintext highlighter-rouge">yield </code>가 어떤 역할을 하는지, 어떤 형태로 데이터를 생성하는 알고 있습니다. <code class="language-plaintext highlighter-rouge">yield</code>의 앞 부분은 <code class="language-plaintext highlighter-rouge">__enter__()</code>, <code class="language-plaintext highlighter-rouge">yield</code>의 뒷부분은 <code class="language-plaintext highlighter-rouge">__exit__()</code>부분이라고 생각해도 무방할 것 같습니다.</p>
+
+<script src="https://gist.github.com/StanSign/16199d4ad0828d798c8266dbfd3e0ad6.js?file=with_yield.py"></script>
+
+<p>사용할때는 위와 같은 순서대로 수행됩니다. <code class="language-plaintext highlighter-rouge">yield</code>의 앞부분은 <code class="language-plaintext highlighter-rouge">with</code>문에 진입할 때, <code class="language-plaintext highlighter-rouge">yield</code>의 뒷부분은 <code class="language-plaintext highlighter-rouge">with</code>문이 끝나고 종료될 때 실행됩니다.</p>
+</body></html>

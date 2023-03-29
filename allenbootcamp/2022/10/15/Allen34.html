@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h1 id="중첩-타입-nested-types">중첩 타입 (Nested Types)</h1>
+
+<h2 id="왜-사용할까">왜 사용할까?</h2>
+<ol>
+  <li>특정 타입 안에서만 사용하기 위해
+    <ul>
+      <li>내부의 타입은 외부의 타입과 관계가 있고, 외부의 타입 없이는 의미가 없을 수 있다.</li>
+    </ul>
+  </li>
+  <li>타입 간의 연관성을 명확하게 구분하고 내부 구조를 상세하게 설계 가능</li>
+</ol>
+
+<h2 id="예시">예시</h2>
+
+<pre><code class="language-Swift">struct BlackjackCard {
+	enum Suit: Character {
+		case spades = "♠️", hearts = "♥️", diamonds = "♦️", clubs = "♣️"
+	}
+
+	enum Rank: Int {
+		case two = 2, three, four, five, six, seven, eight, nine, ten
+		case jack, queen, king, ace
+
+		struct Values {
+			let first: Int, second: Int?
+		}
+
+		var values: Values {
+			switch self {
+			case .ace:
+				return Values(first: 1, second: 11)
+			case .jack, .queen, .king:
+				return Values(first: 10, second: nil)
+			default:
+				return Values(first: self.rawValue, second: nil)
+			}
+		}
+	}
+
+	let rank: Rank, suit: Suit // 저장 속성
+
+	var subtitle: String { // 계산 속성
+		var output = "\(suit.rawValue) 세트,"
+		output += " 숫자 \(rank.values.first)"
+
+		if let second = rank.values.second {
+			output += " 또는 \(second)"
+		}
+
+		return output
+	}
+}
+
+let card1 = BlackjackCard(rank: .ace, suit: .spades)
+print("1번 카드: \(card1.subtitle)")
+// "1번 카드: ♠️ 세트, 숫자 1 또는 11"
+
+let card2 = BlackjackCard(rank: .five, suit: .diamonds)
+print("2번 카드: \(card2.subtitle)")
+// "2번 카드: ♦️ 세트, 숫자 5"
+
+let heartsSymbol: Character = BlackjackCard.Suit.hearts.rawValue
+</code></pre>
+
+<h2 id="예시2-실제-api">예시2 (실제 API)</h2>
+
+<pre><code class="language-Swift">let formatter = DateFormatter()
+
+formatter.dateStyle = .full
+// formatter.dateStyle = DateFormatter.Style.full
+
+let setting1: DateFormatter.Style = DateFormatter.Style.full
+let setting2: DateFormatter.Style = DateFormatter.Style.medium
+</code></pre>
+
+<h3 id="애플은-왜-이렇게-만들었을까">애플은 왜 이렇게 만들었을까?</h3>
+
+<pre><code class="language-Swift">enum Style {
+	case full
+	case long
+	case medium
+	case none
+}
+</code></pre>
+
+<p>위와 같이 선언했다면 위 열거형이 어떤 타입과 관계가 있는지 명확하지 않다.
+(<code class="language-plaintext highlighter-rouge">DateFormatter</code>인지 <code class="language-plaintext highlighter-rouge">UIView</code>인지)</p>
+
+<pre><code class="language-Swift">struct DateFormatters {
+	var style: Style
+
+	enum Style {
+		case full
+		case long
+		case medium
+		case none
+	}
+}
+</code></pre>
+
+<p>위와 같이 선언한다면 <code class="language-plaintext highlighter-rouge">Style</code> 열거형이 <code class="language-plaintext highlighter-rouge">DateFormatters</code>와 연관되어 있다는 것을 확실하게 확인할 수 있다.</p>
+
+<h2 id="자주-사용되는-예시">자주 사용되는 예시</h2>
+<ul>
+  <li>실제 앱에서 “문자열” 모음을 묶어서 사용하는 경우가 많다.
+    <ul>
+      <li>실수 방지를 위해서</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">struct K {
+	static let appName = "MySuperApp"
+	static let cellIdentifier = "ReusableCell"
+	static let cellNibName = "MessageCell"
+	static let registerSegue = "RegisterToChat"
+	static let loginSegue = "LoginToChat"
+
+	struct BrandColors {
+		static let purple = "BrandPurple"
+		static let lightPurple = "BrandLightPurple"
+		static let blue = "BrandBlue"
+		static let lightBlue = "BrandLightBlue"
+	}
+
+	struct FStore {
+		static let collectionName = "messages"
+		static let senderField = "sender"
+		static let bodyField = "body"
+		static let dateField = "date"
+	}
+}
+
+let app = K.appName
+let color = K.BrandColors.blue
+</code></pre>
+
+<pre><code class="language-Swift">class Message {
+	private enum Status {
+		case sent
+		case received
+		case read
+	}
+
+	let sender: String, recipient: String, content: String
+	let timeStamp: Date
+
+	private var status = Message.Status.sent
+
+	init(sender: String, recipient: String, content: String) {
+		self.sender = sender
+		self.recipient = recipient
+		self.content = content
+
+		self.timeStampe = Date()
+	}
+
+	func getBasicInfo() -&gt; String {
+		return "보낸사람: \(sender), 받는사람: \(recipient), 메세지 내용: \(content), 보낸 시간: \(timeStamp.subtitle)"
+	} 
+
+	func statusColor() -&gt; UIColor {
+		switch status {
+		case .sent:
+			return UIColor(red: 1, green: 0, blue: 0, alpha: 1)
+		case .received:
+			return UIColor(red: 0, green: 0, blue: 1, alpha: 1)
+		case .read:
+			return UIColor(red: 0, green: 1, blue: 1, alpha: 1)
+		}
+	}
+}
+
+let message1 = Message(sender: "홍길동", recipient: "임꺽정", content: "뭐해?")
+print(message1.getBasicInfo())
+</code></pre>
+</body></html>

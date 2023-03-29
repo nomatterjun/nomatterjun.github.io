@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1 id="covariance--contravariance">Covariance &amp; Contravariance</h1>
+
+<p>파이썬의 경우를 살펴보기 전에, Covariance와 Contravariance가 무엇인지 알아보기 위해 정적 프로그래밍 언어의 경우를 살펴보겠습니다.</p>
+
+<p>예를 들어, 상위타입 <code class="language-plaintext highlighter-rouge">Animal</code>과 서브타입 <code class="language-plaintext highlighter-rouge">Cat</code>이 있다고 생각해볼게요. 정적 프로그래밍 언어에서 Cat 타입은 <code class="language-plaintext highlighter-rouge">Animal</code> 타입의 표현식들을 아마도 사용할 수 있을 것입니다. 왜 “아마도”라는 애매한 말을 붙였냐면, “상위타입과 서브타입에서 서로의 표현식들을 사용할 수 있는가?”는 해당 언어의 Covariance와 Contravariance 속성에 따라 달라지기 때문이죠!</p>
+
+<h2 id="covariance--contravariance-1">Covariance &amp; Contravariance</h2>
+
+<h3 id="covariance">Covariance</h3>
+
+<ul>
+  <li>T’가 T의 서브 타입이라면, C&lt;T’&gt;는 C<t>의 서브타입이다.</t>
+</li>
+</ul>
+
+<p><strong>Covariance</strong> 속성을 가질 경우, 예시로 들었던 서브타입 <code class="language-plaintext highlighter-rouge">Cat</code>은 상위타입 <code class="language-plaintext highlighter-rouge">Animal</code>보다 더 작고 세분화된 타입의 표현식들을 사용할 수 있습니다.</p>
+
+<p>이 경우에는 이해하기가 비교적 쉽습니다. 일반적인 Polymorphism의 특성과 동일하기 때문이죠. 하위 클래스는 상위 클래스의 특성들을 상속받아 사용할 수 있습니다!</p>
+
+<h3 id="contravariance">Contravariance</h3>
+
+<ul>
+  <li>T’가 T의 서브 타입이면, C<t>는 C&lt;T'&gt;의 서브타입이다.</t>
+</li>
+</ul>
+
+<p>반대로 <strong>Contravariance</strong> 속성을 가질 경우에는 상위타입 <code class="language-plaintext highlighter-rouge">Animal</code>이 서브타입 <code class="language-plaintext highlighter-rouge">Cat</code>의 세분화된 표현식들을 사용할 수 있게 됩니다.</p>
+
+<h3 id="invariance">Invariance</h3>
+
+<p>이 두 속성 외에도 <strong>Invariance</strong>라는 속성도 있습니다. 이 경우에는 서로의 표현식을 양 쪽 모두 사용할 수 없습니다.</p>
+
+<h2 id="python의-covariance--contravariance">Python의 Covariance &amp; Contravariance</h2>
+
+<p>이제 이 개념을 파이썬의 예시에 적용시켜보겠습니다. 상위 클래스 <code class="language-plaintext highlighter-rouge">Animal</code>과 하위 클래스 <code class="language-plaintext highlighter-rouge">Cat</code> 이 있다고 생각해봅시다. 그리고 <code class="language-plaintext highlighter-rouge">withList[Animal]</code>이라는 <code class="language-plaintext highlighter-rouge">Cat</code> 클래스를 인자로 받는 함수가 있다고 해볼게요. 이 함수의 인자에 <code class="language-plaintext highlighter-rouge">Cat</code>을 사용할 수 있을까요? <code class="language-plaintext highlighter-rouge">withList[Cat]</code>과 같이 말이죠.</p>
+
+<p>보통의 경우 이런 사항은 Covariance하게 처리됩니다. “사용할 수 있다”는 쪽인 것이죠. 하지만 확신할 수 없습니다. 실제로는 Contravariance하게 동작하고 있을 수도 있는 것이죠. 타입 체커나 컴파일러에 따라 다르다는 것입니다.</p>
+
+<p>파이썬에서는 이 문제를 해결하기 위해 <code class="language-plaintext highlighter-rouge">convariant = True</code>나 <code class="language-plaintext highlighter-rouge">contravariant = True</code>와 같이 직관적이고 간단한 인자를 하나 추가해줄 수 있습니다. 그리고 이러한 옵션을 줄 경우에는, 변수의 뒤에 <code class="language-plaintext highlighter-rouge">_co</code>, <code class="language-plaintext highlighter-rouge">_contra</code>를 붙여주는 것이 표기적으로 좋습니다.</p>
+
+<p>예시를 통해 한번 볼게요.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">typing</span> <span class="kn">import</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span>
+
+<span class="n">List_co</span> <span class="o">=</span> <span class="nc">TypeVar</span><span class="p">(</span><span class="s">'List_co'</span><span class="p">,</span> <span class="n">covariant</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">ImmutableList</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">List_co</span><span class="p">]):</span>
+  
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">List_co</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="p">...</span>
+    <span class="p">...</span>
+   
+  <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">List_co</span><span class="p">]:</span>
+    <span class="p">...</span>
+    <span class="p">...</span>
+    
+<span class="k">class</span> <span class="nc">Animal</span><span class="p">():</span>
+  <span class="p">...</span>
+  
+<span class="k">class</span> <span class="nc">Cat</span><span class="p">(</span><span class="n">Animal</span><span class="p">):</span>
+  <span class="p">...</span>
+</code></pre></div></div>
+
+<p>Iterable 타입을 모두 받는 List_co 타입을 covariant 속성을 준 상태로 만들어 준 코드입니다. 그리고 상위 클래스 <code class="language-plaintext highlighter-rouge">Animal</code>과 서브 클래스 <code class="language-plaintext highlighter-rouge">Cat</code>도 있네요.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">list_animals</span><span class="p">(</span><span class="n">animals</span><span class="p">:</span> <span class="n">ImmutableList</span><span class="p">[</span><span class="n">Animal</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+  <span class="k">for</span> <span class="n">animal</span> <span class="ow">in</span> <span class="n">animals</span><span class="p">:</span>
+    <span class="nf">print</span><span class="p">(</span><span class="n">animal</span><span class="p">)</span>
+    
+<span class="n">cats</span> <span class="o">=</span> <span class="n">ImmutableList</span><span class="p">[</span><span class="nc">Cat</span><span class="p">()]</span>
+<span class="nf">list_animals</span><span class="p">(</span><span class="n">cats</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">ImmutableList[Animal]</code>을 인자로 갖는 list_animals 함수를 만들어주고 <code class="language-plaintext highlighter-rouge">ImmutableList[Cat()]</code>을 인자로 넣어보았습니다. covariant 속성을 <code class="language-plaintext highlighter-rouge">true</code>로 주었기 떄문에 아무 문제 없이 동작합니다.</p>
+</body></html>

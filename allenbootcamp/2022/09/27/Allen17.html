@@ -1,0 +1,498 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h1 id="컬렉션-collection">컬렉션 (Collection)</h1>
+
+<h2 id="스위프트의-컬렉션">스위프트의 컬렉션</h2>
+<ul>
+  <li>
+<strong>컬렉션</strong>: 여러개의 데이터를 한꺼번에 다루는 바구니 타입
+    <ul>
+      <li>데이터를 효율적으로 관리하기 위한 자료형(타입)<em>**</em>
+</li>
+      <li>배열(Array), 딕셔너리(Dictionary), 세트(Set)</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="배열-array">배열 (Array)</h3>
+<ul>
+  <li>데이터를 순서대로 저장하는 컬렉션</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">let numsArray: Array&lt;Int&gt; = [1, 2, 3, 4, 5]</code>
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">Array&lt;Int&gt;</code> == <code class="language-plaintext highlighter-rouge">[Int]</code>
+</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="배열의-규칙">배열의 규칙</h4>
+<ol>
+  <li>배열의 인덱스는 0부터 자동으로 순서가 지정</li>
+  <li>배열의 데이터는 중복 가능 (순서가 있기 때문에)</li>
+  <li>한 개의 배열에는 동일한 데이터 타입만 담을 수 있음</li>
+</ol>
+
+<pre><code class="language-Swift">var numsArray = [1, 2, 3, 4, 5]
+let numsArray1 = [20, 2, 6, 5, 9, 7, 6]
+var stringArray = ["Apple", "Swift", "iOS", "Cocoa"]
+</code></pre>
+
+<h4 id="배열의-타입-표기">배열의 타입 표기</h4>
+<ul>
+  <li>정식 문법: <code class="language-plaintext highlighter-rouge">Array&lt;String&gt;</code>
+</li>
+  <li>단축 문법: <code class="language-plaintext highlighter-rouge">[String]</code>
+</li>
+</ul>
+
+<h4 id="빈-배열의-생성">빈 배열의 생성</h4>
+
+<pre><code class="language-Swift">let emptyArray: [Int] = []
+let emptyArray2 = Array&lt;Int&gt;() // (): 생성자
+let emptyArray3 = [Int]()
+</code></pre>
+
+<h4 id="배열의-기본-기능">배열의 기본 기능</h4>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">count</code>: 배열의 원소 개수</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">isEmpty</code>: 배열이 비어있는가?</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">contains([element])</code>: 파라미터로 받은 값을 지니는가?</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">randomElement()</code>: 랜덤한 원소</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">swapAt([index1], [index2])</code>: index1과 index2의 원소를 교환</li>
+</ul>
+
+<h4 id="배열의-각-요소에-대한-접근">배열의 각 요소에 대한 접근</h4>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">[]</code>: 서브스크립트 문법</li>
+  <li>
+<strong>인덱스</strong>: 메모리 주소
+    <ul>
+      <li>배열의 시작 주소로부터 단위 공간만큼 얼마나 뒤의 주소인가?</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">var numsArray: [Int] = [1, 2, 3, 4, 5]
+print(numsArray[0]) // 1
+print(numsArray[1]) // 2
+print(numsArray[2]) // 3
+print(numsArray[3]) // 4
+print(numsArray[4]) // 5
+</code></pre>
+
+<pre><code class="language-Swift">print(numsArray.first) // Optional(1) - 배열이 비어있을 수 있다.
+print(numsArray.last) // Optional(5)
+print(numsArray.startIndex) // 0
+print(numsArray.endIndex) // 5
+print(numsArray[numsArray.endIndex - 1]) // 5
+</code></pre>
+
+<ul>
+  <li>5개의 원소를 갖는 배열
+    <ul>
+      <li>(n): 인덱스</li>
+      <li>
+<code class="language-plaintext highlighter-rouge">startIndex</code>(0) ◼️ (1) ◼️ (2) ◼️ (3) ◼️ (4) ◼️ <code class="language-plaintext highlighter-rouge">endIndex</code>(5)</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">numsArray.firstIndex(of: 3) // 앞에서부터 찾았을 때 3이 처음 발견되는 인덱스
+numsArray.lastIndex(of: 3) // 뒤에서부터 찾았을 때 3이 처음 발견되는 인덱스
+// 왜 있죠?
+// 배열은 같은 값의 원소를 가질 수 있기 때문에!
+
+if let index = numsArray.firstIndex(of: 2) {
+	print(index)
+	print(numsArray[index])
+}
+// return 값이 Optional이기 때문에 if let을 활용하는 경우가 많다.
+</code></pre>
+
+<h4 id="배열-조물딱하기">배열 조물딱하기</h4>
+<h5 id="삽입-insert">삽입 (insert)</h5>
+
+<pre><code class="language-Swift">var alphabet = ["A", "B", "C", "D", "E", "F", "G"]
+alphabet.insert("H", at: 0) // index 0의 위치에(맨앞)
+alphabet.insert(["H", "I"], at: 7) // contentsOf: 는 사실 배열을 받는다.
+</code></pre>
+
+<h5 id="교체-replace">교체 (replace)</h5>
+
+<pre><code class="language-Swift">alphabet[0] = "a" // 인덱스 0 자리의 원소를 교체
+alphabet[0...2] = ["x", "y", "z"] // 범위 교체
+
+alphabet[0...1] = [] // 범위 삭제
+
+alphabet.replaceSubrange(0...2, with: ["a", "b", "c"]) //  지원하는 함수 역시 당연히 있다.
+</code></pre>
+
+<h5 id="추가-append">추가 (append)</h5>
+
+<pre><code class="language-Swift">alphabet.append("H") // 마지막 끝에 추가
+alphabet.append(contentsOf: ["H", "I"])
+alphabet.append(7) // Error: TypeError
+</code></pre>
+
+<h5 id="삭제-remove">삭제 (remove)</h5>
+
+<pre><code class="language-Swift">alphabet[0...2] = []
+alphabet.remove(at: 2) // 인덱스 2 위치의 원소 삭제
+alphabet.removeSubrange(0...2) // 인덱스 범위 0~2 위치의 원소 삭제
+
+alphabet.removeFirst() // 맨 앞의 원소 삭제하고 삭제된 원소 return
+alphabet.removeFirst(2) // 맨 앞의 두 원소 삭제하고 삭제된 원소들 return
+alphabet.removeLast() // 맨 뒤의 원소 삭제하고 삭제된 원소 return
+alphabet.removeLast(2) // 맨 뒤의 두 원소 삭제하고 삭제된 원소들 return
+
+alphabet.removeAll() // 원소 전부 삭제
+alphabet.removeAll(keepingCapacity: true) // 저장 공간을 일단은 보관 (데이터만 삭제)
+</code></pre>
+
+<h5 id="그외">그외</h5>
+
+<pre><code class="language-Swift">alphabet.sort() // 배열 자체를 정렬 (오름차순)
+alphabet.sorted() // 정렬된 배열을 return (오름차순) - 원래의 배열을 변경하지는 않음
+
+alphabet.reverse() // 배열을 거꾸로 정렬
+alphabet.reversed()
+
+alphabet.shuffle() // 원소의 순서 랜덤하게 섞섞
+alphabet.shuffled()
+
+alphabet.sorted().reversed() // 여러개 겹쳐서 사용 가능
+</code></pre>
+
+<h4 id="배열의-비교">배열의 비교</h4>
+
+<pre><code class="language-Swift">let a = ["A", "B", "C"]
+let b = ["a", "b", "c"]
+
+a == b // false
+a != b // true
+</code></pre>
+
+<h5 id="활용-예시">활용 예시</h5>
+
+<pre><code class="language-Swift">var puppy = ["p", "u", "p", "p", "y"]
+
+if let lastIndexOfP = puppy.lastIndex(of: "p") {
+	puppy.remove(at: lastIndexOfP)
+} // 마지막 "p" 삭제
+
+if !puppy.isEmpty {
+	print("\(puppy.count) element(s)")
+} else {
+	print("Empty Array")
+}
+
+var data = [[1, 2, 3],
+		    [4, 5, 6],
+		    [7, 8, 9]]
+data[0][2] // 2
+</code></pre>
+
+<h4 id="반복문과의-결합">반복문과의 결합</h4>
+<ul>
+  <li>enumerate: 열거하다.
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">enumerated()</code>: 열거된 것들을 <code class="language-plaintext highlighter-rouge">named tuple</code> 형태로 한 개씩 전달</li>
+      <li>index와 값을 차례대로 함께 꺼내서 사용할 일들이 있을 때 사용</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">var nums = [1, 2, 3, 4, 5, 6, 7]
+
+for i in nums {
+	print(i)
+}
+
+for tuple in nums.enumerated() {
+	print(tuple) // (offset: 0, element: 1), ...
+	print("\(tuple.0) - \(tuple.1)") // "0 - 1", ...
+}
+
+for (index, word) in nums.enumerated() {
+	print("\(index) - \(word)") // "0 - 1", "1 - 2", ...
+}
+
+for (index, word) in nums.enumerated().reversed() {
+	print("\(index) - \(value)") // "6 - 7", "5 - 6", ...
+}
+</code></pre>
+
+<h3 id="딕셔너리-dictionary">딕셔너리 (Dictionary)</h3>
+<ul>
+  <li>데이터를 키와 값으로 하나의 쌍으로 만들어 관리하는 컬렉션
+    <ul>
+      <li>“키”: “값”</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">let dic: Dictionary&lt;String, String&gt; = ["A": "Apple", "B": "Banana"]</code></li>
+</ul>
+
+<h4 id="규칙">규칙</h4>
+<ul>
+  <li>키 값은 유일해야함 (중복 불가능), 밸류값은 중복 가능</li>
+  <li>동일한 타입의 쌍만 데이터로 담을 수 있음</li>
+  <li>딕셔너리의 값에 딕셔너리/배열을 사용하여 중첩적 사용 가능
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">[String: [String]]</code> ➡️ <code class="language-plaintext highlighter-rouge">["A": [1, 2, 3], "B": [4, 5, 6]]</code>
+</li>
+    </ul>
+  </li>
+  <li>딕셔너리의 키 값은 <strong>Hashable</strong> 해야함</li>
+</ul>
+
+<h4 id="hash--hashvalue--hashable">Hash / HashValue / Hashable</h4>
+<ul>
+  <li>Hash 함수: 고정된 길이의 숫자 or 글자이면서 유일한 값이 결과로 나온다.
+    <ul>
+      <li>ex) “steve”, “cook”, “musk”  ➡️ Hash Function ➡️ 1234, 8492, 3284</li>
+    </ul>
+  </li>
+  <li>특정 입력에 대해서는 항상 출력(HashValue)가 같다.
+    <ul>
+      <li>다른 입력값으로는 해당 출력(HashValue)를 절대 얻지 못한다.</li>
+    </ul>
+  </li>
+  <li>보통 <strong>Hash Table</strong>을 만들어 사용</li>
+</ul>
+
+<h5 id="hashtable과-딕셔너리">HashTable과 딕셔너리</h5>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">contain</code>을 사용하면, 배열의 경우 모든 값을 확인한다.
+    <ul>
+      <li>속도가 매우 느림</li>
+    </ul>
+  </li>
+  <li>
+<strong>딕셔너리</strong>의 경우 <strong>HashTable</strong>을 사용하여 검색 속도가 빠르다.</li>
+</ul>
+
+<h5 id="hashable">Hashable?</h5>
+<ul>
+  <li>Hash 함수에 input으로서 쓰일 수 있는 <strong>타입</strong>
+    <ul>
+      <li>Hashable 프로토콜 채택</li>
+      <li>Swift의 기본 타입은 모두 Hashable</li>
+    </ul>
+  </li>
+  <li>그래서 결론은
+    <blockquote>
+      <p>딕셔너리의 키 값은 Hashable 해야한다!</p>
+    </blockquote>
+  </li>
+</ul>
+
+<h4 id="딕셔너리의-타입-표기">딕셔너리의 타입 표기</h4>
+
+<pre><code class="language-Swift">var words: [String: String] = [:] // 단축 문법
+let words: Dictionary&lt;Int, String&gt; // 정식 문법
+</code></pre>
+
+<h4 id="빈-딕셔너리의-생성">빈 딕셔너리의 생성</h4>
+
+<pre><code class="language-Swift">let emptyDic1: Dictionary&lt;Int, String&gt; = [:]
+let emptyDic2 = Dictionary&lt;Int, String&gt;()
+let emptyDic3 = [Int: String]()
+</code></pre>
+
+<h4 id="딕셔너리의-기본-기능">딕셔너리의 기본 기능</h4>
+
+<pre><code class="language-Swift">dict = ["A": "Apple", "B": "Banana", "C": "City"]
+
+dict.count
+dict.isEmpty
+
+dict.randomElement()
+</code></pre>
+
+<h4 id="딕셔너리의-각-요소에-대한-접근">딕셔너리의 각 요소에 대한 접근</h4>
+<ul>
+  <li>딕셔너리는 기본적으로 서브스크립트(<code class="language-plaintext highlighter-rouge">[]</code>)를 이용한 문법을 주로 사용한다.</li>
+</ul>
+
+<pre><code class="language-Swift">dict = ["A": "Apple", "B": "Banana", "C": "City"]
+print(dict["A"]) // Optional("Apple")
+dict["Q"] // nil일 가능성이 있다.
+dict["Q", default: "Empty"] // String 타입 return, "Empty"
+
+print(dict.keys) // ["A", "B", "C"] key만 묶어서
+print(dict.values) // ["Apple", "Banana", "City"] value만 묶어서
+</code></pre>
+
+<h4 id="업데이트-update">업데이트 (update)</h4>
+<ul>
+  <li>배열의 삽입, 교체, 추가 대신 <strong>업데이트</strong> 사용
+    <ul>
+      <li>딕셔너리는 순서가 없기 때문에 세분화할 필요가 없다.</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">words = [:]
+words["A"] = "Apple"
+words["B"] = "Banana"
+words["B"] = "Blue"
+print(words) // ["A": "Apple", "B": "Blue"]
+
+words.updateValue("City", forKey: "C")
+// update를 하면서 새로운 값이 들어가면 nil return,
+// 원래 있던 값을 교체할 때는 원래 있던 값을 return
+</code></pre>
+
+<h4 id="삭제-remove-1">삭제 (remove)</h4>
+
+<pre><code class="language-Swift">dict = ["A": "Apple", "B": "Banana", "C": "City"]
+dict["B"] = nil
+dict.removeValue(forKey: "A")
+dict.removeAll()
+dict.removeAll(keepingCapacity: true)
+</code></pre>
+
+<h3 id="집합-set">집합 (Set)</h3>
+<ul>
+  <li>순서가 없는 컬렉션</li>
+  <li><code class="language-plaintext highlighter-rouge">let set: Set&lt;Int&gt; = [1, 1, 2, 3]</code></li>
+</ul>
+
+<h4 id="규칙-1">규칙</h4>
+<ul>
+  <li>생성 시 타입 선언</li>
+  <li>중복된 원소를 넣어도, 중복 저장이 되지 않음
+    <ul>
+      <li>각 요소는 유일한 값 (Hashable)</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">var set: Set = [1, 1, 2, 3, 2, 2, 4, 3]
+print(set) // [2, 3, 1, 4]
+</code></pre>
+
+<h4 id="용도">용도</h4>
+<ul>
+  <li>Hashable에 집중해야한다.</li>
+  <li>정렬 순서보다 검색 속도가 더 중요할 때 사용</li>
+  <li>집합의 수학적 개념을 이용할 필요가 있을 때
+    <ul>
+      <li>ex) 합집합, 차집합, 여집합, …</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="빈-set의-생성">빈 Set의 생성</h4>
+
+<pre><code class="language-Swift">let emptySet: Set&lt;Int&gt; = []
+let emptySet1 = Set&lt;Int&gt;()
+</code></pre>
+
+<h4 id="set의-기본-기능">Set의 기본 기능</h4>
+
+<pre><code class="language-Swift">set.count
+set.isEmpty
+
+set.contains(1)
+set.randomElement()
+</code></pre>
+
+<h4 id="업데이트-update-1">업데이트 (update)</h4>
+<ul>
+  <li>마찬가지로 순서가 없기 때문에 업데이트로 통합</li>
+</ul>
+
+<pre><code class="language-Swift">set.update(with: 1)
+set.update(with: 7)
+// update를 하면서 새로운 값이 들어가면 nil return,
+// 원래 있던 값을 교체할 때는 원래 있던 값을 return
+</code></pre>
+
+<h4 id="삭제-remove-2">삭제 (remove)</h4>
+
+<pre><code class="language-Swift">var stringSet: Set&lt;String&gt; = ["Apple", "Banana", "City"]
+stringSet.remove("Apple")
+// 삭제할 값이 없으면 nil return
+// 있다면 삭제한 원소를 return
+stringSet.removeAll()
+stringSet.removeAll(keepingCapacity: true)
+</code></pre>
+
+<h4 id="set의-활용">Set의 활용</h4>
+<h5 id="부분집합--상위집합--서로소">부분집합 / 상위집합 / 서로소</h5>
+
+<pre><code class="language-Swift">a = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+b = [1, 3, 5, 7, 9]
+c = [2, 4, 6, 8, 10]
+d = [1, 7, 5, 9, 3]
+
+b.isSubset(of: a) // 부분집합인가? true
+b.isStrictSubset(of: a) // 진부분집합인가? false
+
+a.isSuperset(of: b) // 상위집합인가? true
+a.isStrictSuperset(of: b) // 진상위집합인가? false
+
+d.isDisjoint(with: c) // 서로소인가? true
+</code></pre>
+
+<h5 id="합집합">합집합</h5>
+
+<pre><code class="language-Swift">var unionSet = b.union(c)
+b.formUnion(c) // 원본 변경
+</code></pre>
+
+<h5 id="교집합">교집합</h5>
+
+<pre><code class="language-Swift">var interSet = a.intersection(b)
+a.formIntersection(b) // 원본 변경
+</code></pre>
+
+<h5 id="차집합">차집합</h5>
+
+<pre><code class="language-Swift">var subSet = a.subtracting(b)
+a.subtract(b) // 원본 변경
+</code></pre>
+
+<h5 id="대칭차집합">대칭차집합</h5>
+
+<pre><code class="language-Swift">var symmetricSet = a.symmetricDifference(b)
+a.formSymmetricDifference(b) // 원본 변경
+</code></pre>
+
+<h5 id="유의점">유의점</h5>
+<ul>
+  <li>Set에  <code class="language-plaintext highlighter-rouge">sorted</code>를 사용할 수 있다.
+    <ul>
+      <li>하지만 <code class="language-plaintext highlighter-rouge">return</code> 값의 타입은 <code class="language-plaintext highlighter-rouge">Array</code>이다.</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">var newArray: Array = newSet.sorted()
+</code></pre>
+
+<h3 id="keyvaluepairs">KeyValuePairs</h3>
+<ul>
+  <li>딕셔너리와 유사한 형태이지만 배열처럼 순서가 있는 컬렉션</li>
+  <li>Swift 5.2에 새롭게 등장한 컬렉션</li>
+  <li>key 값이 Hashable하지 안하도 됨</li>
+  <li>key 값이 동일한 것도 가능</li>
+  <li><code class="language-plaintext highlighter-rouge">let introduct: KeyValuePairs = ["first: "Hellow", "second": "My Name", "third": "is"]</code></li>
+</ul>
+
+<p>그렇게 많이 사용되지는 않고 있기 때문에 이런게 있다 정도만 알고 넘어갑시다!</p>
+</body></html>

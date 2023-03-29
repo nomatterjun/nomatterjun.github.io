@@ -1,0 +1,384 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h1 id="클래스의-상속과-재정의">클래스의 상속과 재정의</h1>
+
+<h2 id="클래스의-상속-inheritance">클래스의 상속 (Inheritance)</h2>
+
+<h3 id="상속의-기본-개념">상속의 기본 개념</h3>
+<ul>
+  <li>성격이 비슷한 타입을 새로 만들어 <strong>데이터(저장속성)를 추가</strong>하거나 <strong>기능(메서드)을 변형</strong>시켜 사용하는 것</li>
+  <li>하위 클래스는 상위 클래스의 멤버를 일단 상속
+    <ul>
+      <li>이후 저장 속성을 추가하거나 메서드를 변형</li>
+    </ul>
+  </li>
+  <li>기본(Base) 클래스 ➡️  상속 클래스
+    <ul>
+      <li>부모(Parent) 클래스, 슈퍼(Super) / 상위 클래스</li>
+      <li>자식(Child) 클래스, 서브(Sub) / 하위 클래스</li>
+    </ul>
+  </li>
+  <li>상속 저장 속성을 상속할 때 복사해오지 않는다.
+    <ul>
+      <li>상속받은 클래스는 상위 클래스의 저장 속성을 소유하지 않는다.</li>
+      <li>따라서 상위 클래스의 저장 속성의 구조에 대한 권한이 없다.</li>
+    </ul>
+  </li>
+  <li>하지만 메서드를 상속할 때는 새로운 테이블로 복사해온다.
+    <ul>
+      <li>메서드의 메모리 주소로 이루어진 배열의 형태</li>
+      <li>따라서 <code class="language-plaintext highlighter-rouge">override</code>를 이용해 재정의가 가능하다.</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">class Person {
+	var id = 0
+	var name = "이름"
+	var email = "abc@gmail.com"
+}
+
+class Student: Person { // Person의 child class
+	var studentId = 0
+}
+
+class Undergraduate: Student { // Student의 child class
+	var major = "전공"
+}
+
+var uGraduate = Undergraduate()
+print(uGraduate.name) // "이름"
+</code></pre>
+
+<h3 id="저장-속성-상속의-메모리-동작">저장 속성 상속의 메모리 동작</h3>
+<ol>
+  <li>하위 클래스는 <strong>본인이 소유한 저장 속성의 값을 메모리에 추가</strong>한다.
+    <ul>
+      <li>붕어빵을 “살짝” 찍는다!</li>
+    </ul>
+  </li>
+  <li>상위 클래스의 상속 받은 저장 속성에 대한 권한은 없기에 <strong>상위 클래스에 저장 속성 값 추가를 요청</strong>한다.</li>
+  <li>상위 클래스는 마찬가지로 <strong>본인이 소유한 저장 속성의 값을 메모리에 추가</strong>한다.
+    <ul>
+      <li>붕어빵을 또 “살짝” 찍는다..!</li>
+    </ul>
+  </li>
+  <li>한 단계 더 상위 클래스가 있다면 위 과정을 반복한다.
+    <ul>
+      <li>붕어빵 완성! (분업 완료)</li>
+    </ul>
+  </li>
+</ol>
+
+<h5 id="잠깐">잠깐!</h5>
+
+<blockquote>
+  <p>그러면 베이스 클래스만 데이터 영역에 있고 나머지 하위 클래스들은 힙 영역에 있나요?</p>
+</blockquote>
+
+<p><strong>아닙니다.</strong> 모든 클래스들은 <strong>데이터 영역</strong>에 존재합니다. 힙 영역에는 <strong>저장 속성의 “값”을 저장</strong>하는 것이지 저장 속성은 저장하지 않습니다.
+보통 메서드와 헷갈릴 때 이렇게 생각할 수 있는데, <strong>메서드와 저장 속성은 별개</strong>로 놓고 생각해야합니다!</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">final</code>
+    <ul>
+      <li>클래스 상속 금지 키워드</li>
+      <li>멤버 앞에 붙일 수도 있다.
+        <ul>
+          <li>해당 멤버의 재정의를 금지</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">final class Student: Person {
+	var studentId = 0
+}
+
+class Undergraduate: Student { // Error: Inheritance from a final class
+}
+</code></pre>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">override</code>
+    <ul>
+      <li>상위 클래스의 멤버를 재정의하고 싶을 때</li>
+      <li>저장 속성의 경우에는 불가능</li>
+      <li>메서드에 주로 사용</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="상속의-방향">상속의 방향</h3>
+<ul>
+  <li>하나의 클래스는 여러 하위 클래스를 가질 수 있다.</li>
+  <li>하지만 Swift에서 다중 상속은 불가능하다.
+    <ul>
+      <li>하나의 클래스는 상위의 두 가지 클래스는 상속받을 수 없다.</li>
+      <li>다른 언어에서는 가능한 경우도 있다</li>
+    </ul>
+  </li>
+</ul>
+
+<h5 id="잠깐-1">잠깐!</h5>
+
+<blockquote>
+  <p>앱을 만들 때를 보면 이런 것들도 있던데, 이거 다중 상속 아닌가요..?</p>
+</blockquote>
+
+<pre><code class="language-Swift">class HomeViewController: UIViewController, UICollectionViewFlowDelegate {
+
+	override func viewDidLoad() {
+		super.viewDidLoad()
+	}
+}
+</code></pre>
+
+<p>이 경우에서 <code class="language-plaintext highlighter-rouge">HomeViewController</code> 클래스의 뒤에 붙어 있는 친구들은 <code class="language-plaintext highlighter-rouge">class</code>가 아닙니다. 위 예시는 <code class="language-plaintext highlighter-rouge">protocol</code>을 사용한 경우입니다. 그리고 위 경우에는 대표적으로 <code class="language-plaintext highlighter-rouge">Delegate</code> 패턴을 사용한 경우인데, 이후 포스트에서 두 가지 모두 자세하게 다뤄볼 예정입니다.</p>
+
+<h2 id="재정의-overriding">재정의 (Overriding)</h2>
+
+<h5 id="참고">참고</h5>
+<h6 id="오버로딩overloading-vs-오버라이딩-overriding">오버로딩(overloading) vs 오버라이딩 (overriding)</h6>
+<ul>
+  <li>
+<strong>오버로딩(overloading)</strong>: 하나의 이름에 대해 여러 함수를 대응하는 것</li>
+  <li>
+<strong>오버라이딩(overriding)</strong>: 상위 클래스의 속성과 메서드를 재정의하는 것</li>
+</ul>
+
+<h3 id="재정의-대상">재정의 대상</h3>
+<ul>
+  <li>속성
+    <ul>
+      <li>저장 속성 X</li>
+      <li>계산 속성 O (메서드이기 때문에)</li>
+    </ul>
+  </li>
+  <li>메서드 (메서드, 서브 스크립트, 생성자)</li>
+</ul>
+
+<pre><code class="language-Swift">class One {
+	func doSomething() {
+		print("Do Something")
+	}
+}
+
+class Two: One {
+	override func doSomething() {
+		super.doSomething() // "Do Something"
+		print("Do another job") // "Do another job"
+		super.doSomething() // "Do Something"
+	}
+}
+</code></pre>
+
+<h3 id="재정의-기본-문법">재정의 기본 문법</h3>
+
+<pre><code class="language-Swift">class SomeSuperClass {
+	var aValue = 0
+
+	func doSomething() {
+		print("Do Something")
+	}
+}
+
+class SomeSubClass: SomeSuperclass {
+	// 저장 속성의 재정의 불가
+	override var aValue = 3 // Error
+
+	// 계산 속성으로서 재정의 가능 (메서드 형태로 변형)
+	override var aValue: Int {
+		get {
+			return 1
+		}
+		set {
+			super.aValue = newValue
+		}
+	}
+
+	override func doSomething() {
+		super.doSomething()
+		print("Do Something 2")
+	}
+}
+</code></pre>
+
+<h3 id="재정의-방식">재정의 방식</h3>
+
+<h4 id="속성의-재정의">속성의 재정의</h4>
+<ol>
+  <li>
+<strong>저장 속성의 재정의</strong>
+    <ul>
+      <li>원칙적으로 <strong>불가능</strong>하다. (메모리 공간은 유지해야한다.)
+        <ul>
+          <li>저장 속성은 고유의 메모리 공간이 있으므로 하위 클래스에서 수정 불가능</li>
+        </ul>
+      </li>
+      <li>
+<strong>메서드 형태로 추가하는 방식</strong>의 재정의는 <strong>가능</strong>하다.
+        <ul>
+          <li>읽기/쓰기 가능한 계산 속성으로 재정의 가능
+            <ul>
+              <li>읽기 전용의 계산 속성으로는 재정의 불가능 (<strong>축소 불가능</strong>)</li>
+            </ul>
+          </li>
+          <li>속성 감시자 추가 가능</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>
+<strong>계산 속성(메서드)의 재정의</strong>
+    <ul>
+      <li>메서드이기 때문에 재정의 가능
+        <ul>
+          <li><strong>기능 축소의 형태는 마찬가지로 불가능</strong></li>
+        </ul>
+      </li>
+      <li>읽기 전용 계산 속성
+        <ul>
+          <li>읽기/쓰기 가능한 속성으로 재정의 가능 (<strong>확장 가능</strong>)</li>
+          <li>
+<strong>속성 감시자 추가 불가능</strong> (읽기 전용이기 때문에 <strong>값이 변할 일이 없음</strong>)</li>
+        </ul>
+      </li>
+      <li>읽기/쓰기 계산 속성
+        <ul>
+          <li>읽기만 가능한 속성으로 재정의 불가능 (<strong>축소 불가능</strong>)</li>
+          <li><strong>속성 감시자 추가 재정의 가능</strong></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<h4 id="메서드의-재정의">메서드의 재정의</h4>
+<ul>
+  <li>상위 클래스 인스턴스 메서드 또는 타입 메서드 상관없이 기능 추가 가능</li>
+  <li>상위 기능 무시하고 새롭게 구현하는 것도 가능</li>
+</ul>
+
+<h3 id="재정의-예시">재정의 예시</h3>
+<ul>
+  <li>속성 재정의</li>
+</ul>
+
+<pre><code class="language-Swift">class Vehicle {
+	var currentSpeed = 0.0 // 저장 속성
+
+	var halfSpeed: Double { // 계산 속성
+		get {
+			return currentSpeed / 2
+		}
+		set {
+			currentSpeed = newValue * 2
+		}
+	}
+}
+
+class Bicycle: Vehicle {
+	// 저장 속성 추가
+	var hasBasket = false
+
+	// 저장 속성 currentSpeed를 계산 속성으로 재정의
+	override var currentSpeed: Double {
+		get {
+			return super.currentSpeed
+		}
+		set {
+			super.currentSpeed = newValue
+		}
+	}
+
+	// 저장 속성에 속성 감시자 추가 가능
+	override var currentSpeed: Double {
+		willSet {
+			print("값이 \(currentSpeed)에서 \(newValue)로 변경 예정")
+		}
+		didSet {
+			print("값이 \(oldValue)에서 \(currentSpeed)로 변경 예정")
+		}
+	}
+
+	// 계산 속성 재정의 가능
+	override var halfSpeed: Double {
+		get {
+			return super.currentSpeed / 2
+		}
+		set {
+			super.currentSpeed = newValue * 2
+		}
+	}
+
+	// 계산 속성을 재정의 하면서 속성 감시자 추가 가능
+	override var halfSpeed: Double {
+		willSet {
+			print("값이 \(halfSpeed)에서 \(newValue)로 변경 예정")
+		}
+		didSet { 
+			print("값이 \(oldValue)에서 \(halfValue)로 변경 예정")
+		}
+	}
+}
+</code></pre>
+
+<ul>
+  <li>메서드 재정의</li>
+</ul>
+
+<pre><code class="language-Swift">class Vehicle {
+	var currentSpeed = 0.0
+	var datas = ["1","2", "3", "4", "5"]
+
+	func makeNoise() {
+		print("경적을 울린다.")
+	}
+
+	subscript(index: Int) -&gt; String {
+		get {
+			if index &gt; 4 {
+				return "0"
+			}
+			return datas[index]
+		}
+		set {
+			datas[index] = newValue
+		}
+	}
+}
+
+class Bicycle: Vehicle {
+	// 상위에서 하위 호출 가능
+	override func makeNoise() {
+		super.makeNoise() // 상위 호출 가능
+		print("자전거가 지나간다고 소리친다.")
+		super.makeNoise() // 나중에 호출도 가능
+	}
+
+	// 상위 메서드를 무시하고 재정의도 가능
+	override func makeNoise() {
+		print("경적을 울리고, 자전거가 지나간다고 소리친다.")
+	}
+
+	// 서브 스크립트 재정의 가능
+	override subscript(index: Int) -&gt; String {
+		get {
+			if index &gt; 4 {
+				return "777"
+			}
+			return super[index] // super = 상위 클래스의 서브스크립트 호출
+		}
+		set {
+			super[index] = newValue
+		}
+	}
+}
+</code></pre>
+</body></html>

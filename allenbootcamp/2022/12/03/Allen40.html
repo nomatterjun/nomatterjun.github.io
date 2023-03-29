@@ -1,0 +1,327 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h1 id="네트워크-통신">네트워크 통신</h1>
+
+<h2 id="네트워킹">네트워킹</h2>
+
+<h3 id="tcpip">TCP/IP</h3>
+<ul>
+  <li>인터넷에 관련된 다양한 프로토콜 집합의 총칭
+    <ul>
+      <li>프로토콜: 통신을 하기 위해 마련해둔 약속</li>
+      <li>HTTP, IP, FTP, UDP, TCP, IEEE 802.3</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="http">HTTP</h3>
+<ul>
+  <li>Hyper Text Transfer Protocol</li>
+  <li>하이퍼 문서를 전송하는 것에서 시작하여</li>
+  <li>현재는 이미지, 영상, 음성, 파일, json 등 모든 형태의 데이터 전송</li>
+</ul>
+
+<h3 id="tcpip의-계층">TCP/IP의 계층</h3>
+<p>클라이언트와 서버 모두 크게 4가지 계층을 가지고 통신을 합니다.</p>
+
+<p>이 통신이라는 것이 현실에서의 우편과 상당히 유사한 개념이기 때문에 우편을 가지고 쉽게 적어보려 합니다.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">4계층</th>
+      <th style="text-align: center">명칭</th>
+      <th style="text-align: center"> </th>
+      <th style="text-align: left">우편</th>
+      <th style="text-align: left">설명</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">App</td>
+      <td style="text-align: center">애플리케이션: HTTP</td>
+      <td style="text-align: center">리퀘스트</td>
+      <td style="text-align: left">편지지 작성</td>
+      <td style="text-align: left">데이터를 어떻게 주고 받을지에 대한 약속 (요청/응답)</td>
+    </tr>
+    <tr>
+      <td style="text-align: left" colspan="2" rowspan="2">OS
+<br>
+</td>
+      <td style="text-align: center">트랜스포트: TCP</td>
+      <td style="text-align: center">조각 / PORT</td>
+      <td style="text-align: left">편지지 포장</td>
+      
+    </tr>
+    <tr>
+      
+      <td style="text-align: center">인터넷: IP</td>
+      <td style="text-align: center"> </td>
+      <td style="text-align: left">발송/수신자 주소 첨부</td>
+      
+    </tr>
+    <tr>
+      <td style="text-align: left">LAN</td>
+      <td style="text-align: center">링크: 네트워크</td>
+      <td style="text-align: center">MAC주소 추가</td>
+      <td style="text-align: left">편지 봉투 포장</td>
+      <td style="text-align: left"> </td>
+    </tr>
+  </tbody>
+</table>
+
+<p>서버에 데이터를 어떤 형식으로 요청하는 지는 알아두어야 하기 때문에 HTTP는 필수적으로 알고 있어야 합니다.</p>
+
+<h2 id="http-1">HTTP</h2>
+
+<h3 id="request--response">Request &amp; Response</h3>
+<h4 id="request">Request</h4>
+<ul>
+  <li>요청</li>
+  <li>클라이언트</li>
+</ul>
+
+<pre><code class="language-HTTP">POST /form/entry HTTP/1.1
+Host: www.naver.com
+Connection: Keep-alive
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 16
+
+name=gildong&amp;age=20
+</code></pre>
+
+<ol>
+  <li>
+<code class="language-plaintext highlighter-rouge">POST /form/entry HTTP/1.1</code>: 메소드 + 요청대상(경로) + HTTP버전</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">Host</code> ~ <code class="language-plaintext highlighter-rouge">Content-Length</code>: 부가 정보 (메타데이터)</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">name=gildong&amp;age=20</code>: 실제 전송할 데이터 (body)
+    <h4 id="response">Response</h4>
+    <ul>
+      <li>응답</li>
+      <li>서버</li>
+    </ul>
+  </li>
+</ol>
+
+<pre><code class="language-HTTP">HTTP/1.1 200 OK
+Date: Tue, 10 Jul 2020 06:40:14 GMT
+Content-Length: 352
+Content-Type: text/html
+
+&lt;html&gt;
+...
+&lt;/html&gt;
+</code></pre>
+
+<ol>
+  <li>
+<code class="language-plaintext highlighter-rouge">HTTP/1.1 200 OK</code>: HTTP버전 + 상태코드 + 문구</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">Date</code> ~ <code class="language-plaintext highlighter-rouge">Content-Type</code>: 부가 정보 (메타데이터)</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">&lt;html&gt;&lt;/html&gt;</code>: 실제 전송할 데이터 (body)</li>
+</ol>
+
+<h3 id="요청-메소드의-종류">요청 메소드의 종류</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>메소드</th>
+      <th>설명</th>
+      <th>제공 HTTP 버전</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>⭐ <strong>GET</strong>
+</td>
+      <td>리소스 휙득 (<strong>조회</strong>)</td>
+      <td>1.0 1.1</td>
+    </tr>
+    <tr>
+      <td>⭐ <strong>POST</strong>
+</td>
+      <td>엔티티 (<strong>등록</strong>)</td>
+      <td>1.0 1.1</td>
+    </tr>
+    <tr>
+      <td>⭐ <strong>PUT</strong>
+</td>
+      <td>파일 전송 (<strong>데이터 대체/없다면 생성</strong>)</td>
+      <td>1.0 1.1</td>
+    </tr>
+    <tr>
+      <td>⭐ <strong>PATCH</strong>
+</td>
+      <td>리소스 부분 변경 (<strong>부분 변경</strong>)</td>
+      <td>1.1</td>
+    </tr>
+    <tr>
+      <td>HEAD</td>
+      <td>메세지 헤더 취득</td>
+      <td>1.0 1.1</td>
+    </tr>
+    <tr>
+      <td>⭐ <strong>DELETE</strong>
+</td>
+      <td>파일 삭제 (<strong>삭제</strong>)</td>
+      <td>1.0 1.1</td>
+    </tr>
+    <tr>
+      <td>OPTIONS</td>
+      <td>서포트 메소드 문의</td>
+      <td>1.1</td>
+    </tr>
+    <tr>
+      <td>TRACE</td>
+      <td>경로 조사</td>
+      <td>1.1</td>
+    </tr>
+    <tr>
+      <td>CONNECT</td>
+      <td>프록시 터널링 요구</td>
+      <td>1.1</td>
+    </tr>
+    <tr>
+      <td>LINK</td>
+      <td>리소스 간 링크 관계 확립</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <td>UNLINK</td>
+      <td>링크 관계 삭제</td>
+      <td>1.0</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="응답-메시지의-종류">응답 메시지의 종류</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>상태 코드</th>
+      <th>클래스</th>
+      <th>설명</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1xx</td>
+      <td>Informational</td>
+      <td>리퀘스트를 받아들여 처리중</td>
+    </tr>
+    <tr>
+      <td>⭐ <strong>2xx</strong>
+</td>
+      <td>Success</td>
+      <td>리퀘스트를 정상적으로 처리</td>
+    </tr>
+    <tr>
+      <td>3xx</td>
+      <td>Redirection</td>
+      <td>리퀘스트 완료를 위한 추가 동작 필요</td>
+    </tr>
+    <tr>
+      <td>⭐ <strong>4xx</strong>
+</td>
+      <td>Client Error</td>
+      <td>서버에서 리퀘스트 이해 불가능 (클라이언트 에러)</td>
+    </tr>
+    <tr>
+      <td>⭐ <strong>5xx</strong>
+</td>
+      <td>Server Error</td>
+      <td>서버가 리퀘스트 처리 실패 (서버 에러)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="2xx-success">2xx (Success)</h4>
+<ul>
+  <li>200 OK</li>
+  <li>201 Created</li>
+  <li>202 Accepted: 요청이 접수되었으나 처리가 완료되지는 않음</li>
+  <li>204 No Content: 요청이 성공적으로 수행 되었으나, 응답으로 보낼 메시지가 없음</li>
+</ul>
+
+<h4 id="4xx-client-error">4xx (Client Error)</h4>
+<ul>
+  <li>400 Bad Request: 요청 구문/파라미터, 메시지 등의 오류</li>
+  <li>401 Unauthorized: 인증이 되지 않았음을 알려주는 오류</li>
+  <li>403 Forbidden: 요청이 접수되었으나 처리가 완료되지 않음 (ex: 어드민 권한)</li>
+  <li>404 Not Found: 요청 리소스가 서버에 없음</li>
+</ul>
+
+<h4 id="5xx-server-error">5xx (Server Error)</h4>
+<ul>
+  <li>500 Internal Server Error: 서버 내부 문제로 오류</li>
+  <li>503 Service Unavailable: 서비스 이용 불가 (과부하/점검)</li>
+</ul>
+
+<h3 id="api">API</h3>
+<ul>
+  <li>Application Programming Interface</li>
+</ul>
+
+<h4 id="query">query</h4>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">https://www.google.com:443/search?q=swift&hl=ko</code></li>
+  <li>
+<code class="language-plaintext highlighter-rouge">?q=swift&amp;hl-ko</code> 부분</li>
+  <li>key=value의 형태</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">?</code>로 시작, <code class="language-plaintext highlighter-rouge">&amp;</code>로 추가 기능</li>
+  <li>요청 body에 넣어(<code class="language-plaintext highlighter-rouge">POST PUT PATCH</code>) 보내거나 주소에 붙여(<code class="language-plaintext highlighter-rouge">GET</code>) 요청한다.</li>
+</ul>
+
+<h4 id="xml--json">XML / JSON</h4>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;users&gt;</span>
+	<span class="nt">&lt;user&gt;</span>
+		<span class="nt">&lt;name&gt;</span> John <span class="nt">&lt;/name&gt;</span>
+		<span class="nt">&lt;age&gt;</span> 22 <span class="nt">&lt;/age&gt;</span>
+	<span class="nt">&lt;/user&gt;</span>
+	<span class="nt">&lt;user&gt;</span>
+		<span class="nt">&lt;name&gt;</span> Mary <span class="nt">&lt;/name&gt;</span>
+		<span class="nt">&lt;age&gt;</span> 21 <span class="nt">&lt;/age&gt;</span>
+	<span class="nt">&lt;/user&gt;</span>
+<span class="nt">&lt;/user&gt;</span>
+</code></pre></div></div>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="w">
+	</span><span class="p">{</span><span class="w">
+		</span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"John"</span><span class="p">,</span><span class="w">
+		</span><span class="nl">"age"</span><span class="p">:</span><span class="w"> </span><span class="mi">22</span><span class="w">
+	</span><span class="p">},</span><span class="w">
+	</span><span class="p">{</span><span class="w">
+		</span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Mary"</span><span class="p">,</span><span class="w">
+		</span><span class="nl">"age"</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="w">
+	</span><span class="p">}</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre></div></div>
+
+<p>최근에는 <code class="language-plaintext highlighter-rouge">xml</code>을 사용하는 경우는 거의 없고 <code class="language-plaintext highlighter-rouge">json</code> 파일의 형태로 데이터를 주고 받습니다.</p>
+
+<h4 id="rest-api">REST API</h4>
+
+<p>API라는 것은 단순하게 요청 방식에 대한 약속을 정해둔 것입니다.</p>
+
+<p>하지만 <code class="language-plaintext highlighter-rouge">https://(ADDRESS)/1</code>이나 <code class="language-plaintext highlighter-rouge">https://(ADDRESS)/2</code>와 같이 요청을 넣어버리면 개발자들 간의 소통이 어려워지는 문제점이 있습니다.</p>
+
+<p>REST API는 이런 부분을 해소하고자 제안된 방안입니다.</p>
+
+<h5 id="restful-api">RESTFUL API</h5>
+<p>누가 보더라도 어떤 요청인지 이해가 되도록!</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">https://(ADDRESS)/movielists</code></li>
+  <li><code class="language-plaintext highlighter-rouge">https://(ADDRESS)/movielist?open=tomorrow</code></li>
+  <li><code class="language-plaintext highlighter-rouge">https://(ADDRESS)/movie-reservation</code></li>
+</ul>
+
+</body></html>

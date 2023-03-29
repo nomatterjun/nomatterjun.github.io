@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h1 id="함수">함수</h1>
+
+<h2 id="함수와-메모리">함수와 메모리</h2>
+<ul>
+  <li>함수는 특정 메모리 주소에 위치하고, 함수의 내용이 순차적으로 위치한다.</li>
+  <li>(0x01234): <code class="language-plaintext highlighter-rouge">threeAndFour</code>
+</li>
+  <li>모든 프로그래밍 언어에서 가장 처음 실행되는 <code class="language-plaintext highlighter-rouge">main()</code> 함수가 존재한다.
+    <ul>
+      <li>playground에는 <code class="language-plaintext highlighter-rouge">main</code> 함수가 없으니 <code class="language-plaintext highlighter-rouge">main</code> 함수 영역내라고 가정하고 연습해보자!</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="예시로-알아보자">예시로 알아보자</h3>
+
+<h4 id="예시1">예시1</h4>
+
+<pre><code class="language-Swift">func addTwoNumbers(a: Int, b: Int) -&gt; Int {
+	var c = a + b
+	return c
+}
+
+var num1 = 5
+var num2 = 3
+var num3 = addTwoNumbers(a: num1, b: num2)
+print(num3)
+</code></pre>
+
+<p>위 과정은 컴퓨터의 입장에서 다음과 같은 코드로 변환됩니다. 또한 이 코드들은 메모리의 <strong>코드</strong> 공간에 저장됩니다.</p>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">addTwoNumbers</code>
+    <ol>
+      <li>임시 공간을 만든다.</li>
+      <li>a라는 상수에 <code class="language-plaintext highlighter-rouge">Int</code> 타입 값을 저장한다.</li>
+      <li>b라는 상수에 <code class="language-plaintext highlighter-rouge">Int</code> 타입 값을 저장한다.</li>
+      <li>c 변수 공간을 만든다.</li>
+      <li>a + b를 더해서 임시 값을 갖는다.</li>
+      <li>임시값을 c에 저장한다.</li>
+      <li>c를 <code class="language-plaintext highlighter-rouge">return</code>한다. (CPU의 제어권과 반환값을 동시에 돌려준다.)</li>
+    </ol>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">MAIN</code>
+    <ol>
+      <li>num1이라는 변수 공간에 5를 저장한다.</li>
+      <li>num2라는 변수 공간에 3을 저장한다.</li>
+      <li>num3 변수 공간을 만든다.</li>
+      <li>
+<code class="language-plaintext highlighter-rouge">addTwoNumbers</code> 함수를 실행한다.</li>
+      <li>결과값을 num3 공간에 저장한다.</li>
+      <li>
+<code class="language-plaintext highlighter-rouge">print</code> 함수를 실행한다.</li>
+    </ol>
+  </li>
+</ul>
+
+<p>함수의 실행 시에는 함수 실행에 필요한 공간만큼의 <strong>스택 메모리 영역</strong>을 할당받습니다. 이러한 공간을 <strong>스택프레임</strong>이라고 합니다. 함수의 실행이 완료되면 해당 스택프레임은 pop되어 사라집니다.</p>
+
+<p>예를 들어 <code class="language-plaintext highlighter-rouge">addTwoNumbers</code>와 <code class="language-plaintext highlighter-rouge">MAIN</code>의 스택 구조는 다음과 같습니다.</p>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">addTwoNumbers</code>
+    <ul>
+      <li>함수 내 변수/상수 공간
+        <ul>
+          <li><strong>c</strong></li>
+        </ul>
+      </li>
+      <li>파라미터 공간 (상수)
+        <ul>
+          <li><strong>b (3)</strong></li>
+          <li><strong>a (5)</strong></li>
+        </ul>
+      </li>
+      <li><strong>함수값/임시값</strong></li>
+      <li>
+<strong>복귀주소</strong> (이 경우에는 <code class="language-plaintext highlighter-rouge">MAIN</code>의 <code class="language-plaintext highlighter-rouge">addTwoNumbers</code> 호출 주소)</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">MAIN</code>
+    <ul>
+      <li><strong>num3</strong></li>
+      <li><strong>num2 (3)</strong></li>
+      <li><strong>num1 (5)</strong></li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="예시2">예시2</h4>
+<h5 id="코드">코드</h5>
+
+<pre><code class="language-Swift">var total: Int = 0    // 실제 전역변수라면 (데이터영역)
+
+func square(_ i: Int) -&gt; Int {     // x 제곱
+    return i * i
+}
+
+func squareOfSum(_ x: Int, _ y: Int) -&gt; Int {    // (x + y)(x + y)
+    var z = square(x + y)
+    return z
+}
+
+func startFunction() {
+    var a = 4
+    var b = 8
+    total = squareOfSum(a, b)
+}
+
+startFunction()
+</code></pre>
+
+<h5 id="데이터">데이터</h5>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">total</code> (전역 변수)</li>
+</ul>
+
+<h5 id="힙">힙</h5>
+
+<h5 id="스택">스택</h5>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">square</code>
+    <ul>
+      <li>파라미터 공간 (상수)
+        <ul>
+          <li><strong>i (12)</strong></li>
+        </ul>
+      </li>
+      <li>임시값 (<code class="language-plaintext highlighter-rouge">return</code>)</li>
+      <li><strong>복귀주소</strong></li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">squareOfSum</code>
+    <ul>
+      <li>함수 내 상수/변수 공간
+        <ul>
+          <li><strong>z</strong></li>
+        </ul>
+      </li>
+      <li>파라미터 공간 (상수)
+        <ul>
+          <li><strong>x (4)</strong></li>
+          <li><strong>y (8)</strong></li>
+        </ul>
+      </li>
+      <li>
+<strong>임시값</strong> (<code class="language-plaintext highlighter-rouge">return</code>)</li>
+      <li>
+<strong>복귀주소</strong> (<code class="language-plaintext highlighter-rouge">startFunction</code>)</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">startFunction</code>
+    <ul>
+      <li>함수 내 scope 공간
+        <ul>
+          <li><strong>a (4)</strong></li>
+          <li><strong>b (8)</strong></li>
+        </ul>
+      </li>
+      <li>
+<strong>복귀주소</strong> (<code class="language-plaintext highlighter-rouge">MAIN</code>)</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">MAIN</code></li>
+</ul>
+</body></html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h1 id="에러">에러</h1>
+
+<h2 id="에러의-종류">에러의 종류</h2>
+<ol>
+  <li>컴파일 에러
+    <ul>
+      <li>코드가 잘못되었음을 알려주는 문법적 오류</li>
+    </ul>
+  </li>
+  <li>런타임 에러
+    <ul>
+      <li>여러가지 이유로 앱이 실행되는 동안 발생하는 오류</li>
+      <li>미리 발생 가능한 에러에 대응할 필요가 있다</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="에러-처리의-3단계">에러 처리의 3단계</h2>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">throws</code>와 <code class="language-plaintext highlighter-rouge">throw</code>를 사용</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">enum</code> 타입에 <code class="language-plaintext highlighter-rouge">Error</code> 프로토콜을 채택하여 커스텀 에러 사용</li>
+</ul>
+
+<pre><code class="language-Swift">enum SomeError: Error {
+	case aError, bError, cError
+}
+
+func doSomething(num: Int) throws -&gt; Bool {
+	if num &gt;= 7 {
+		return true
+	} else {
+		if num &lt; 0 {
+			throw SomeError.aError
+		}
+		return false
+	}
+}
+
+doSomething(num: 7) // true
+</code></pre>
+
+<h3 id="1-에러-정의">1) 에러 정의</h3>
+
+<p><code class="language-plaintext highlighter-rouge">enum</code> 타입으로 사용할 에러를 정의해야 합니다.</p>
+
+<p>이 때 <code class="language-plaintext highlighter-rouge">Error</code> 프로토콜을 채용해야 Swift에서 이 열거형 타입이 에러인지를 알 수 있기 때문에 꼭 채택해야 합니다!</p>
+
+<pre><code class="language-Swift">enum HeightError: Error {
+	case maxHeight
+	case minHeight
+}
+</code></pre>
+
+<h3 id="2-에러가-발생할-수-있는-함수에-대한-정의">2) 에러가 발생할 수 있는 함수에 대한 정의</h3>
+
+<p><code class="language-plaintext highlighter-rouge">throws</code> 키워드를 파라미터와 반환 타입 중간에 넣어주어 에러가 발생할 수 있는 함수라는 것을 명시해주어야 합니다.</p>
+
+<pre><code class="language-Swift">func checkingHeight(height: Int) throws -&gt; Bool {
+	if height &gt; 190 {
+		throw HeightError.maxHeight
+	} else if height &lt; 130 {
+		throw HeightError.minHeight
+	} else {
+		if height &gt;= 160 {
+			return true
+		} else {
+			return false
+		}
+	}
+}
+</code></pre>
+
+<h3 id="3-에러가-발생할-수-있는-함수의-처리실행">3) 에러가 발생할 수 있는 함수의 처리(실행)</h3>
+
+<p><code class="language-plaintext highlighter-rouge">try</code>, <code class="language-plaintext highlighter-rouge">do-catch</code>문을 사용하여 일반적인 함수와는 조금 다르게 실행해야 합니다.</p>
+
+<p>에러가 발생할 수 있다고 <code class="language-plaintext highlighter-rouge">throws</code> 키워드를 명시해둔 함수는 실행할 때 <code class="language-plaintext highlighter-rouge">try</code> 키워드를 붙여주어야 합니다.</p>
+
+<p>또한 이 <code class="language-plaintext highlighter-rouge">try</code>로 실행되는 함수들은 <code class="language-plaintext highlighter-rouge">do-catch</code>문 안에서만 쓰일 수 있습니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">do</code> 블럭 안에는 <code class="language-plaintext highlighter-rouge">try</code> 함수가 정상적으로 실행됐을 경우에 실행되는 함수들이 들어있습니다.</p>
+
+<p>반대로 <code class="language-plaintext highlighter-rouge">catch</code> 블럭 안에는 <code class="language-plaintext highlighter-rouge">try</code>로 실행된 함수에서 에러가 발생했을 때 실행되는 함수들이 들어있습니다.</p>
+
+<pre><code class="language-Swift">do { // 정상 처리
+	let result = try checkingHeight(height: 160)
+	switch result {
+	case true:
+		print("참")
+	case false:
+		print("거짓")
+	}
+} catch { // 에러 처리
+	print("올바르지 않은 몸무게")
+}
+</code></pre>
+
+<h2 id="에러-발생-가능한-함수의-형태">에러 발생 가능한 함수의 형태</h2>
+
+<p>일반적인 형태의 함수는 <code class="language-plaintext highlighter-rouge">() -&gt; ()</code>의 형태였습니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">throws</code>는 이 사이에 간단하게 쇽 넣어주는 것으로 사용할 수 있습니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">() throws -&gt; ()</code> ⬅️ 이렇게요!</p>
+
+<h2 id="에러-처리-방법">에러 처리 방법</h2>
+
+<p>에러를 발생시키는 방법을 알아보았습니다.</p>
+
+<p>그러면 이 에러가 발생 됐을 때 처리할 수 있는 방법들을 알아볼까요?</p>
+
+<h3 id="1-정식-처리-방법">1) 정식 처리 방법</h3>
+
+<p>위에서 사용했던 예시와 동일합니다.</p>
+
+<pre><code class="language-Swift">do {
+	let result = try checkingHeight(height: 160)
+} catch {
+	print("Error!")
+}
+</code></pre>
+
+<h3 id="2-optional-try-방법">2) Optional try 방법</h3>
+
+<p>에러 처리의 경우에도 <code class="language-plaintext highlighter-rouge">Optional</code>을 사용하면 아주 간단하게 처리할 수 있습니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">try</code> 뒤에 <code class="language-plaintext highlighter-rouge">?</code>를 붙여서 <code class="language-plaintext highlighter-rouge">try?</code> 처럼 사용하면 <code class="language-plaintext highlighter-rouge">Optional try</code>가 됩니다.</p>
+
+<p>이 <code class="language-plaintext highlighter-rouge">Optional try</code>는 정상적인 경우에는 정상 타입으로 반환하지만, 에러가 발생하면 <code class="language-plaintext highlighter-rouge">nil</code> 값을 반환해줍니다.</p>
+
+<p>나오는 값은 당연히 <code class="language-plaintext highlighter-rouge">Optional</code>이기 때문에 Optional Binding을 해주고 사용할 수 있습니다!</p>
+
+<pre><code class="language-Swift">let isChecked = try? checkingHeight(height: 200)
+</code></pre>
+
+<h3 id="3-forced-try-방법">3) Forced try 방법</h3>
+
+<p><code class="language-plaintext highlighter-rouge">Optional</code> 방법이 있었으니 <code class="language-plaintext highlighter-rouge">Forced</code> 방법도 있겠죠?</p>
+
+<p><code class="language-plaintext highlighter-rouge">Optional</code>하지 않은 타입으로 반환되지만, 에러가 발생할 경우 앱이 강제로 꺼질 수 있다는 위험이 있습니다!</p>
+
+<pre><code class="language-Swift">let isChecked2 = try! checkingHeight(height: 120)
+</code></pre>
+
+<h2 id="catch-블럭-처리법">catch 블럭 처리법</h2>
+
+<p>그런데 <code class="language-plaintext highlighter-rouge">enum</code> 타입으로 에러들을 정의할 때 한가지 에러만 만들었던 것이 아니였죠?</p>
+
+<pre><code class="language-Swift">enum SomeError: Error {
+	case aError, bError, cError
+}
+</code></pre>
+
+<p>이렇게 여러가지 에러 타입이 있는데, 이 많은 종류의 에러들을 <code class="language-plaintext highlighter-rouge">catch</code> 블럭 하나에서 처리하려면 어떻게 해야할까요?</p>
+
+<p><code class="language-plaintext highlighter-rouge">switch</code>문이나 <code class="language-plaintext highlighter-rouge">if-else</code> 문을 사용해서 분기 처리를 할 수도 있지만, 단순히 <code class="language-plaintext highlighter-rouge">catch</code>를 여러 가지로 붙여 쓰는 것으로 다양한 에러에 각각 처리문을 넣어줄 수 있습니다.</p>
+
+<pre><code class="language-Swift">do {
+	let isChecked = try checkingHeight(height: 100)
+} catch {
+	if let error = error as? HeightError {
+		switch error {
+		case .maxHeight:
+			print("키가 커서 놀이기구를 탈 수 없어요.")
+		case .minHeight:
+			print("키가 작아서 놀이기구를 탈 수 없어요.")
+		}
+	}
+}
+</code></pre>
+
+<pre><code class="language-Swift">do {
+	let isChecked = try checkingHeight(height: 100)
+} catch HeightError.maxHeight {
+	print("키가 커서 놀이기구를 탈 수 없어요.")
+} catch HeightError.minHeight {
+	print("키가 작아서 놀이기구를 탈 수 없어요.")
+} catch { // default
+	print("알 수 없는 에러")
+}
+</code></pre>
+
+<h2 id="에러를-던지는-함수를-처리하는-함수">에러를 던지는 함수를 처리하는 함수</h2>
+
+<p>에러를 발생시키는 함수와 처리하는 함수를 꼭 같은 곳에서 정의해줘야 한다면, 앱이 커질수록 불편함이 늘어날 수 있습니다.</p>
+
+<p>그래서 Swift는 에러를 처리하는 함수를 정의하는 여러가지 방법들을 만들어두었습니다.</p>
+
+<h3 id="throwing-함수로-에러-다시-던지기">throwing 함수로 에러 다시 던지기</h3>
+
+<p>함수 내에서 에러를 직접 처리하기 곤란한 경우, 해당 에러를 다른 함수로 던지고 그 다른 함수가 다시 에러를 던지도록 할 수 있습니다.</p>
+
+<pre><code class="language-Swift">func handleError() throws {
+	do { // do문까지 생략 가능
+		try throwingFunc()
+	}
+} // no catch
+
+do {
+	try handleError()
+} catch {
+	print(error)
+}
+</code></pre>
+
+<h3 id="rethrowing-함수로-에러-다시-던지기-rethrow">rethrowing 함수로 에러 다시 던지기 (<code class="language-plaintext highlighter-rouge">rethrow</code>)</h3>
+
+<p>에러를 던지는 throwing 함수를 파라미터로 받는 경우, 해당 함수의 에러를 다시 던지는 것 또한 가능합니다.</p>
+
+<pre><code class="language-Swift">func someFunction(callback: () throws -&gt; Void) rethrows {
+	// do문 생략
+	try callback()
+}
+
+func someFunction2(callback: () throws -&gt; Void) rethrows {
+	enum ChangedError: Error {
+		case cError
+	}
+
+	do {
+		try callback()
+	} catch {
+		throw ChangedError.cError
+	}
+}
+</code></pre>
+
+</body></html>

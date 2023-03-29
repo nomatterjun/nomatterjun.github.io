@@ -1,0 +1,279 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h1 id="클래스와-구조체">클래스와 구조체</h1>
+
+<h2 id="클래스와-구조체를-알아보기-전에">클래스와 구조체를 알아보기 전에!</h2>
+
+<h3 id="객체-지향-프로그래밍">객체 지향 프로그래밍</h3>
+<p><strong>클래스(틀)</strong> ➡️  <strong>객체(실제 데이터)</strong>
+ex) 강아지 ➡️  보리, 초코</p>
+
+<h2 id="클래스와-구조체-1">클래스와 구조체</h2>
+
+<pre><code class="language-Swift">class Dog {
+	// 속성 (property)
+	var name = "강아지"
+	var weight = 0.0
+
+	// 메서드 (method)
+	func sit() {
+		print("앉았습니다.")
+	}
+
+	func layDown() {
+		print("누웠습니다.")
+	}
+}
+
+var bori = Dog()
+print(bori.name) // "강아지"
+bori.name = "보리"
+print(bori.name) // "보리"
+var choco = Dog()
+print(bori.name) // "강아지"
+</code></pre>
+
+<pre><code class="language-Swift">struct Bird {
+	var name = "새"
+	var weight = 0.0
+
+	func fly() {
+		print("날아갑니다.")
+	}
+}
+
+var aBird = Bird()
+print(aBird.name) // "새"
+aBird.name = "참새"
+print(aBird.name) // "참새"
+</code></pre>
+
+<ul>
+  <li>
+<strong>인스턴스</strong>: 실제로 메모리에 할당되어 구체적 실체를 갖춘 것
+    <ul>
+      <li>Swift에서 클래스의 인스턴스를 <strong>객채(object)</strong> 라고 부름</li>
+      <li>클래스의 인스턴스 = 객체</li>
+      <li>구조체의 인스턴스</li>
+      <li>열거형의 인스턴스</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="클래스와-구조체의-차이는">클래스와 구조체의 차이는?</h3>
+<ul>
+  <li>메모리 저장 방식의 차이!</li>
+</ul>
+
+<h4 id="구조체">구조체</h4>
+<ul>
+  <li>
+<strong>값 형식</strong> (Value Type)</li>
+  <li>인스턴스 데이터를 모두 <strong>스택</strong>에 저장</li>
+  <li>값을 전달할 때마다 <strong>복사본을 생성</strong> (다른 메모리 공간 생성)</li>
+  <li>스택의 공간에 저장, 스택 프레임 종료 시 메모리에서 자동 제거</li>
+  <li>멤버와이즈 생성자 제공</li>
+  <li>메서드 내에서 속성 변경 원칙적으로 불가능
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">mutating</code> 키워드를 사용하여 가능</li>
+    </ul>
+  </li>
+  <li>소멸자 없음</li>
+  <li><strong>상속 불가능</strong></li>
+</ul>
+
+<h4 id="클래스">클래스</h4>
+<ul>
+  <li>
+<strong>참조 형식</strong> (Reference Type)</li>
+  <li>인스턴스 데이터를 <strong>힙</strong>에 저장, 해당 힙을 가리키는 변수는 스택에 저장
+    <ul>
+      <li>스택에 메모리 주소값 저장</li>
+    </ul>
+  </li>
+  <li>값을 전달할 때 값 자체가 아니라 <strong>저장된 주소를 전달</strong>
+</li>
+  <li>힙의 공간에 전달, <strong>ARC</strong> 시스템을 통해 메모리 관리</li>
+  <li>편의 생성자 존재</li>
+  <li>메서드 내에서 속성 변경 가능</li>
+  <li>소멸자 있음</li>
+  <li>
+<strong>상속 가능</strong>: 클래스의 유일한 특성</li>
+</ul>
+
+<h3 id="클래스와-구조체의-메모리">클래스와 구조체의 메모리</h3>
+
+<pre><code class="language-Swift">class Person {
+	var name = "사람"
+}
+
+struct Animal {
+	var name = "동물"
+}
+
+var p = Person()
+var a = Animal()
+
+print(p.name) // "사람"
+print(a.name) // "동물"
+
+var p2 = p
+p.name = "혜리"
+print(p.name) // "혜리"
+print(p2.name) // "혜리"
+</code></pre>
+
+<h3 id="클래스와-구조체의-let과-var">클래스와 구조체의 <code class="language-plaintext highlighter-rouge">let</code>과 <code class="language-plaintext highlighter-rouge">var</code>
+</h3>
+<ul>
+  <li>구조체의 경우 <code class="language-plaintext highlighter-rouge">let</code>으로 선언하면, 스택 영역에 저장되어 있기 때문에 프로퍼티가 모두 <code class="language-plaintext highlighter-rouge">let</code>으로 선언된다.</li>
+  <li>클래스의 경우 스택에는 메모리 주소만 담겨있기 때문에, 다른 클래스를 가리킬 수 없게 될 뿐, 프로퍼티 값들은 힙 영역에 있기 때문에 변경 가능하다.</li>
+</ul>
+
+<pre><code class="language-Swift">class PersonClass {
+	var name = "사람"
+	var age = 0
+}
+
+struct AnimalStruct {
+	var name = "동물"
+	var age = 0
+}
+
+let pclass = PersonClass()
+let astruct = AnimalStruct()
+
+pclass.name = "사람1" // Error 발생 X, 값이 변함!
+astruct.name = "동물1" // Error: Cannot assign to property
+</code></pre>
+
+<h3 id="접문법--명시적-멤버-표현식-explicit-member-expression의-정확한-의미">접문법 / 명시적 멤버 표현식 (Explicit Member Expression)의 정확한 의미</h3>
+<ul>
+  <li>내부의 요소(클래스/구조체의 인스턴스 멤버)에 접근한다.</li>
+  <li>멤버는 속성 혹은 메서드</li>
+</ul>
+
+<pre><code class="language-Swift">aBird.name
+aBird.fly()
+</code></pre>
+
+<h5 id="주의">주의!</h5>
+
+<blockquote>
+  <p>클래스의 내부에는 직접 메서드 실행문이 올 수 없다.</p>
+</blockquote>
+
+<ul>
+  <li>메서드 실행문은 메서드 정의 내부에서만 가능하다!</li>
+</ul>
+
+<h2 id="초기화의-의미">초기화의 의미</h2>
+
+<pre><code class="language-Swift">var bori = Dog()
+bori.name = "보리"
+bori.weight = 15.0
+</code></pre>
+
+<p>매번 위처럼 값을 넣어주기란 정말 귀찮을 수 있습니다. 프로퍼티가 많을수록 더욱 힘들어집니다.
+선언할 때 값을 동시에 넣어줄 수는 없을까요?
+당연히 됩니다! <strong>생성자(<code class="language-plaintext highlighter-rouge">init</code>)</strong> 을 사용한다면요.</p>
+
+<pre><code class="language-Swift">class Dog {
+	var name: String
+	var weight: Double
+
+	init(name: String, weight: Double) { // Initializer
+		self.name = name
+		self.weight = weight
+	} // self: 실제 인스턴스의 값
+
+	func sit() {
+		print("앉았습니다.")
+	}
+}
+
+var bori = Dog(n: "보리", w: 15.0)
+</code></pre>
+
+<h3 id="self"><code class="language-plaintext highlighter-rouge">self</code></h3>
+<ul>
+  <li>클래스/구조체 내부에서 해당 인스턴스를 가리킴</li>
+  <li>인스턴스 내에서 동일한 변수명, 상수명을 사용할 때 사용
+    <ul>
+      <li>가리키는 것을 명확하게 하기 위해</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="생성자의-특징">생성자의 특징</h3>
+<ul>
+  <li>모든 속성(변수)를 초기화 해야한다.
+    <ul>
+      <li>생성자 실행 종료 시점에는 모든 속성의 초기값이 저장되어 있어야 한다.</li>
+    </ul>
+  </li>
+  <li>클래스, 구조체, 열거형은 모두 설계도일 뿐이다.
+    <ul>
+      <li>실제 속성과 메서드를 사용하기 위해서는 초기화가 반드시 필요하다.</li>
+    </ul>
+  </li>
+  <li>오버로딩을 지원한다.
+    <ul>
+      <li>다양한 파라미터의 조합으로 생성자를 여러개 구현할 수 있다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="속성이-옵셔널-타입일-경우">속성이 옵셔널 타입일 경우</h3>
+<ul>
+  <li>속성을 <code class="language-plaintext highlighter-rouge">nil</code>로 초기화할 수 있다.</li>
+</ul>
+
+<pre><code class="language-Swift">class Dog() {
+	var name: String?
+	var weight: Int
+
+	init(weight: Int) {
+		self.name = "강아지"
+		self.weight = weight
+	}
+}
+
+var dog = Dog(weight: 10)
+
+if let name = dog.name {
+	print(name)
+}
+</code></pre>
+
+<h3 id="기본값default-부여-가능">기본값(default) 부여 가능</h3>
+
+<pre><code class="language-Swift">class Dog() {
+	var name: String
+	var weight: Int
+
+	init(name: String = "보리", weight: Int) {
+		self.name = name
+		self.weight = weight
+	}
+}
+
+var dog1 = Dog(name: "아리", weight: 15)
+var dog2 = Dog(weight: 16)
+</code></pre>
+
+<h2 id="식별연산자-identity-operator">식별연산자 (Identity Operator)</h2>
+<ul>
+  <li>두 개의 참조가 같은 인스턴스를 가리키고 있는지를 비교하는 연산자</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">===</code>, <code class="language-plaintext highlighter-rouge">!==</code>
+</li>
+</ul>
+
+<pre><code class="language-Swift">print(dog1 === dog2)
+print(dog1 !== dog2)
+</code></pre>
+</body></html>

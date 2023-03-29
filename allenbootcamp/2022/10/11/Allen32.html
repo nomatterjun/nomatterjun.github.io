@@ -1,0 +1,537 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h1 id="프로토콜-protocol">프로토콜 (protocol)</h1>
+<h2 id="프로토콜의-개념">프로토콜의 개념</h2>
+<h3 id="프로토콜의-필요성">프로토콜의 필요성</h3>
+<ul>
+  <li>클래스 상속의 단점
+    <ol>
+      <li>
+<strong>하나</strong>의 클래스만 상속 가능 (다중 상속 불가)</li>
+      <li>상위 클래스의 <strong>메모리 구조</strong>를 따라감 (필요하지 않은 저장속성/메서드도 상속)</li>
+      <li>
+<strong>클래스</strong>(참조 타입)에서만 가능</li>
+    </ol>
+  </li>
+  <li>프로토콜의 특징
+    <ol>
+      <li>클래스에서 벗어난 <strong>별도</strong>의 규칙</li>
+      <li>
+<strong>다중 상속</strong> 가능</li>
+      <li>필요한 경우 어떤 클래스/구조체건 <strong>원할 때 상속</strong> 가능</li>
+    </ol>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">// 클래스 상속의 단점
+
+class Bird {
+	var isFemale = true
+
+	func layEgg() {
+		if isFemale {
+			print("새가 알을 낳는다.")
+		}
+	}
+
+	func fly() {
+		print("새가 하늘로 날아간다.")
+	}
+}
+
+class Eagle: Bird {
+	func soar() {
+		print("공중으로 치솟아 난다.")
+	}
+}
+
+class Penguin: Bird {
+
+	// Penguin은 Bird를 상속 받았기 때문에
+	// 자동으로 fly() 메서드를 상속 받는다.
+	// 펭귄은 날지 못하는데...?
+	// func fly()
+
+	func swim() {
+		print("헤엄친다.")
+	}
+}
+
+class Airplane: Bird {
+
+	// Airplane 또한 Bird를 상속받았다.
+	// layEgg() 메서드를 상속 받았다.
+	// 비행기가 알을 낳아?
+	// func layEgg()
+
+	override func fly() {
+		print("비행기가 엔진을 사용하여 날아간다.")
+	}
+}
+</code></pre>
+
+<h5 id="잠깐">잠깐!</h5>
+
+<blockquote>
+  <p>그냥 상속받지 말고 새로 만들면 안돼요?</p>
+</blockquote>
+
+<p>되기는 하는데, 프로젝트가 커지거나 실무에 들어가면 예제처럼 클래스가 메서드 한두개만 갖지는 않습니다. 
+이미 구현되어 있는 그 많은 메서드들을 재사용하기 위해서 클래스를 새로 만들고 복붙을 한다는 건 너무나 성가시고 낭비도 심합니다.
+현실적으로 상속을 하는게 맞기 때문에 클래스의 이러한 속성은 단점으로 작용할 때가 꽤 많습니다.</p>
+
+<blockquote>
+  <p>그러면 fly() 메서드 같이 몇몇 하위 클래스들에겐 필요 없는 메서드들을 분리해서 상속을 하지 않아도 사용할 수는 없나요?</p>
+</blockquote>
+
+<p>그것이 바로 오늘의 주인공 프로토콜이 하는 일입니다.</p>
+
+<pre><code class="language-Swift">// 프로토콜의 형태
+
+protocol CanFly { // 프로토콜은 구체적인 구현은 하지 않는다.
+	func fly()
+}
+
+struct Penguin: CanFly { // 구조체도 채택 가능
+	func fly() {
+		print("날아갑니다.")
+	}
+}
+</code></pre>
+
+<p>프로토콜의 경우 채택을 했는데 포로토콜의 모든 메서드를 구현하지 않으면, 에러를 발생시킵니다. 채택한 프로토콜의 <strong>모든 메서드는 구현</strong>되어야 합니다!</p>
+
+<p>한가지 특징이 더 있습니다.
+프로토콜을 타입처럼 사용할 수 있습니다.</p>
+
+<pre><code class="language-Swift">struct FlyingMuseum {
+	func flyingDemo(flyingObject: CanFly) {
+		flyingObject.fly()
+	}
+}
+</code></pre>
+
+<p>위 예시에서  <code class="language-plaintext highlighter-rouge">CanFly</code>의 의미는 <code class="language-plaintext highlighter-rouge">CanFly</code> 프로토콜을 채택한 인스턴스를 받는다는 의미입니다.</p>
+
+<h2 id="프로토콜-문법">프로토콜 문법</h2>
+<ul>
+  <li>프로토콜에서는 구체적인 구현은 하지 않고 최소 요구사항만을 정의한다.</li>
+  <li>클래스의 상위 클래스가 있는 경우, 상위 클래스를 먼저 표기한다.</li>
+</ul>
+
+<pre><code class="language-Swift">protocol MyProtocol {
+	func doSomething() -&gt; Int
+}
+
+class MyClass { }
+
+class MySecondClass: MyClass, MyProtocol {
+	func doSomething() -&gt; Int {
+		return 7
+	}
+}
+</code></pre>
+
+<h3 id="속성-요구사항">속성 요구사항</h3>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">var</code>로만 선언 가능</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">get</code>, <code class="language-plaintext highlighter-rouge">set</code> 키워드를 통해서 읽기/쓰기 가능 여부 설정</li>
+  <li>저장속성/계산속성 모두 가능</li>
+</ul>
+
+<pre><code class="language-Swift">protocol RemoteMouse {
+	var id: String { get } // let (get만 가능)
+	var name: String { get set }
+
+	// 타입 저장 속성: static
+	// 타입 계산 속성: class
+	static var type: String { get set }
+}
+
+struct TV: RemoteMouse {
+	let id: String = 456
+	var name: String = "Samsung TV"
+	
+	static var type: String = "Remote Control" // 재정의 불가능
+	class var type: String { // 재정의 가능 (클래스에서 채택 시)
+		get { "Remote Control" }
+		set { }
+	}
+}
+</code></pre>
+
+<h3 id="메서드-요구사항">메서드 요구사항</h3>
+<ul>
+  <li>메서드의 헤드 부분만 요구사항으로 정의</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">mutating</code>: 구조체에서 저장 속성 변경 시 필요한 키워드</li>
+  <li>타입 메서드로 구현 시에는 <code class="language-plaintext highlighter-rouge">static</code>만 붙여주면 됨
+    <ul>
+      <li>채택하는 쪽에서 <code class="language-plaintext highlighter-rouge">static</code>, <code class="language-plaintext highlighter-rouge">class</code> 선택</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="생성자-요구사항">생성자 요구사항</h3>
+<ul>
+  <li>클래스는 상속을 고려해야 하기 때문에 채택하는 쪽에서 <code class="language-plaintext highlighter-rouge">required</code>를 붙여줘야 한다.
+    <ul>
+      <li>구조체는 상속이 없기 때문에 <code class="language-plaintext highlighter-rouge">required</code> 키워드가 필요하지 않다!</li>
+    </ul>
+  </li>
+  <li>혹은  <code class="language-plaintext highlighter-rouge">final</code> 키워드로 상속을 막으면 필수생성자로 구현하지 않아도 된다.</li>
+  <li>클래스일 경우 편의생성자(<code class="language-plaintext highlighter-rouge">convenience</code>)로 구현해도 된다.</li>
+</ul>
+
+<pre><code class="language-Swift">protocol SomeProtocol {
+	init(num: Int)
+}
+
+class SomeClass: SomeProtocol {
+	required init(num: Int) {
+	}
+}
+
+class SomeClass2: SomeClass {
+	// 다른 생성자 구현하지 않을 시 필수생성자 자동 상속
+}
+</code></pre>
+
+<pre><code class="language-Swift">protocol AProtocol {
+	init()
+}
+
+class ASuperClass {
+	init() {
+		
+	}
+}
+
+class ASubClass: ASuperClass, Aprotocol {
+	// 상속으로 인한 재정의 키워드 (override)
+	// 프로토콜 채택으로 인한 필수 키워드 (required)
+	required override init() {
+	}
+}
+</code></pre>
+
+<h4 id="실패가능-생성자일-경우">실패가능 생성자일 경우</h4>
+
+<pre><code class="language-Swift">protocol AProtocol {
+	init?(num: Int)
+}
+
+struct AStruct: AProtocol {
+	// 실패가능, 실패불가능, 일반 모두 가능
+	// 범위의 개념!
+	init?(num: Int) { }
+
+	init(num: Int) { }
+
+	init!(num: Int) { }
+}
+</code></pre>
+
+<h3 id="서브스크립트-요구사항">서브스크립트 요구사항</h3>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">get</code>, <code class="language-plaintext highlighter-rouge">set</code>을 사용하여 읽기/쓰기 여부 설정</li>
+</ul>
+
+<pre><code class="language-Swift">protocol DataList {
+	subscript(idx: Int) -&gt; Int { get }
+}
+
+struct DataStructure: DataList {
+	subscript(idx: Int) -&gt; {
+		get {
+			return 0
+		}
+	}
+}
+</code></pre>
+
+<h2 id="타입으로써의-프로토콜">타입으로써의 프로토콜</h2>
+<ul>
+  <li>프로토콜은 타입이다…!
+    <ul>
+      <li>프로토콜을 변수에 할당할 수 있다.</li>
+      <li>함수를 호출할 때, 프로토콜을 파라미터로 전달할 수 있다.</li>
+      <li>함수에서 프로토콜을 반환할 수 있다.</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">protocol Remote {
+	func turnOn()
+	func turnOff()
+}
+
+class TV: Remote {
+	func turnOn() {
+		print("TV 켜기")
+	}
+
+	func turnOff() {
+		print("TV 끄기")
+	}
+
+	func changeChannel() {
+		print("채널 바꾸기")
+	}
+}
+
+class SetTopBox: Remote {
+	func turnOn() { }
+	func turnOff() { }
+	func doNetflix() { }
+}
+
+let tv: Remote = TV()
+tv.turnOn() // "TV 켜기"
+tv.turnOff() // "TV 끄기"
+tv.changeChannel() // Error
+let sbox: Remote = SetTopBox()
+</code></pre>
+
+<h3 id="타입으로써의-장점">타입으로써의 장점</h3>
+<h4 id="같은-프로토콜끼리-묶어서-취급">같은 프로토콜끼리 묶어서 취급</h4>
+
+<pre><code class="language-Swift">let electronics: [Remote] = [tv, sbox]
+for item in electronics {
+	item.turnOn()
+}
+
+func turnOnElectronics(item: Remote) {
+	item.turnOff()
+}
+</code></pre>
+
+<h4 id="프로토콜-준수성-검사">프로토콜 준수성 검사</h4>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">is</code>: 특정 타입이 프로토콜을 채택하고 있는지 검사</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">as</code>: 타입캐스팅
+    <ul>
+      <li>특정 인스턴스를 프로토콜로 변환, 혹은 프로토콜을 인스턴스 실제 형식으로 캐스팅</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">let newBox = sbox as Remote
+
+let sbox2 = electronic[1] as? SetTopBox
+sbox2?.doNetflix()
+</code></pre>
+
+<h2 id="프로토콜의-상속">프로토콜의 상속</h2>
+<ul>
+  <li>프로토콜도 <strong>상속</strong>이 가능하다.
+    <ul>
+      <li>프로토콜을 채택할 때 적용됐던 <strong>다중상속</strong>도 지원한다.</li>
+    </ul>
+  </li>
+  <li>단순하게 요구사항들의 나열들이라고 생각하면 된다.</li>
+</ul>
+
+<pre><code class="language-Swift">protocol Remote {
+	func turnOn()
+	func turnOff()
+}
+
+protocol AirconRemote {
+	func up()
+	func down()
+}
+
+protocol SuperRemoteProtocol: Remote, AirconRemote {
+	func remote()
+}
+
+class HomePod: SuperRemoteProtocol {
+	func turnOn()
+	func turnOff()
+	func up()
+	func down()
+	func remote()
+}
+</code></pre>
+
+<h3 id="클래스-전용-프로토콜-anyobject">클래스 전용 프로토콜 (AnyObject)</h3>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">AnyObject</code>도 프로토콜 중의 하나이다.
+    <ul>
+      <li>해당 프로토콜은 <strong>클래스만 채택</strong>할 수 있다.</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">protocol SomeProtocol: AnyObject {
+	// ...
+}
+</code></pre>
+
+<h3 id="프로토콜의-합성">프로토콜의 합성</h3>
+<ul>
+  <li>하나의 타입으로 <strong>여러가지 프로토콜을 채택</strong>하는 것</li>
+  <li><code class="language-plaintext highlighter-rouge">[Protocol] &amp; [Protocol]</code></li>
+</ul>
+
+<pre><code class="language-Swift">protocol Named {
+	var name: String { get }
+}
+
+protocol Aged {
+	var age: Int { get }
+}
+
+struct Person: Named, Aged {
+	var name: String
+	var age: Int
+}
+
+func wishHappyBirthday(to celebrator: Named &amp; Aged) {
+	print("HBD, \(celebrator.name), you're now \(celebrator.age) years old.")
+}
+</code></pre>
+
+<h2 id="선택적-요구사항-optional-protocol-requirements">선택적 요구사항 (Optional Protocol Requirements)</h2>
+
+<h3 id="어트리뷰트-attribute">어트리뷰트 (Attribute)</h3>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">@objc</code>: Swift로 작성한 코드를 Obj-C 코드로도 사용할 수 있도록 해주는 어트리뷰트</li>
+</ul>
+
+<pre><code class="language-Swift">@objc protocol Remote {
+	@objc optional var isOn: Bool { get set }
+	func turnOn()
+	func turnOff()
+	@objc optional func doNetflix()
+}
+
+class TV: Remote { // No Error
+	func turnOn() { }
+	func turnOff() { }
+}
+</code></pre>
+
+<h2 id="프로토콜의-확장">프로토콜의 확장</h2>
+<ul>
+  <li>프로토콜의 확장을 통해 <strong>기본(default) 내용 구현</strong>이 가능하다.</li>
+  <li>기본(default) 구현이기 때문에 채택한 쪽에서 내용을 구현하면 해당 내용이 우선 적용된다.
+    <ul>
+      <li>데이터 영역에 만들어진 테이블에 찾아간다.(<strong>Witness Table</strong>)</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">extension</code>으로 확장된 프로토콜에서 요구 사항으로 정의되지 않은 메서드를 구현하면 타입에 따라 구현된다.
+    <ul>
+      <li>코드 영역에 있는 코드 주소에 직접 찾아간다.(<strong>Direct Dispatch</strong>)</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">protocol Remote {
+	// === Witness Table ===
+	func turnOn()
+	func turnOff()
+}
+
+extension Remote {
+	// 요구사항에 선언되어 있기 때문에 채택 시에 구현되지 않으면
+	// 해당 기본 구현 내용을 실행한다.
+	// === Witness Table ===
+	func turnOn() { print("리모컨 켜기") }
+	func turnOff() { print("리모컨 끄기") }
+	// =====================
+
+	// 요구사항에 선언되어 있지 않기 때문에
+	// 타입에 따라 구현되거나 되지 않는다.
+	// 테이블에 추가되지 않음 (호출 시 직접적으로 주소로 찾아가 실행)
+	// === Direct Dispatch ===
+	func doAnotherAction() {
+		print("또 다른 동작")
+	}
+	// =======================
+}
+
+
+</code></pre>
+
+<pre><code class="language-Swift">class Ipad: Remote {
+	func turnOn() { print("아이패드 켜기") }
+	func doAnotherAction() { print("아이패드 다른 동작") }
+}
+
+/* 
+[Ipad Class의 Virtual Table]
+ - func turnOn() - print("아이패드 켜기")
+ - func turnOff() - print("리모컨 끄기") -&gt; 기본 구현
+ - func doAnotherAction() - print("아이패드 다른 동작")
+*/
+let ipad: Ipad = Ipad()
+ipad.turnOn() // "아이패드 켜기"
+ipad.turnOff() // "리모컨 끄기" -&gt; 기본 구현
+ipad.doAnotherAction() // "아이패드 다른 동작"
+
+let ipad2: Remote = Ipad()
+ipad2.turnOn() // "아이패드 켜기"
+ipad2.turnOff() // "리모컨 끄기" -&gt; 기본 구현
+ipad2.doAnotherAction() // "또 다른 동작" -&gt; 기본 구현
+</code></pre>
+
+<h3 id="확장-제한">확장 제한</h3>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">Self</code>: 타입 자기 자신</li>
+  <li>특정 프로토콜을 채택한 타입에만 프로토콜 확장이 가능하도록 제한</li>
+</ul>
+
+<pre><code class="language-Swift">protocol Bluetooth {
+	func blueOn()
+	func blueOff()
+}
+
+extension Bluetooth where Self: Remote {
+	func blueOn() { print("블루투스 켜기") }
+	func blueOff() { print("블루투스 끄기") }
+}
+
+class SmartPhone: Remote, Bluetooth {
+	
+}
+let smartphone: SmartPhone = SmartPhone()
+smartphone.blueOn() // "블루투스 켜기"
+smartphone.blueOff() // "블루투스 끄기"
+</code></pre>
+
+<h2 id="프로토콜-지향-프로그래밍">프로토콜 지향 프로그래밍</h2>
+<ul>
+  <li>애플은 Swift를 “프로토콜 지향 프로그래밍”이라고 소개하고 있다.
+    <ul>
+      <li>“객체 지향 프로그래밍”의 단점을 보완
+        <h4 id="상속의-관점에서-생각해보는-프로토콜">상속의 관점에서 생각해보는 프로토콜</h4>
+        <ol>
+          <li>여러개의 프로토콜 채택 가능 (<strong>다중 상속</strong>)</li>
+          <li>
+<strong>메모리 구조</strong>에 대한 특정 <strong>요구사항 없음</strong> (<code class="language-plaintext highlighter-rouge">@objc optional</code>)</li>
+          <li>
+<strong>모든 타입</strong>에서 채택 가능 (값타입도 채택 가능)</li>
+          <li>
+<strong>타입으로 사용</strong> 가능하여 활용성 ⬆️</li>
+          <li>
+<strong>구성/재사용성</strong> ⬆️</li>
+          <li>애플이 이미 만들어둔 데이터타입도 채택하여 활용 가능 (<strong>소급적 적용</strong>)</li>
+        </ol>
+      </li>
+    </ul>
+  </li>
+</ul>
+</body></html>

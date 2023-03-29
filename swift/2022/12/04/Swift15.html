@@ -1,0 +1,247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1 id="reactorkit">ReactorKit</h1>
+
+<p>앱스토어에 등록된 앱들의 오픈소스를 훔쳐보면 꽤나 자주 보였던 ReactorKit입니다.</p>
+
+<p>사실 막연하게 React Native랑 관련된건가보다~ 하고 지나치곤 했었는데.. 전혀 아니였죠? 😜</p>
+
+<p>겨울 프로젝트 동안 사용해야 할 것 같아서 공부해보게 되었습니다!</p>
+
+<blockquote>
+  <p><a href="https://github.com/ReactorKit/ReactorKit">ReactorKit</a></p>
+</blockquote>
+
+<p><strong>ReactorKit</strong>은 <strong>RxSwift</strong>를 제대로, 또 편하게 사용하기 위해 나온 프레임워크입니다.</p>
+
+<p>공식 github에 설명된 글을 읽어보면, ReactorKit은 <strong>리액티브</strong>하고 <strong>일방성</strong>을 갖는 Swift 어플리케이션을 지원하기 위해 만들어졌다고 합니다.</p>
+
+<p>리액티브한거야 RxSwift 기반이니 그렇다고 치고, <strong>일방성</strong>에 주목하고 공부를 해보면 되겠네요!</p>
+
+<h2 id="기본-컨셉">기본 컨셉</h2>
+
+<p><img src="https://i.imgur.com/utDbuI4.png" width="500"></p>
+
+<p>ReactorKit은 <code class="language-plaintext highlighter-rouge">View</code>와 <code class="language-plaintext highlighter-rouge">Reactor</code>라는 것 사이를 유저의 <code class="language-plaintext highlighter-rouge">Action</code>과 뷰의 <code class="language-plaintext highlighter-rouge">State</code>를 <code class="language-plaintext highlighter-rouge">Observable stream</code>을 만들어 전달한다고 합니다.</p>
+
+<p>당최 무슨 말인지 알 수가 없네요 🤯</p>
+
+<p>하나씩 차근차근 봅시다.</p>
+
+<h3 id="view">View</h3>
+
+<p><code class="language-plaintext highlighter-rouge">View</code>는 우리가 생각하는 그 <code class="language-plaintext highlighter-rouge">View</code> 자체입니다.</p>
+
+<p>화면을 표시하는 모든 요소들을 <code class="language-plaintext highlighter-rouge">View</code>라고 하고 이 <code class="language-plaintext highlighter-rouge">View</code>들은 유저의 입력을 action stream으로 bind하거나 각각의 UI Component들에게 view states를 <code class="language-plaintext highlighter-rouge">bind</code>한다고 합니다.</p>
+
+<p>그러니까 <strong>1. 유저의 인터랙션을 받거나</strong> <strong>2. 하위 UI Component들에게 <code class="language-plaintext highlighter-rouge">Reactor</code>의 상태를 알려준다</strong>는 뜻인 것 같네요.</p>
+
+<p>이 <code class="language-plaintext highlighter-rouge">View</code>에는 비즈니스 로직이 없다고 합니다. 단지 전달자의 역할만 한다고 보면 될 것 같아요!</p>
+
+<p><code class="language-plaintext highlighter-rouge">View Controller</code>가 <code class="language-plaintext highlighter-rouge">View</code>라는 것을 명시하기 위해서 <code class="language-plaintext highlighter-rouge">View</code> 프로토콜을 채택하라고 합니다.</p>
+
+<pre><code class="language-Swift">class ProfileViewController: UIViewController, View {
+	var disposeBag = DisposeBag()
+}
+</code></pre>
+
+<p><code class="language-plaintext highlighter-rouge">View</code> 프로토콜을 채택하는 것 만으로 이 뷰컨은 <code class="language-plaintext highlighter-rouge">reactor</code> 프로퍼티를 갖게 됩니다.</p>
+
+<pre><code class="language-Swift">profileViewController.reactor = UserViewReactor()
+</code></pre>
+
+<p>위와 같은 작업이 자동으로 이루어진다는 의미입니다.</p>
+
+<p>이렇게 주어진 <code class="language-plaintext highlighter-rouge">reactor</code>라는 프로퍼티가 변경되게 되면, <code class="language-plaintext highlighter-rouge">bind(reactor:)</code> 메서드가 자동으로 호출됩니다. action stream과 state stream을 정의하기 위해 뷰컨 안에 이 함수를 만들어줍시다.</p>
+
+<pre><code class="language-Swift">func bind(reactor: ProfileViewReactor) {
+	// action (View -&gt; Reactor)
+	refreshButton.rx.tap.map { Reactor.Action.refresh }
+		.bind(to: reactor.action)
+		.disposed(by: self.disposeBag)
+
+	// state (Reactor -&gt; View)
+	reactor.state.map { $0.isFollowing }
+		.bind(to: followButton.rx.isSelected)
+		.disposed(by: self.disposeBag)
+}
+</code></pre>
+
+<p>스토리보드도 지원한다고 합니다!</p>
+
+<p>스토리보드를 사용하는 뷰컨은 <code class="language-plaintext highlighter-rouge">View</code>가 아니라 <code class="language-plaintext highlighter-rouge">StoryboardView</code>를 채택해야 합니다!</p>
+
+<pre><code class="language-Swift">class MyViewController: UIViewController, StoryboardView {
+	func bind(reactor: MyReactor) {
+		...
+	}
+}
+</code></pre>
+
+<h3 id="reactor">Reactor</h3>
+
+<p><code class="language-plaintext highlighter-rouge">Reactor</code>는 UI와는 전혀 관련없는 독립된 레이어 계층입니다.</p>
+
+<p>하지만 <code class="language-plaintext highlighter-rouge">View</code>의 상태를 결정해주는 아주 중대한 역할을 합니다.</p>
+
+<p>모든 <code class="language-plaintext highlighter-rouge">View</code>는 각자의 <code class="language-plaintext highlighter-rouge">Reactor</code>를 가져야하고, 모든 로직을 그 <code class="language-plaintext highlighter-rouge">Reactor</code>에 위임(delegate)합니다.</p>
+
+<p>그러면서도 <code class="language-plaintext highlighter-rouge">Reactor</code>는 <code class="language-plaintext highlighter-rouge">View</code>에 대한 의존성이 1도 없기 때문에 Unit Test하기에도 수월하다고 하네요!</p>
+
+<p><code class="language-plaintext highlighter-rouge">Reactor</code>를 사용하기 위해서는 <code class="language-plaintext highlighter-rouge">View</code>와 마찬가지로 <code class="language-plaintext highlighter-rouge">Reactor</code> 프로토콜을 채택해야 합니다.</p>
+
+<p>이 프로토콜을 채택한 객체는 <code class="language-plaintext highlighter-rouge">Action</code>, <code class="language-plaintext highlighter-rouge">Mutation</code>, <code class="language-plaintext highlighter-rouge">State</code> 세가지 타입을 가져야합니다.</p>
+
+<p>또한 <code class="language-plaintext highlighter-rouge">initialState</code>라는 프로퍼티도 가져야 한다고 합니다.</p>
+
+<pre><code class="language-Swift">class ProfileViewReactor: Reactor {
+	// represent user actions
+	enum Action {
+		case refreshFollowingStatus(Int)
+		case follow(Int)
+	}
+
+	// represent state changes
+	enum Mutation { 
+		case setFollowing(Bool)
+	}
+
+	// represents the current view state
+	struct State {
+		var isFollowing: Bool = false
+	}
+
+	let initialState: State = State()
+}
+</code></pre>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Action</code>
+유저 인터랙션을 의미합니다.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">State</code>
+<code class="language-plaintext highlighter-rouge">View</code>의 상태를 의미합니다.</p>
+  </li>
+  <li>
+    <p>Mutation
+<code class="language-plaintext highlighter-rouge">Action</code>과 <code class="language-plaintext highlighter-rouge">State</code>를 이어주는 역할을 합니다.</p>
+  </li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">Reactor</code>는 두 단계를 거쳐 action stream을 state stream으로 변환합니다.</p>
+
+<p><img src="https://i.imgur.com/yJ9zsoJ.png" width="500"></p>
+
+<p>바로 <code class="language-plaintext highlighter-rouge">mutate()</code>와 <code class="language-plaintext highlighter-rouge">reduce()</code>를 통해서죠.</p>
+
+<p><code class="language-plaintext highlighter-rouge">mutate()</code>는 <code class="language-plaintext highlighter-rouge">Action</code>을 받아 <code class="language-plaintext highlighter-rouge">Observable&lt;Mutation&gt;</code>을 생성합니다.</p>
+
+<p>모든 비동기 작업들이나 API 호출 등이 여기에 들어가는 작업이라고 합니다.</p>
+
+<pre><code class="language-Swift">func mutate(action: Action) -&gt; Observable&lt;Mutation&gt; {
+	switch action {
+	case let .refreshFollowingStatus(userID): // receive action
+		return UserAPI.isFollowing(userID) // create API stream
+			.map { (isFollowing: Bool) -&gt; Mutation in
+				return Mutation.setFollowing(isFollowing) // convert to Mutation stream
+			}
+	case let .follow(userID):
+		return UserAPI.follow()
+			.map { _ -&gt; Mutation in
+				return Mutation.setFollowing(true)
+			}
+	}
+}
+</code></pre>
+
+<p><code class="language-plaintext highlighter-rouge">reduce()</code>는 이전의 <code class="language-plaintext highlighter-rouge">State</code>와 <code class="language-plaintext highlighter-rouge">Mutation</code>으로부터 새로운 <code class="language-plaintext highlighter-rouge">State</code>를 만드는 메서드입니다.</p>
+
+<p>새로운 <code class="language-plaintext highlighter-rouge">State</code>를 동기적으로 반환하는 기능 외의 기능은 넣지 말라고 하네요.</p>
+
+<pre><code class="language-Swift">func reduce(state: State, mutation: Mutation) -&gt; State {
+	var state = state // create a copy of old state
+	switch mutation {
+	case let .setFollowing(isFollowing):
+		state.isFollowing = isFollowing // manipulate the state, creating a new state
+		return state // return new state
+	}
+}
+</code></pre>
+
+<p><code class="language-plaintext highlighter-rouge">transform()</code>은 각 stream을 다른 stream으로 변환하는 기능을 하는 메서드입니다.</p>
+
+<pre><code class="language-Swift">func transform(action: Observable&lt;Action&gt;) -&gt; Observable&lt;Action&gt;
+func transform(mutation: Observable&lt;Mutation&gt;) -&gt; Observable&lt;Mutation&gt;
+func transform(state: Observable&lt;State&gt;) -&gt; Observable&lt;State&gt;
+</code></pre>
+
+<h2 id="심화">심화</h2>
+
+<h3 id="global-states">Global States</h3>
+
+<p>Redux와 다르게 <strong>ReactorKit</strong>은 global app state를 정의하지 않는다고 합니다.</p>
+
+<p>저는 Redux가 뭔지 모르니 일단 넘어가볼게요..</p>
+
+<p>그렇기 때문에 global state를 아무걸로나 관리할 수 있다고 합니다. <code class="language-plaintext highlighter-rouge">BehaviorSubject</code>나 <code class="language-plaintext highlighter-rouge">PublishSubject</code>, 혹은 <code class="language-plaintext highlighter-rouge">reactor</code>를 사용해서 관리할 수 있다고 하네요.</p>
+
+<p>동시에 global state를 사용하도록 강제하지도 않는다고 합니다.</p>
+
+<p>ReactorKit에는 <strong>Action ➡️ Mutation ➡️ State</strong> Flow가 존재하지 않습니다.</p>
+
+<p>그래서 global state를 <code class="language-plaintext highlighter-rouge">Mutation</code>으로 변환하려면 <code class="language-plaintext highlighter-rouge">transform(mutation:</code>을 사용해야 합니다.</p>
+
+<pre><code class="language-Swift">var currentUser: BehaviorSubject&lt;User&gt; // global state
+
+func transform(mutation: Observable&lt;Mutation&gt;) -&gt; Observable&lt;Mutation&gt; {
+	return Observable.merge(mutation, currentUser.map(Mutation.setUser))
+}
+</code></pre>
+
+<p>위 예시는 <code class="language-plaintext highlighter-rouge">currentUser</code>가 바뀔 때  <code class="language-plaintext highlighter-rouge">Mutation.setUser</code>를 실행해달라는 코드입니다.</p>
+
+<p>*음.. 🤔 *</p>
+
+<p>*이 부분은 ReactorKit을 사용해가면서 차차 이해해봐야겠습니다… 😂  *</p>
+
+<h3 id="view-communication">View Communication</h3>
+
+<p>View간의 데이터 전달이 이루어질 때 보통 <code class="language-plaintext highlighter-rouge">delegate</code> 패턴이나 <code class="language-plaintext highlighter-rouge">closure</code>를 사용하죠?</p>
+
+<p>ReactorKit은 데이터 전달에 위 두 가지 방법을 사용하지 말고 <a href="https://github.com/ReactiveX/RxSwift/blob/master/RxSwift/Reactive.swift">reactive extension</a>을 사용하는 것을 추천한다고 합니다.</p>
+
+<pre><code class="language-Swift">// Read as "Reactive Extension where Base is a SomeType"
+extension Reactive where Base: SomeType {
+	// Any specific reactive extension for SomeType
+}
+</code></pre>
+
+<p><img src="https://i.imgur.com/0zL1XoU.png" width="500"></p>
+
+<p>View A를 <code class="language-plaintext highlighter-rouge">ChatViewController</code>, View B를 <code class="language-plaintext highlighter-rouge">MessageInputView</code>라고 합시다.</p>
+
+<p>View B는 View A의 <code class="language-plaintext highlighter-rouge">subview</code>입니다.</p>
+
+<p>View B가 View A에 <code class="language-plaintext highlighter-rouge">ControlEvent</code>를 보내면 View A에서 본인의 reactor인 Reactor A에 <code class="language-plaintext highlighter-rouge">Action</code>을 전달하는 시나리오입니다.</p>
+
+<p>원래의 방식대로 View B에서 View A로 이벤트나 데이터를 전달하려면 <code class="language-plaintext highlighter-rouge">delegate</code>나 <code class="language-plaintext highlighter-rouge">closure</code>를 사용했었죠.</p>
+
+<p>대신 ReactorKit이 추천하는 방식대로 <code class="language-plaintext highlighter-rouge">Reactive extension</code>을 사용해서 구현을 해보면 아래와 같습니다.</p>
+
+<pre><code class="language-Swift">// MessageInputView.swift
+extension Reactive where Base: MessageInputView {
+	var sendButtonTap: ControlEvent&lt;String&gt; {
+		let source = base.sendButton.rx.tap.withLatestFrom(...)
+		return ControlEvent(events: source)
+	}
+}
+</code></pre>
+
+<pre><code class="language-Swift">// ChatViewController.swift
+messageInputView.rx.sendButtonTap
+	.map(Reactor.Action.send)
+	.bind(to: reactor.action)
+</code></pre>
+</body></html>

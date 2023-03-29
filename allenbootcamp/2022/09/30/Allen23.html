@@ -1,0 +1,258 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h1 id="구조체와-클래스의-메서드">구조체와 클래스의 메서드</h1>
+
+<h2 id="메서드의-메모리-동작">메서드의 메모리 동작</h2>
+<ol>
+  <li>
+<strong>코드 영역</strong>에서 <code class="language-plaintext highlighter-rouge">bori.sit()</code>과 같은 접근연산자를 사용한 메서드를 마주친다.</li>
+  <li>
+<strong>스택 영역</strong>의 <code class="language-plaintext highlighter-rouge">bori</code> 변수에 찾아간다.
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">bori</code> 변수는 힙 영역의 보리 객체를 가리키고 있다.</li>
+    </ul>
+  </li>
+  <li>
+<strong>힙 영역</strong>의 <code class="language-plaintext highlighter-rouge">bori</code> 객체에 찾아간다.
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">bori</code>의 메서드는 데이터 영역의 클래스 타입에 저장되어 있다.</li>
+    </ul>
+  </li>
+  <li>
+<strong>데이터 영역</strong>의 <code class="language-plaintext highlighter-rouge">Dog</code>(<code class="language-plaintext highlighter-rouge">bori</code>의 상위 클래스) 클래스 타입에 찾아간다.
+    <ul>
+      <li>클래스 타입의 메서드는 실제로는 <strong>코드 영역의 주소값</strong>을 테이블 형태로 지닌다.</li>
+    </ul>
+  </li>
+  <li>
+<strong>코드 영역</strong>의 <code class="language-plaintext highlighter-rouge">sit()</code> 함수를 찾아 실행한다.</li>
+</ol>
+
+<h5 id="잠깐">잠깐!</h5>
+
+<blockquote>
+  <p>아니 왜 이렇게 복잡하게 실행하는거에요..?</p>
+</blockquote>
+
+<p>우선 메서드의 개수가 많아질 경우에는 힙 영역에 메서드를 전부  복사할 경우, 메모리의 누수가 굉장히 많아집니다.
+또한 클래스의 <strong>상속</strong> 기능을 지원하기 위해서입니다. 이후 상속 포스트에서 자세하게 다뤄볼겁니다!
+<img src="https://stansign.github.io/blog/Allen25" alt="🧰 Swift - 클래스(Class)의 상속과 초기화"></p>
+
+<p>실제로 구조체(struct)의 경우에는 상속을 지원하지 않기 때문에 위와 같은 복잡한 메모리 접근 구조가 필요가 없습니다. 때문에 구조체의 메서드는 호출 하는 부분의 코드 영역에 <strong>메서드의 코드 영역 메모리 주소</strong>를 직접 명시해버립니다. 이를 <strong>Direct Dispatch</strong>라고 부릅니다.</p>
+
+<h2 id="인스턴스-메서드-instance-methods">인스턴스 메서드 (Instance Methods)</h2>
+<ul>
+  <li>가장 기본적인 메서드</li>
+</ul>
+
+<pre><code class="language-Swift">class Dog {
+	var name: String
+	var weight: Double
+
+	init(name: String, weight: Double) {
+		self.name = name
+		self.weight = weight
+	}
+
+	func sit() {
+		print("\(name)가 앉았습니다.")
+	}
+
+	func layDown() {
+		print("\(name)가 누웠습니다.")
+	}
+
+	func play() {
+		print("열심히 놉니다.")
+	}
+
+	func training() {
+		sit()
+		self.sit()
+		self.sit()
+	}
+
+	func changeName(newName name: String) {
+		self.name = name
+	}
+}
+
+let bori = Dog(name: "보리", weight: 20.0)
+bori.sit()
+bori.layDown()
+bori.play()
+
+bori.changeName(newName: "말썽쟁이 보리")
+print(bori.name) // "말썽쟁이 보리"
+</code></pre>
+
+<h3 id="구조체의-인스턴스-메서드">구조체의 인스턴스 메서드</h3>
+<ul>
+  <li>값타입에서는 기본적으로 인스턴스 메서드 내에서 속성을 수정할 수 없다.</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">mutating</code> 키워드를 붙이면 속성 수정이 가능하다.</li>
+</ul>
+
+<pre><code class="language-Swift">struct Dog {
+	var name: String
+	var weight: Double
+
+	init(name: String, weight: Double) {
+		self.name = name
+		self.weight = weight
+	}
+
+	func sit() {
+		print("\(name)가 앉았습니다.")
+	}
+
+	mutating func changeName(newName name: String) {
+		self.name = name
+	}
+}
+</code></pre>
+
+<h5 id="잠깐-1">잠깐!</h5>
+
+<blockquote>
+  <p>아니 왜 mutating이라는 키워드까지 붙여서  속성을 바꿔야 하나요? 그냥 바꾸게 두면 안돼요?</p>
+</blockquote>
+
+<p>구조체는 <strong>값타입</strong>입니다. 값타입의 데이터는 값을 바꾸게 되면 해당 데이터의 값을 바꾸는 것이 아니라, 바꿀 데이터를 가진 <strong>새로운 데이터</strong>를 만들어버립니다. 그 이유는 스택 메모리의 특성 상 <strong>새로운 데이터를 만드는 것이 더 빠르고</strong>, <strong>목적</strong> 또한 그렇게 사용하기 위함이였기 때문입니다.</p>
+
+<p>그래서 <code class="language-plaintext highlighter-rouge">dog.name = "Doggie"</code>와 같이 값을 변경하면, 내부적으로는 <code class="language-plaintext highlighter-rouge">"Doggie"</code>의 값을 갖는 새로운 <code class="language-plaintext highlighter-rouge">Dog()</code> 객체를 생성하고, 원래 있던 오래된 객체를 pop시킵니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">mutating</code>은 이런 현상을 막기 위해 주어지는 키워드입니다. <code class="language-plaintext highlighter-rouge">mutating</code> 키워드가 주어지면, 값타입 데이터의 값에 변경이 일어날 때 새로운 데이터를 만드는 대신 해당 속성의 <strong>주소값에 접근하여 값 자체를 수정</strong>합니다. 이는 Swift의 <code class="language-plaintext highlighter-rouge">inout</code> 방식과 동일하고, C언어의 포인터와 같은 기능이라고 볼 수 있겠습니다.</p>
+
+<p>겉으로 보기에는 같은 기능이지만, 내부적으로는 전혀 다른 동작 방식이였던 것이죠! 조금 더 나아가서 생각해보면, <code class="language-plaintext highlighter-rouge">class</code>는 참조타입이기 때문에 <code class="language-plaintext highlighter-rouge">mutating</code> 키워드를 사용할 필요가 전혀 없습니다. 때문에 XCode도 에러를 발생시키죠!</p>
+
+<h3 id="오버로딩-overloading">오버로딩 (Overloading)</h3>
+
+<pre><code class="language-Swift">struct Dog {
+	func sit() {
+		print("앉았습니다.")
+	}
+
+	func sit(a: String) {
+		print("\(a)가 앉았습니다.")
+	}
+}
+</code></pre>
+
+<h2 id="타입-메서드-type-method">타입 메서드 (Type Method)</h2>
+<ul>
+  <li>타입 속성과 비슷하게 타입에 종속
+    <ul>
+      <li>내/외부에서 <code class="language-plaintext highlighter-rouge">Type.method()</code>로 접근</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">class Dog {
+	static var species = "Dog"
+
+	static func letMeKnow() {
+		print("종은 항상 \(species)입니다.")
+	}
+}
+</code></pre>
+
+<h3 id="클래스를-사용한-상속">클래스를 사용한 상속</h3>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">static</code> 대신  <code class="language-plaintext highlighter-rouge">class</code> 키워드를 사용하여 상속할 때 <code class="language-plaintext highlighter-rouge">override</code> 가능</li>
+</ul>
+
+<pre><code class="language-Swift">class Dog {
+	class func someTypeMethod() {
+		print("타입과 관련된 공통된 기능의 구현")
+	}
+}
+
+class Dog2: Dog {
+	override class func someTypeMethod() {
+		print("타입과 관련된 공통된 기능의 구현 (업데이트)")
+	}
+}
+</code></pre>
+
+<h2 id="서브-스크립트-subscripts">서브 스크립트 (Subscripts)</h2>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">[]</code>(대괄호)는 사실 특별한 형태의 메서드 호출 역할
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">array[0]</code>, <code class="language-plaintext highlighter-rouge">dictionary["A"]</code>
+</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">class myData {
+	var datas = ["Apple", "Swift", "iOS", "Hello"]
+
+	subscript(index: Int) -&gt; String {
+		get {
+			return datas[index]
+		}
+		set(parameterName) {
+			datas[index] = parameterName
+		}
+	}
+}
+
+var data = myData()
+
+// subsript 추가 전
+print(data[3]) // Error
+print(data.datas[3]) // "Hello"
+
+// subscript 추가 후
+print(data[0]) // "Apple"
+data[0] = "AAA"
+print(data[0]) // "AAA"
+</code></pre>
+
+<h3 id="사용-예시">사용 예시</h3>
+
+<pre><code class="language-Swift">struct TimesTable {
+	let multiplier: Int = 3
+
+	subscript(index: Int) -&gt; Int {
+		return multiplier * index
+	}
+}
+
+let threeTimesTable = TimesTable()
+print("6에 3배를 하면 숫자 \(threeTimesTable[6])이 나옵니다.") // 18
+</code></pre>
+
+<h2 id="타입-서브-스크립트-type-subscripts">타입 서브 스크립트 (Type Subscripts)</h2>
+
+<pre><code class="language-Swift">enum Planet: Int {
+	case mercury = 1, venus, earth, mars, jupiter, saturn, uranus, neptune
+
+	static subscript(n: Int) -&gt; Planet { // or Planet 대신 Self
+		return Planet(rawValue.n)!
+	}
+}
+
+let mars = Planet[4]
+print(mars) // mars
+</code></pre>
+
+<h5 id="참고">참고</h5>
+<p>여기까지 이해했다면 이제  <code class="language-plaintext highlighter-rouge">Int</code>나 <code class="language-plaintext highlighter-rouge">String</code> 등의 타입의 구조를 이해할 수 있습니다.
+이런 타입은 구조체로 구현되어 있습니다. 그리고 타입 메서드들을 사용하여 개발자들에게 사용할 수 있도록 제공하는 형태입니다.</p>
+
+<pre><code class="language-Swift">struct Int {
+	static func random(in range: Range&lt;Int&gt;) -&gt; Int { ... }
+}
+
+Int.random(1...10)
+</code></pre>
+</body></html>

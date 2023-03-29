@@ -1,0 +1,383 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1 id="compositional-layout">Compositional Layout</h1>
+
+<blockquote>
+  <p>높은 반응성을 갖고 유연한 UI 조정이 가능한 item들을 조합하여 사용하는 레이아웃입니다.</p>
+</blockquote>
+
+<p>애플이 Compositional Layout을 소개하면서 대표적으로 예시를 든 앱이 App Store와 사진 앱입니다.</p>
+
+<p><img src="https://i.imgur.com/HVZBa7K.gif"></p>
+
+<p>여러가지 형태의 레이아웃들이 줄지어 있지만, 이 화면은 단 하나의 <code class="language-plaintext highlighter-rouge">CollectionView</code>로 이루어져있다고 합니다.</p>
+
+<p>기존의 <code class="language-plaintext highlighter-rouge">FlowLayout</code>을 사용했다면 각기 다른 레이아웃에 따라 여러개의 <code class="language-plaintext highlighter-rouge">CollectionView</code>를 사용했어야 했지만 <code class="language-plaintext highlighter-rouge">CompositionalLayout</code>을 사용하면 하나의 <code class="language-plaintext highlighter-rouge">CollectionView</code>로 처리할 수 있다는 것이죠.</p>
+
+<p>그러면서도 이전보다 쉬운 API로 구현이 가능하고, 빠르고 메모리 최적화에 더 우수하다고 합니다.</p>
+
+<h2 id="기본-개념">기본 개념</h2>
+
+<p><code class="language-plaintext highlighter-rouge">CompositionalLayout</code>은 세 가지의 핵심 요소에 집중하면 됩니다.</p>
+
+<p>가장 작은 단위인 <strong><code class="language-plaintext highlighter-rouge">Item</code>이 모여서 <code class="language-plaintext highlighter-rouge">Group</code></strong> 이 되고, 하나의 줄(row)를 형성합니다.</p>
+
+<p>이 <strong><code class="language-plaintext highlighter-rouge">Group</code>들은 다시 한번 모여서 <code class="language-plaintext highlighter-rouge">Section</code></strong> 을 이룹니다. 이렇게 만들어진 모든 <code class="language-plaintext highlighter-rouge">Section</code>을 <code class="language-plaintext highlighter-rouge">Layout</code>이 담고 있는 것이죠.</p>
+
+<p><img src="https://i.imgur.com/pBUzta2.png" width="550"></p>
+
+<h3 id="size">Size</h3>
+
+<p><code class="language-plaintext highlighter-rouge">CompositionalLayout</code>이 갖고 있는 이 모든 요소들은 각각의 <code class="language-plaintext highlighter-rouge">size</code>를 갖고 있습니다.</p>
+
+<p>그리고 <code class="language-plaintext highlighter-rouge">size</code>는 모두가 알고있듯이 <code class="language-plaintext highlighter-rouge">width</code>와 <code class="language-plaintext highlighter-rouge">height</code>, 두 가지 속성으로 이루어져 있습니다.</p>
+
+<pre><code class="language-Swift">class NSCollectionLayoutSize {
+	init(
+		widthDimension: NSCollectionLayoutDimension,
+		heightDimension: NSCollectionLayoutDimension
+	)
+}
+</code></pre>
+
+<p>하지만 주의할 점은 이 <code class="language-plaintext highlighter-rouge">width</code>와 <code class="language-plaintext highlighter-rouge">height</code>는 스칼라 값이 아닙니다.</p>
+
+<p>그래서 <code class="language-plaintext highlighter-rouge">Float</code>와 같은 타입이 아니라 <code class="language-plaintext highlighter-rouge">NSCollectionLayoutDimension</code> 타입의 값을 파라미터로 취합니다.</p>
+
+<pre><code class="language-Swift">class NSCollectionLayoutDimension {
+	class func fractionalWidth(_ fractionalWidth: CGFloat) -&gt; Self
+	class func fractionalHeight(_ fractionalHeight: CGFloat) -&gt; Self
+	class func absolute(_ absoluteDimension: CGFloat) -&gt; Self
+	class func estimated(_ estimatedDimension: CGFloat) -&gt; Self
+}
+</code></pre>
+
+<p>총 네 가지 타입으로 구분할 수 있고, 각각을 쉽게 설명하면 다음과 같습니다.</p>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">fractional</code>: 상위 컴포넌트(컨테이너)의 크기에 비례하여 크기를 가질 때 사용됩니다.
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">.fractionalWidth(0.5)</code>, <code class="language-plaintext highlighter-rouge">.fractionalHeight(0.3)</code>
+</li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">absolute</code>: 고정된 값의 크기를 가질 때 사용됩니다.
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">.absolute(200)</code></li>
+    </ul>
+  </li>
+  <li>
+<code class="language-plaintext highlighter-rouge">estimated</code>: 고정된 값으로 시작되지만 크기가 변동될 때 사용됩니다.
+    <ul>
+      <li>.estimated(200)</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="item">Item</h3>
+
+<p><code class="language-plaintext highlighter-rouge">Item</code>은 화면에 렌더링되는 요소입니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">cell</code>이나 <code class="language-plaintext highlighter-rouge">supplementary</code>가 여기에 해당됩니다.</p>
+
+<pre><code class="language-Swift">class NSCollectionLayoutItem {
+	convenience init(layoutSize: NSCollectionLayoutSize)
+	var contentInsets: NSDirectionalEdgeInsets
+}
+</code></pre>
+
+<p>초기화할 때 <code class="language-plaintext highlighter-rouge">size</code>를 정해줘야하고, <code class="language-plaintext highlighter-rouge">contentInsets</code>를 통해 inset도 정해줄 수가 있네요.</p>
+
+<h3 id="group">Group</h3>
+
+<p><code class="language-plaintext highlighter-rouge">Group</code>은 레이아웃으로서의 가장 기본적인 단위가 되는 요소입니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Group</code>은 <code class="language-plaintext highlighter-rouge">.horizontal</code>, <code class="language-plaintext highlighter-rouge">.vertical</code>, <code class="language-plaintext highlighter-rouge">.custom</code>의 세가지 형태로 정의해줄 수 있습니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Group</code>을 하나의 작은 <code class="language-plaintext highlighter-rouge">FlowLayout</code>이라고 생각해보면 이해가 쉽습니다.</p>
+
+<p>가로 혹은 세로 한쪽 방향으로 쭉 이어지는 레이아웃이니까요.</p>
+
+<p>한 쪽 방향으로만 진행되는 <code class="language-plaintext highlighter-rouge">Group</code>이 싫다면 <code class="language-plaintext highlighter-rouge">.custom</code>을 사용해 직접 구현해줄 수도 있습니다.</p>
+
+<pre><code class="language-Swift">class NSCollectionLayoutGroup: NSCollectionLayoutItem {
+	class func horizontal(
+		layoutSize: NSCollectionLayoutSize,
+		subitems: [NSCollectionLayoutItem]) -&gt; Self
+	class func vertical(
+		layoutSize: NSCollectionLayoutSize,
+		subitems: [NSCollectionLayoutItem]) -&gt; Self
+	class func custom(
+		layoutSize: NSCollectionLayoutSize,
+		itemProvider: NSCollectionLayoutGroupCustomItemProvider) -&gt; Self
+}
+</code></pre>
+
+<h3 id="section">Section</h3>
+
+<p><code class="language-plaintext highlighter-rouge">Section</code>은 말 그대로 <code class="language-plaintext highlighter-rouge">Section</code>을 기준으로 나열되는 <code class="language-plaintext highlighter-rouge">CollectionView</code>의 <code class="language-plaintext highlighter-rouge">Section</code>입니다.</p>
+
+<p>기존에 사용하던 Layout들의 <code class="language-plaintext highlighter-rouge">Section</code>과 동일한 개념입니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">dataSource</code>로부터 <code class="language-plaintext highlighter-rouge">Item</code>의 개수를 받아와 <code class="language-plaintext highlighter-rouge">Section</code>을 구성합니다.</p>
+
+<pre><code class="language-Swift">class NSCollectionLayoutSection {
+	convenience init(layoutGroup: NSCollectionLayoutGroup)
+	var contentInsets: NSDirectionalEdgeInsets
+}
+</code></pre>
+
+<h3 id="layout">Layout</h3>
+
+<p>그렇다면 레이아웃을 초기화해줄때는 어떻게 하면 될까요?</p>
+
+<p>애플은 두 가지 방법을 제공하고 있습니다.</p>
+
+<pre><code class="language-Swift">class UICollectionViewCompositionalLayout: UICollectionViewLayout {
+	init(section: NSCollectionLayoutSection)
+	init(sectionProvider: @escaping SectionProvider)
+}
+</code></pre>
+
+<h4 id="initsection-nscollectionlayoutsection"><code class="language-plaintext highlighter-rouge">init(section: NSCollectionLayoutSection)</code></h4>
+
+<p>레이아웃의 섹션을 직접 지정해주는 방식입니다.</p>
+
+<p>쉽고 간단하지만 현재 사용되는 레이아웃 방식과 차별성이 거의 없습니다.</p>
+
+<h4 id="initsectionprovider-escaping-sectionprovider"><code class="language-plaintext highlighter-rouge">init(sectionProvider: @escaping SectionProvider)</code></h4>
+
+<p><code class="language-plaintext highlighter-rouge">Compositional</code>하게 <code class="language-plaintext highlighter-rouge">Section</code>들을 구성해주려면 이 방식을 사용해야 합니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">@escaping</code> 클로저가 보이시죠?</p>
+
+<p>이 클로저 안에서 각 <code class="language-plaintext highlighter-rouge">Section</code>마다의 독립적인 설정을 해줄 수 있습니다.</p>
+
+<p>정확히 해당 과정이 어떻게 이루어지는가는 활용 예시에서 다시 한번 보도록 하겠습니다.</p>
+
+<h2 id="활용-예시">활용 예시</h2>
+
+<h3 id="간단한-테이블-리스트">간단한 테이블 리스트</h3>
+
+<pre><code class="language-Swift">private func configureLayout() -&gt; UICollectionViewLayout {
+	let itemSize = NSCollectionLayoutSize(
+		widthDimension: .fractionalWidth(1.0),
+		heightDimension: .fractionalHeight(1.0)
+	)
+	let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
+	let groupSize = NSCollectionLayoutSize(
+		widthDimension: .fractionalWidth(1.0),
+		heightDimension: .absolute(44)
+	)
+	let group = NSCollectionLayoutGroup.horizontal(
+		layoutSize: groupSize,
+		subItems: [item]
+	)
+
+	let section = NSCollectionLayoutSection(group: group)
+
+	let layout = UICollectionViewCompositionalLayout(section: section)
+	return layout
+}
+</code></pre>
+
+<p><img src="https://i.imgur.com/bJqs3XR.png" width="300"></p>
+
+<p>가장 간단한 형태의 Layout이라고 볼 수 있습니다.</p>
+
+<p>한가지 주목할 점은 이 경우에 각 cell의 <code class="language-plaintext highlighter-rouge">size</code>를 <code class="language-plaintext highlighter-rouge">Item</code>이 아니라 <strong><code class="language-plaintext highlighter-rouge">Group</code>을 활용</strong>해서 정해주었다는 점입니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">.horizontal</code> 방향의 <code class="language-plaintext highlighter-rouge">Group</code>에는 각각 하나의 <code class="language-plaintext highlighter-rouge">Item</code>만을 갖고 있는 형태이기 때문에 활용할 수 있는 방법입니다.</p>
+
+<p>그래서 <code class="language-plaintext highlighter-rouge">itemSize</code>의 크기는 <code class="language-plaintext highlighter-rouge">width</code>, <code class="language-plaintext highlighter-rouge">height</code> 모두 <code class="language-plaintext highlighter-rouge">.fractional(1.0)</code>으로 그룹을 꽉 채워주었죠.</p>
+
+<p>대신 <code class="language-plaintext highlighter-rouge">groupSize</code>의 크기를 <code class="language-plaintext highlighter-rouge">width</code>는 <code class="language-plaintext highlighter-rouge">.fractional(1.0)</code>, <code class="language-plaintext highlighter-rouge">height</code>를 <code class="language-plaintext highlighter-rouge">.absolute(44)</code>로 지정해주어 가로를 꽉 채우지만 높이는 44로 고정시켜주었습니다.</p>
+
+<h3 id="한-줄의-개수가-5개로-고정된-그리드">한 줄의 개수가 5개로 고정된 그리드</h3>
+
+<p><img src="https://i.imgur.com/id866Ai.png" width="300"></p>
+
+<p><img src="https://i.imgur.com/AuPyn68.png" width="500"></p>
+
+<p>이번에는 무조건 한 줄에 무조건 5개의 cell이 들어가고, 정사각형의 형태를 가져야 하는 그리드 형식의 컬렉션뷰입니다.</p>
+
+<p>이 경우는 위에서 사용했던 코드에서 <code class="language-plaintext highlighter-rouge">size</code> 값만 변경해주는 것 만으로도 쉽게 구현할 수 있습니다.</p>
+
+<pre><code class="language-Swift">private func configureLayout() -&gt; UICollectionViewLayout {
+	let itemSize = NSCollectionLayoutSize(
+		widthDimension: .fractionalWidth(0.2),
+		heightDimension: .fractionalHeight(1.0)
+	)
+	let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
+	let groupSize = NSCollectionLayoutSize(
+		widthDimension: .fractionalWidth(1.0),
+		heightDimension: .fractionalWidth(0.2)
+	)
+	let group = NSCollectionLayoutGroup.horizontal(
+		layoutSize: groupSize,
+		subItems: [item]
+	)
+
+	let section = NSCollectionLayoutSection(group: group)
+
+	let layout = UICollectionViewCompositionalLayout(section: section)
+	return layout
+}
+</code></pre>
+
+<p>각 아이템들의 <strong><code class="language-plaintext highlighter-rouge">width</code>는 그룹 넓이의 20%</strong>(<code class="language-plaintext highlighter-rouge">.fractionalWidth(0.2)</code>)로, 각 그룹들의 <strong><code class="language-plaintext highlighter-rouge">height</code>는 섹션 넓이의 20%</strong>(<code class="language-plaintext highlighter-rouge">.fractionalWidth(0.2)</code>)로 지정해주어 정사각형의 형태를 만들어주었습니다.</p>
+
+<p><img src="https://i.imgur.com/OkozR85.png" width="300"></p>
+
+<p>그러면 위와 같이 <code class="language-plaintext highlighter-rouge">inset</code>을 주고 싶을땐 어떻게 줄 수 있을까요?</p>
+
+<pre><code class="language-Swift">private func configureLayout() -&gt; UICollectionViewLayout {
+	let itemSize = NSCollectionLayoutSize(
+		widthDimension: .fractionalWidth(0.2),
+		heightDimension: .fractionalHeight(1.0)
+	)
+	let item = NSCollectionLayoutItem(layoutSize: itemSize)
+	item.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
+
+	let groupSize = NSCollectionLayoutSize(
+		widthDimension: .fractionalWidth(1.0),
+		heightDimension: .fractionalWidth(0.2)
+	)
+	let group = NSCollectionLayoutGroup.horizontal(
+		layoutSize: groupSize,
+		subItems: [item]
+	)
+
+	let section = NSCollectionLayoutSection(group: group)
+
+	let layout = UICollectionViewCompositionalLayout(section: section)
+	return layout
+}
+</code></pre>
+
+<p><code class="language-plaintext highlighter-rouge">item.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)</code> 이 부분만 추가해주면 됩니다!</p>
+
+<p><code class="language-plaintext highlighter-rouge">inset</code>의 장점은 Layout의 변화 없이도 실제로 보여지는 각 cell의 크기를 변경해줄 수 있다는 점입니다.</p>
+
+<p><img src="https://i.imgur.com/FRRUZMe.png" width="300"></p>
+
+<p>이번에는 비슷하지만 그리드 형태지만 다른 방식으로 구현해봅시다.</p>
+
+<pre><code class="language-Swift">private func configureLayout() -&gt; UICollectionViewLayout {
+	let itemSize = NSCollectionLayoutSize(
+		widthDimension: .fractionalWidth(1.0),
+		heightDimension: .fractionalHeight(1.0)
+	)
+	let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
+	let groupSize = NSCollectionLayoutSize(
+		widthDimension: .fractionalWidth(1.0),
+		heightDimension: .absolute(44)
+	)
+	let group = NSCollectionLayoutGroup.horizontal(
+		layoutSize: groupSize,
+		repeatingSubItem: item,
+		count: 2
+	)
+	let spacing: CGFloat = 10.0
+	group.interItemSpacing = .fixed(spacing)
+
+	let section = NSCollectionLayoutSection(group: group)
+	section.interGroupSpacing = spacing
+	section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
+
+	let layout = UICollectionViewCompositionalLayout(section: section)
+	return layout
+}
+</code></pre>
+
+<p>이 경우에 <code class="language-plaintext highlighter-rouge">itemSize</code>의 <code class="language-plaintext highlighter-rouge">width</code>와 <code class="language-plaintext highlighter-rouge">height</code>를 모두 <code class="language-plaintext highlighter-rouge">.fractional(1.0)</code>으로 주었지만, 이 값은 아래의 <code class="language-plaintext highlighter-rouge">Group</code> 설정에서 override됩니다.</p>
+
+<pre><code class="language-Swift">let group = NSCollectionLayoutGroup.horizontal(
+	layoutSize: groupSize,
+	subItem: item,
+	count: 2
+)
+</code></pre>
+
+<p>이렇게 <code class="language-plaintext highlighter-rouge">Item</code>의 개수를 그룹별로 지정해주면, <code class="language-plaintext highlighter-rouge">CompositionalLayout</code>이 알아서 <code class="language-plaintext highlighter-rouge">Item</code>의 크기를 결정해줍니다.</p>
+
+<h3 id="여러개의-section을-갖는-경우">여러개의 Section을 갖는 경우</h3>
+
+<p>지금까지는 <code class="language-plaintext highlighter-rouge">Section</code>이 하나인 경우, 즉 <code class="language-plaintext highlighter-rouge">FlowLayout</code>으로도 별 어려움 없이 구현할 수 있었던 경우들이였습니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">CompositionalLayout</code>이 이걸 위해서 등장한 건 아니였죠.</p>
+
+<p>여러개의 <code class="language-plaintext highlighter-rouge">Section</code>을 갖고, 각각을 관리할 수 있는 경우를 살펴봅시다.</p>
+
+<p><img src="https://i.imgur.com/854peYX.png" width="300"></p>
+
+<pre><code class="language-Swift">func createLayout() -&gt; UICollectionViewLayout {
+	let layout = UICOllectionViewCompositionalLayout { sectionIndex: Int, layoutEnvironment: NSCollectionLayoutEnvironment -&gt; NSCollectionLayoutSection? in
+		guard let sectionLayoutKind = SectionLayoutKind(rawValue: sectionIndex) else { return nil }
+		let columns = sectionLayoutKind.columnCount
+
+		// 위 경우와 마찬가지로 아래 group 설정에서 override됨
+		let itemSize = NSCollectionLayoutSize(
+			widthDimension: .fractionalWidth(1.0),
+			heightDimension: .fractionalHeight(1.0)
+		)
+		let item = NSCollectionLayoutItem(layoutSize: itemSize)
+		item.contentInsets = NSDirectionalEdgeInsets(top: 2, leading: 2, bottom: 2, trailing: 2)
+
+		let groupHeight = columns == 1 ?
+			NSCollectionLayoutDimension.absolute(44) :
+			NSCollectionLayoutDimension.fractionalWidth(0.2)
+		let groupSize = NSCollectionLayoutSize(
+			widthDimension: .fractionalWidth(1.0),
+			heightDimension: groupHeight
+		)
+		let group = NSCollectionLayoutGroup.horizontal(
+			layoutSize: groupSize,
+			subitem: item,
+			count: columns
+		)
+	}
+}
+</code></pre>
+
+<p>굉장히 굉장히 길어 보이지만 핵심은 하나입니다.</p>
+
+<pre><code class="language-Swift">let layout = UICollectionViewCompositionalLayout { sectionIndex: Int, layoutEnvironment: NSCollectionLayoutEnvironment -&gt; NSCollectionLayoutSection? in
+	// 
+}
+</code></pre>
+
+<p>이 부분이죠.</p>
+
+<p>이 모든 설정들은 <code class="language-plaintext highlighter-rouge">SectionProvider</code> 클로저 안에 있습니다.</p>
+
+<p>그리고 두 개의 파라미터를 제공합니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">sectionIndex</code>는 말 그대로 <code class="language-plaintext highlighter-rouge">Section</code>의 index고, <code class="language-plaintext highlighter-rouge">layoutEnvironment</code>는 size나 display scale과 같은 container의 프로퍼티들을 제공해주는 프로토콜입니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">SectionLayoutKind</code>는 <code class="language-plaintext highlighter-rouge">sectionIndex</code> 값을 파라미터로 받아 <code class="language-plaintext highlighter-rouge">Section</code>의 종류를 결정해주고, 하나의 column에 몇개의 <code class="language-plaintext highlighter-rouge">Item</code>이 들어가는지를 정해주는 <code class="language-plaintext highlighter-rouge">enum</code> 타입입니다.</p>
+
+<pre><code class="language-Swift">enum SectionLayoutKind: Int, CaseIterable {
+	case list, grid5, grid3
+
+	var columnCount: Int {
+		switch self {
+		case .grid3:
+			return 3
+		case .grid5:
+			return 5
+		case .list:
+			return 1
+		}
+	}
+}
+</code></pre>
+
+<p>이렇게 <code class="language-plaintext highlighter-rouge">Section</code>의 index에 따라서 여러 종류의 Layout을 지정해줄 수 있습니다.</p>
+</body></html>

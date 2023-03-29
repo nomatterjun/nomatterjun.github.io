@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h1 id="프로그래밍-기본">프로그래밍 기본</h1>
+
+<h2 id="등호의-의미">등호(=)의 의미</h2>
+<ul>
+  <li>프로그래밍에서 사용하는 등호(=)는 할당의 의미이다.
+    <ul>
+      <li>할당연산자
+        <pre><code class="language-Swift">var a = 5
+a = a + 7
+</code></pre>
+      </li>
+    </ul>
+  </li>
+  <li>등호 기준으로 오른쪽에 있는 무언가를 왼쪽에 담는다</li>
+  <li>같다에는 == 사용
+    <ul>
+      <li>== : 같다</li>
+      <li>!= : 같지 않다</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="대문자와-소문자의-엄격한-구분">대문자와 소문자의 엄격한 구분</h2>
+<ul>
+  <li>대부분의 첫글자는 소문자로 시작한다.
+    <pre><code class="language-Swift">var nameOfYou = "홍길동"
+</code></pre>
+  </li>
+  <li>카멜케이스(camel-case)
+    <ul>
+      <li>언어에 따라 다르다</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="키워드keyword">키워드(keyword)</h2>
+<ul>
+  <li>약속어 (Swift에서 특별한 의미로 사용하겠다고 미리 정해놓은 단어)</li>
+  <li>약 70여개 존재
+    <ul>
+      <li>참고: [[https://www.tutorialkart.com/swift-tutorial/swift-keywords/]]</li>
+    </ul>
+  </li>
+  <li>다른 의미로 사용 불가능
+    <pre><code class="language-Swift">var
+func
+if
+</code></pre>
+  </li>
+</ul>
+
+<h2 id="주석-comment">주석 (comment)</h2>
+<ul>
+  <li>컴퓨터가 코드를 읽지 않아도 된다고 알려주는 부분</li>
+  <li>//: 한 줄 주석</li>
+  <li>/* */: 여러줄 주석
+    <pre><code class="language-Swift">print("Hello, Swift!")
+// print("Hello, Swift!")
+/* 
+print("Hello, Swift!")
+/* 
+Nested Comment
+*/
+print("Hello, World!")
+*/
+</code></pre>
+  </li>
+</ul>
+
+<h2 id="세미콜론-규칙-semicolon">세미콜론(;) 규칙 (semicolon)</h2>
+<ul>
+  <li>Swift에서 각 라인의 마지막에 붙는 세미콜론(;)은 선택사항
+``` Swift
+var name = “Swift”
+print(“Hello, World!”)
+print(“Hello, World!”); print(“Dream”);</li>
+</ul>
+
+<p>//print(“”);</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+## 줄 맞추기
+- 일반적으로 중괄호 안에서 들여쓰기(indentation)을 통해 코드의 가독성을 높였다
+``` Swift
+if true  {
+	print("안녕하세요")
+}
+</code></pre></div></div>
+
+<h2 id="출력문print">출력문(print)</h2>
+
+<pre><code class="language-Swift">print("Hello, World")
+print("안녕하세요")
+print(5)
+print(3 + 4)
+print(3.14)
+</code></pre>
+</body></html>

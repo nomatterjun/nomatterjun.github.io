@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h1 id="함수">함수</h1>
+
+<h2 id="함수-표기법지칭-함수의-타입-표기">함수 표기법(지칭), 함수의 타입 표기</h2>
+
+<h3 id="함수-지칭">함수 지칭</h3>
+
+<pre><code class="language-Swift">func doSomething() {
+	print("Hi!")
+}
+</code></pre>
+
+<ul>
+  <li>파라미터가 없는 경우, <code class="language-plaintext highlighter-rouge">()</code>를 삭제
+    <ul>
+      <li>ex) <code class="language-plaintext highlighter-rouge">doSomething</code>
+</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">var some = doSomething
+some() // Hi!
+</code></pre>
+
+<ul>
+  <li>아규먼트 레이블이 있는 경우, 아규먼트 레이블까지 함수의 이름
+    <ul>
+      <li>ex) <code class="language-plaintext highlighter-rouge">numberPrint(n:)</code>
+</li>
+    </ul>
+  </li>
+  <li>파라미터가 여러개인 경우, 콤마(<code class="language-plaintext highlighter-rouge">,</code>) 없이 아규먼트 이름과 콜론을 표기
+    <ul>
+      <li>ex) <code class="language-plaintext highlighter-rouge">chooseStepFunction(backward:value:)</code>
+</li>
+    </ul>
+  </li>
+  <li>아규먼트 레이블이 생략된 경우, 언더바와 같이 표기
+    <ul>
+      <li>ex) <code class="language-plaintext highlighter-rouge">addPrintFunction(_:_:)</code>
+</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="함수-타입의-표기">함수 타입의 표기</h3>
+<ul>
+  <li>함수에도 Type이 있다…!</li>
+</ul>
+
+<pre><code class="language-Swift">var function1: (Int) -&gt; () = numberPrint(n:)
+var function2: (Int, Int) -&gt; Void = addPrintFunction(_:_:)
+</code></pre>
+
+<h2 id="함수의-오버로딩-overloading">함수의 오버로딩 (overloading)</h2>
+<ul>
+  <li>오버로드(overload): 과적하다.</li>
+  <li>같은 이름의 함수에 여러 개의 함수를 대응시키는 것</li>
+</ul>
+
+<pre><code class="language-Swift">func doSomething(value: Int) {
+	print(value)
+}
+
+func doSomething(value: Double) {
+	print(value)
+}
+
+func doSomething(value: String) {
+	print(value)
+}
+
+func doSomething(value1: String, value2: Int) {
+	print(value1, value2)
+}
+</code></pre>
+
+<h3 id="왜-이런-기능이-필요할까">왜 이런 기능이 필요할까?</h3>
+<ul>
+  <li>같은 기능을 제공하는 함수이지만, 파라미터마다 값을 다르게 처리해야하는 경우가 있다.
+    <ul>
+      <li>이름을 통일시키고, 처리는 구별해서 하는 것이 좋다!</li>
+    </ul>
+  </li>
+  <li>애플이 제공하는 함수들에도 이런 함수가 매우 많다.
+    <ul>
+      <li>ex) <code class="language-plaintext highlighter-rouge">print</code> ➡️ 자동 완성 기능을 살펴보면 같은 이름의 오버로딩된 함수가 많은 것을 확인할 수 있다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="범위scope에-대한-이해">범위(scope)에 대한 이해</h2>
+<ul>
+  <li>범위(scope)
+    <ol>
+      <li>밖에서 중괄호 내의 변수로 접근은 불가능</li>
+      <li>중괄호 안에서 밖의 변수로는 접근 가능</li>
+    </ol>
+  </li>
+  <li>변수는 코드에서 선언이 되어야 그 때부터 접근 가능</li>
+  <li>상위 스코프에 선언된 변수와 상수에 접근 가능, 하위 스코프에는 접근 불가</li>
+  <li>동일한 스코프 안에서는 이름 중복 불가, 다른 스코프에서는 가능
+    <ul>
+      <li>단, 가장 인접한 스코프의 변수/상수로 접근</li>
+    </ul>
+  </li>
+</ul>
+</body></html>

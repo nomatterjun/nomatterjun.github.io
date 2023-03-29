@@ -1,0 +1,268 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1 id="package-패키지">Package (패키지)</h1>
+
+<p><img src="https://i.imgur.com/wiNIbnk.png" alt=""></p>
+
+<p>패키지란 프로젝트 내에서 사용하는 코드/리소스들을 재사용하기 쉽도록 묶어 정돈하거나 다른 개발자나 커뮤니티와 공유하기 위한 기능입니다.</p>
+
+<p>Xcode는 이런 패키지 기능을 Swift Package Manager를 통해 쉽고 간편하게 사용할 수 있도록 지원하고 있습니다.</p>
+
+<p>네 맞아요..</p>
+
+<p>저희가 맨날 쓰던 그거요..</p>
+
+<p>그러면 멋있고 화려한 RxSwift와 같은 라이브러리를 만들기 위해 시작해보죠?</p>
+
+<h2 id="swift-package-만들기">Swift Package 만들기</h2>
+
+<p><img src="https://docs-assets.developer.apple.com/published/ce439cc5d6ba4621ef3eb70fe9168526/creating-a-swift-package-with-xcode-1@2x.png" alt="Flowchart showing the development lifecycle for a Swift package."></p>
+
+<blockquote>
+  <p>전반적인 패키지 생성 과정</p>
+</blockquote>
+
+<p><img src="https://i.imgur.com/adw5bti.png" alt=""></p>
+
+<p>패키지 만들기 정말 쉽습니다.</p>
+
+<p>Xcode의 메뉴에서 <code class="language-plaintext highlighter-rouge">File ➡️ New ➡️ Package</code> 를 눌러줍시다.</p>
+
+<p><img src="https://i.imgur.com/fxGMBSw.png" alt=""></p>
+
+<p>그러면 이렇게 프로젝트나 파일을 만드는 것과 같이 패키지를 생성하는 창이 보입니다.</p>
+
+<p>저는 Favor 프로젝트에 패키지를 적용하기 위해 Add to와  Group도 설정해주었습니다.</p>
+
+<p>그러면 비어있는 패키지 만들기 끝입니다.</p>
+
+<p><img src="https://i.imgur.com/ZcS8ZSl.png" alt=""></p>
+
+<p>패키지를 생성하면 이런 구조의 파일들이 프로젝트에 추가됩니다. 각각을 한 번 알아볼까요?</p>
+
+<ul>
+  <li>README.md</li>
+</ul>
+
+<p>뭐 설명할 것도 없죠. 패키지에 대한 설명을 넣어주면 됩니다.</p>
+
+<ul>
+  <li>Package.swift</li>
+</ul>
+
+<p>흔히들 manifest라고 부르는 패키지에 대한 정보가 담긴 파일입니다. 이 파일 안에서 패키지의 name, products, targets, dependencies들을 설정해주게 됩니다.</p>
+
+<ul>
+  <li>Sources</li>
+</ul>
+
+<p>소스 파일들은 이 Sources 디렉토리 내부에 위치합니다. 그리고 Target이라는 하나의 이름 안에 관리됩니다.</p>
+
+<ul>
+  <li>Tests</li>
+</ul>
+
+<p>패키지에 대한 Unit Test 코드들이 여기에 해당됩니다.</p>
+
+<h2 id="packageswift-작성">Package.swift 작성</h2>
+
+<p>Favor 프로젝트는 세가지 패키지를 만들어 사용하기로 했습니다.</p>
+
+<ul>
+  <li>FavorCoreKit</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">Foundation</code>의 <code class="language-plaintext highlighter-rouge">extension</code>들, OS와 밀접하게 닿아있는 기능들 (<code class="language-plaintext highlighter-rouge">PhotosUI</code>, <code class="language-plaintext highlighter-rouge">CoreGraphics</code> 등)을 담아둡니다.
+보통 <code class="language-plaintext highlighter-rouge">BaseViewController</code>와 같은 <code class="language-plaintext highlighter-rouge">Base</code> 파일들도 여기에 담긴다고 하는데 아직 저희 프로젝트는 이런 파일들이 많지 않아서 (<code class="language-plaintext highlighter-rouge">BaseVC</code> 하나) 추가적인 회의를 통해 결정하기로  했습니다.</p>
+
+<ul>
+  <li>FavorUIKit</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">UIKit</code>의 <code class="language-plaintext highlighter-rouge">extension</code>들과 커스텀 UI 컴포넌트들, 폰트와 아이콘 같은 Resources들과 UI에 사용되는 상수 파일들이 포합됩니다.</p>
+
+<ul>
+  <li>FavorNetworkKit</li>
+</ul>
+
+<p>HTTP 통신과 같은 네트워크 작업에 필요한 파일들이 모두 포함됩니다. 저희 프로젝트는 <code class="language-plaintext highlighter-rouge">Moya</code>를 사용하기 때문에 <code class="language-plaintext highlighter-rouge">BaseTargetType</code>과 <code class="language-plaintext highlighter-rouge">API</code> 파일들을 여기에 넣어주었습니다.</p>
+
+<p>이 중에서 FavorUIKit을 한 번 살펴보겠습니다.</p>
+
+<pre><code class="language-Swift">// swift-tools-version: 5.7
+// The swift-tools-version declares the minimum version of Swift required to build this package.
+
+import PackageDescription
+
+let package = Package(
+  name: "FavorUIKit",
+  platforms: [
+    .iOS(.v15)
+  ],
+  products: [
+    // Products define the executables and libraries a package produces, and make them visible to other packages.
+    .library(
+      name: "FavorUIKit",
+      targets: ["FavorUIKit"]),
+  ],
+  dependencies: [
+    // Dependencies declare other packages that this package depends on.
+    // .package(url: /* package url */, from: "1.0.0"),
+    .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "6.5.0")),
+    .package(url: "https://github.com/SnapKit/SnapKit.git", .upToNextMajor(from: "5.6.0")),
+    .package(path: "../FavorCoreKit")
+  ],
+  targets: [
+    // Targets are the basic building blocks of a package. A target can define a module or a test suite.
+    // Targets can depend on other targets in this package, and on products in packages this package depends on.
+    .target(
+      name: "FavorUIKit",
+      dependencies: [
+        "RxSwift",
+        .product(name: "RxCocoa", package: "RxSwift"),
+        "SnapKit",
+        "FavorCoreKit"
+      ],
+      resources: [
+        .process("Resources")
+      ]
+    ),
+    .testTarget(
+      name: "FavorUIKitTests",
+      dependencies: ["FavorUIKit"]),
+  ]
+)
+</code></pre>
+
+<h4 id="name">name</h4>
+<p><code class="language-plaintext highlighter-rouge">name</code>은 말 그대로 패키지의 이름입니다.</p>
+
+<h4 id="platforms">platforms</h4>
+<p><code class="language-plaintext highlighter-rouge">platforms</code>는 패키지가 사용될 수 있는 플랫폼을 명시해둡니다. <code class="language-plaintext highlighter-rouge">.iOS</code>, <code class="language-plaintext highlighter-rouge">.macOS</code>와 같은 플랫폼 <code class="language-plaintext highlighter-rouge">case</code>와 <code class="language-plaintext highlighter-rouge">.v15</code>와 같은 버전 <code class="language-plaintext highlighter-rouge">case</code>를 넣어 적용할 수 있습니다.</p>
+
+<h4 id="products">products</h4>
+<p><code class="language-plaintext highlighter-rouge">products</code>는 패키지가 제공하는 프로덕츠들을 명시하는 곳입니다. <code class="language-plaintext highlighter-rouge">.library</code> 외에도 <code class="language-plaintext highlighter-rouge">.executable</code>, <code class="language-plaintext highlighter-rouge">.plugin</code>과 같은 <code class="language-plaintext highlighter-rouge">case</code>도 있습니다.</p>
+
+<p>하나의 라이브러리에 여러개의 targets를 만들 수도 있습니다. 대표적으로 RxSwift의 경우 RxSwift 하나의 라이브러리에 RxRelay, RxCocoa 등의 여러 타겟들을 제공하고 있죠.</p>
+
+<h4 id="dependencies">dependencies</h4>
+
+<p>패키지가 사용하는 다른 패키지들을 명시합니다. 여기에 적힐 내용은 보통 라이브러리 리드미 파일에 적어두는 경우가 많으니 참고하여 적어주면 됩니다.</p>
+
+<p>깃허브에 올라와있는 패키지의 경우 <code class="language-plaintext highlighter-rouge">.package(url:)</code>을 사용해주면 되고, 로컬 패키지의 경우 <code class="language-plaintext highlighter-rouge">.package(path:)</code>를 사용해줍니다.</p>
+
+<p>뒤에 붙는 버전의 경우</p>
+
+<ul>
+  <li>from</li>
+</ul>
+
+<p>해당 버전 이상부터 사용합니다.</p>
+
+<ul>
+  <li>uptoNextMajor</li>
+</ul>
+
+<p>메이저 버전이 바뀌기 전까지 업데이트하며 사용합니다.
+<code class="language-plaintext highlighter-rouge">ex) 5.0.0 ~ 6.0.0</code></p>
+
+<ul>
+  <li>uptoNextMinor</li>
+</ul>
+
+<p>마이너 버전이 바뀌기 전까지 업데이트하며 사용합니다.
+<code class="language-plaintext highlighter-rouge">ex) 5.0.0 ~ 5.1.0</code></p>
+
+<ul>
+  <li>exact
+해당 버전으로 고정하여 사용합니다.</li>
+</ul>
+
+<h4 id="targets">targets</h4>
+
+<p>패키지에 사용된 타겟들을 각각 명시합니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">dependencies</code>에는 보통 위의 dependencies에 적힌 패키지들이 적히고, 하나의 패키지에 타겟이 여러개인 경우 <code class="language-plaintext highlighter-rouge">.product(name: "RxCocoa", package: "RxSwift")</code>와 같이 각각 적어줍니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">resources</code>에는 타겟에서 사용되는 리소스 파일들을  명시합니다.</p>
+
+<p><img src="http://tech.kakao.com/wp-content/uploads/2022/05/11_swiftpm.png" alt=""></p>
+
+<p>단 <code class="language-plaintext highlighter-rouge">.xcassets</code>, <code class="language-plaintext highlighter-rouge">.storyboard</code>, <code class="language-plaintext highlighter-rouge">.xib</code>, <code class="language-plaintext highlighter-rouge">.nib</code> 파일등과 같은 리소스 파일들은 Xcode가 그 사용처가 분명하다고 판단하여 자동으로 패키징이 이루어집니다.</p>
+
+<p><img src="http://tech.kakao.com/wp-content/uploads/2022/05/12_swiftpm.png" alt=""></p>
+
+<p>하지만 저희 프로젝트의 경우 폰트와 같은 자동으로 패키징되지 않는 타입의 리소스가 있기 떄문에 <code class="language-plaintext highlighter-rouge">.process("Resources")</code>와 같이 명시해주었습니다.</p>
+
+<p>리소스 명시는 두가지 방법을 지원합니다.</p>
+
+<ul>
+  <li>process</li>
+</ul>
+
+<p>해당 디렉토리에 있는 모든 리소스를 하나의 depth로 평준화합니다.</p>
+
+<p>플랫폼에 따라 Xcode가 최적화를 진행할 수 있다면 최적화를 진행해서 리소스 번들의 최상위 디렉토리에 복사합니다.</p>
+
+<ul>
+  <li>copy</li>
+</ul>
+
+<p>디렉토리 구조 그대로 복사하여 사용합니다.</p>
+
+<p>디렉토리 구조를 굳이 유지해야하는게 아니라면 최적화도 진행되는 <code class="language-plaintext highlighter-rouge">process</code>가 사용된다고 합니다.</p>
+
+<h2 id="접근제어자">접근제어자</h2>
+
+<p>패키지화를 한 이상 접근제어자에 더욱 신경을 써주어야 합니다.</p>
+
+<p>Swift에는 다섯가지 접근 제어자가 있습니다.</p>
+
+<h4 id="open-public">open, public</h4>
+
+<p>프로젝트 내의 모든 곳에서 접근할 수 있습니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">open</code>과 <code class="language-plaintext highlighter-rouge">public</code>의 차이가 패키징을 사용하면서 중요해집니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">open</code>을 사용하면 다른 모듈에서 <code class="language-plaintext highlighter-rouge">overclass</code>를 허용합니다. 하지만 <code class="language-plaintext highlighter-rouge">public</code>은 이를 허용하지 않습니다.</p>
+
+<p>따라서 <code class="language-plaintext highlighter-rouge">BaseViewController</code>와 같이 상속이 필요한 클래스의 경우 <code class="language-plaintext highlighter-rouge">open</code>으로 접근을 열어주어야 합니다.</p>
+
+<h4 id="internal">internal</h4>
+
+<p>아무 접근제어자도 작성하지 않으면 기본적으로 적용되는 접근제어자입니다. 작성된 모듈 안에서만 접근 가능합니다.</p>
+
+<h4 id="fileprivate">fileprivate</h4>
+
+<p>작성된 소스 파일 내부에서만 접근 가능합니다.</p>
+
+<h4 id="private">private</h4>
+
+<p>가장 제한적인 접근제어자입니다. 작성된 객체 내부에서만 접근 가능합니다.</p>
+
+<h2 id="패키지-적용하기">패키지 적용하기</h2>
+
+<p><img src="https://i.imgur.com/LYKKSNC.png" alt=""></p>
+
+<p>프로젝트의 앱 타겟에서 라이브러리 추가를 눌러줍니다.</p>
+
+<p><img src="https://i.imgur.com/gLI60WK.png" alt=""></p>
+
+<p>Workspace 내부에 만들어두었기 때문에 패키지를 바로 선택할 수 있습니다.</p>
+
+<p><img src="https://i.imgur.com/CBHCtA8.png" alt=""></p>
+
+<p><code class="language-plaintext highlighter-rouge">import</code>까지 해보면서 정상적으로 추가되었는지 확인해봅시다!</p>
+
+<blockquote>
+  <p>참고 문서</p>
+</blockquote>
+
+<p><a href="https://developer.apple.com/documentation/xcode/creating-a-standalone-swift-package-with-xcode">Apple - Creating a standalone Swift package with Xcode</a></p>
+
+<p><a href="https://developer.apple.com/documentation/xcode/bundling-resources-with-a-swift-package">Apple - Bundling resources with a Swift package</a></p>
+
+<p><a href="https://tech.kakao.com/2022/06/02/swift-package-manager/">KakaoTech - Swift Package Manager 적용기</a></p>
+
+<p><a href="https://zeddios.tistory.com/1259">ZeddiOS - Copy와 Process의 차이점</a></p>
+</body></html>

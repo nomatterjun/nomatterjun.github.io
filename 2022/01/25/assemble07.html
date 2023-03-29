@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p>DB 틀이 어느정도 맞춰졌으니 실제로 데이터를 넣어보려고 합니다. 이전에 만들어두었던 Lambda 함수와 API Gateway를 사용하면 RESTful하게 데이터를 입력해줄 수 있습니다.</p>
+
+<h3 id="api-gateway">API Gateway</h3>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220125_07/cap01.png?raw=true" alt="api gateway" width="400"></p>
+
+<p>위와 같이 리소스를 생성해주고 PUT 메서드를 추가해주었습니다. API Gateway에서 지원하는 메서드는 총 6가지인데, HTTP 메서드와 동일한 역할을 합니다.</p>
+
+<hr>
+<h4 id="http-method">HTTP Method</h4>
+
+<h5 id="1-any">1. ANY</h5>
+<p>아래 다섯 메서드 중 적합한 메서드를 골라 실행합니다.</p>
+<h5 id="2-get">2. GET</h5>
+<p>데이터를 조회/검색할 때 사용됩니다. 요청시에 body 값과 content-type 없이 url에 파라미터만 입력하여 사용됩니다다. 요청이 성공적으로 완료되면 200(OK) 메시지와 함께 body 값에 데이터가 저장되어 돌아옵니다.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /films/2024012802
+</code></pre></div></div>
+<h5 id="3-post">3. POST</h5>
+<p>새로운 데이터를 생성할 때 사용됩니다. 요청시에 body 값과 content-type을 필요로 하고, 생성할때만 사용되기 때문에 이미 중복된 데이터가 있더라도 무조건 생성을 시도합니다. url에 모든 데이터를 넣는 것은 너무나 불편하기 때문에 body에 데이터를 넣어 보냅니다. 성공적으로 데이터를 생성하면 201(created) 메시지와 함께 body 값에 생성된 값이 저장되어 돌아옵니다.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>POST /films
+body: {fID: 2023042403, fNM: "영화" ... }
+content-type: "application/json"
+</code></pre></div></div>
+<h5 id="4-put">4. PUT</h5>
+<p>데이터를 업데이트/생성할 때 사용됩니다. POST와 비슷하지만 이미 존재하는 데이터에 대해서는 업데이트가 이루어집니다. (idempotent)</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PUT /films/2023042403
+body: {fNM: "영화2" ... }
+content-type: "application/json"
+</code></pre></div></div>
+<h5 id="5-delete">5. DELETE</h5>
+<p>존재하는 데이터를 삭제할 때 사용됩니다. GET과 비슷하게 url을 통해서 삭제할 데이터를 파라미터로 받습니다. 성공적으로 데이터가 삭제되면 별도의 body 내용 없이 성공 응답만 돌아옵니다.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DELETE /films/2023042403
+</code></pre></div></div>
+<h5 id="6-head">6. HEAD</h5>
+<p>GET 메서드와 동일한 기능을 수행하지만 서버가 body를 보내주지 않습니다. 보통 서버가 정상적으로 작동하는지 확인하기 위해 응답 메시지만을 확인하고 싶을 때 사용됩니다.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HEAD /films/2021022302
+</code></pre></div></div>
+
+<hr>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220125_07/cap02.png?raw=true" alt="request" width="550">
+다시 API Gateway로 돌아와서, 생성한 PUT 메서드를 선택하고 통합 요청에 들어갑니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220125_07/cap03.png?raw=true" alt="mapping template" width="550">
+아래의 매핑 템플릿을 통해 url에 어떤 형식으로 파라미터를 제공할 것인지 설정해줄 수 있습니다. 정의된 템플릿이 없는 경우 패스스루를 하도록 설정하고 Content-Type으로는 json을 입력해줍니다.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
+    "movieCd": "$input.params().querystring.get('movieCd')",
+    "univ": "$input.params().querystring.get('univ')"
+}
+</code></pre></div></div>
+<p>위와 같이 key 하나하나 직접 입력해주었습니다. loop를 통해 하는 방법도 있다고 하는데 아직 익숙치 않아 일단은 이렇게 진행해보았습니다. query string 형태로 input parameter를 받아 lambda 함수의 input으로 들어가게 됩니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220125_07/cap04.png?raw=true" alt="test" width="550">
+<img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220125_07/cap05.png?raw=true" alt="query string" width="350"></p>
+
+<p>테스트로 들어가 쿼리 문자열에 lambda 함수의 입력에 맞는 값을 입력해주었습니다. 아래의 테스트 버튼을 눌러보면?</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220125_07/cap06.png?raw=true" alt="test result" width="550"></p>
+
+<p>상단에 입력된 요청 url이 표시되고 상태(200 ok), 소요 시간, lambda 함수에서 작성한 출력이 표시됩니다.</p>
+
+<p>여러 테스트를 거쳐 값들이 제대로 들어가는 것을 확인하였습니다.
+<img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220125_07/cap07.png?raw=true" alt="result talbe" width="550"></p>
+</body></html>

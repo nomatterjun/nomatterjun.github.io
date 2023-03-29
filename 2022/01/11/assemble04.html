@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h3 id="사용할-aws-서비스들">사용할 AWS 서비스들</h3>
+
+<p>우선.. 안그래도 처음 다뤄보는 AWS인데 사용하는 서비스들이 너무 많게 느껴집니다.. 하지만 모바일 어플리케이션에서는 API의 형태로 DB에 접근하는 것이 좋다고 해서 이런 방식으로 진행해보고자 합니다. 진행 과정에서 많은 오류가 발생할 것 같아 일단 해보고 나중에 수정하는 방식으로 진행해보겠습니다.</p>
+
+<p>저의 최종 목적은 생성한 RDS에 API Gateway를 이용하여 REST API의 형태로 데이터를 생성/조회/수정/삭제하는 것입니다. 이 때, 데이터를 건드리는 작업들을 하기 위해 필요한 “함수”들을 Lambda를 통해 구현합니다. 요약하면 다음 세 가지 서비스가 이번 포스트를 위해 사용할 서비스들입니다.</p>
+
+<ol>
+  <li>RDS</li>
+  <li>API Gateway</li>
+  <li>Lambda</li>
+</ol>
+
+<h4 id="amazon-api-gateway란">Amazon API Gateway란?</h4>
+
+<p>우선 API Gateway부터 살펴봅시다. API Gateway는 AWS 클라우드에 저장된 모든 데어터에 HTTP 요청으로 액세스하는 REST / Websocket API를 생성할 수 있게 하는 서비스입니다. 이렇게 만들어진 API를 호출하기 위한 Swift 언어용 SDK도 준비되어 있기 때문에 API를 생성할 수만 있다면 간편하게 이용할 수 있을 것 같습니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220111_04/Product-Page-Diagram_Amazon-API-Gateway-How-Works.png?raw=true" alt="API Gateway" width="550"></p>
+
+<h4 id="amazon-lambda란">Amazon Lambda란?</h4>
+
+<p>다음으로 Lambda입니다. Lambda는 서버에 대한 걱정 없이 (내 소유의 서버 없이, Serverless) 개발자가 작성한 코드를 실행시켜주는 서비스입니다. AWS의 다른 서비스들과의 확장성이 뛰어나 여러방면에서 사용할 수 있습니다. 저는 사용자의 GET 명령이 있을 때마다 Lambda 서비스를 통해 코드를 실행시켜 db에서 데이터를 가져오게 할 예정입니다.</p>
+
+<h3 id="api를-만들어보자">API를 만들어보자.</h3>
+
+<p><strong>1. AWS Console에서 [Amazon API Gateway &gt; REST API 구축]을 통해 API를 생성해줍니다. 여기서 엔드포인트 유형은 지역으로 설정해줍니다.</strong></p>
+<ul>
+  <li>지역: 현재 지역에만 배포</li>
+  <li>최적화된 에지: CloudFront(AWS) 네트워크에 배포</li>
+  <li>프라이빗: VPC에서만 액세스 가능
+<img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220111_04/cap01.png?raw=true" alt="Create new API" width="550">
+<strong>2. [리소스 &gt; 작업]에서 리소스 생성을 눌러 리소스 이름/경로를 설정하고 생성합니다.</strong>
+<img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220111_04/cap02.png?raw=true" alt="Create Resource" width="550">
+<img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220111_04/cap03.png?raw=true" alt="Create Resource2" width="550">
+생성한 리소스의 하위 리소스를 계속해서 만들 수 있습니다. /films 주소 뒤에 /{fID} 리소스를 생성하였습니다. {}가 포함된 경로는 파라미터를 가질 수 있습니다.
+<img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220111_04/cap04.png?raw=true" alt="Resource with Paramter" width="550">
+<strong>3. AWS Console에서 [Lambda &gt; 함수 &gt; 함수 생성]을 통해 함수를 새로 생성합니다.</strong>
+<img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220111_04/cap05.png?raw=true" alt="Lambda" width="550">
+생성된 Lambda 함수를 보면 기본으로 “Hello from lambda!”라는 메시지를 출력하는 함수가 입력되어 있습니다.
+<img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220111_04/cap06.png?raw=true" alt="Hello from lambda" width="550">
+<strong>4. 다시 API Gateway로 돌아가 이번에는 메서드를 생성합니다.</strong>
+<img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220111_04/cap07.png?raw=true" alt="Create Method" width="550">
+DB의 내용을 조회하는 요청이기 때문에 GET 메서드를 생성해야 합니다.
+<img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220111_04/cap08.png?raw=true" alt="Select GET" width="550">
+메서드의 통합 유형을 Lambda 함수, 리전은 현재 위치 (서울), 함수에는 이전에 생성한 함수의 이름을 적고 저장해줍니다.
+<img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220111_04/cap09.png?raw=true" alt="Setting Method" widht="550">
+메서드가 저장되면 메서드의 실행 단계를 한 눈에 볼 수 있으며, “테스트” 버튼을 통해 메서드가 제대로 동작하는지 확인해볼 수 있습니다.
+<img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220111_04/cap10.png?raw=true" alt="Method Steps" width="550">
+<img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220111_04/cap11.png?raw=true" alt="Test Screen" width="550">
+</li>
+</ul>
+</body></html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h1 id="확장-extension">확장 (Extension)</h1>
+<ul>
+  <li>현재 존재하는 타입에 <strong>기능(메서드)를 추가</strong>하여 사용</li>
+  <li>Swift에서는 확장에서 정의한 메서드에 대한 재정의 불가</li>
+  <li>본체에 대한 재정의도 불가</li>
+</ul>
+
+<h5 id="상속과의-차이점">상속과의 차이점</h5>
+<ul>
+  <li>
+<strong>상속</strong>(Inheritance): <strong>수직 확장</strong>
+    <ul>
+      <li>성격이 비슷한 타입을 새로 만드는 것
+        <ul>
+          <li>저장속성을 추가하거나</li>
+          <li>메서드를 변형시켜 사용</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>
+<strong>확장</strong>(Extension): <strong>수평 확장</strong>
+    <ul>
+      <li>현재 존재하는 타입에 메서드를 추가하는 것
+        <ul>
+          <li>저장속성의 추가는 불가</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="예시">예시</h2>
+
+<pre><code class="language-Swift">class Person {
+	var id = 0
+	var name = "이름"
+	var email = "123@gmail.com"
+
+	func walk() {
+		print("사람이 걷는다.")
+	}
+}
+
+class Student: Person {
+	var studentId = 1
+
+	override func walk() {
+		print("학생이 걷는다.")
+	}
+}
+
+let student = Student()
+student.play() // "학생이 논다."
+// extension이 뒤에 있어도 가능
+
+extension Student {
+	func play() {
+		print("학생이 논다.")
+	}
+}
+
+let student2 = Student()
+student2.play() // "학생이 논다."
+</code></pre>
+
+<h2 id="상속확장과-메모리-구조">상속/확장과 메모리 구조</h2>
+<ul>
+  <li>확장은 <strong>메서드 테이블 외의 공간</strong>에 메서드를 추가하는 동작</li>
+  <li>따라서 확장하여 정의된 메서드는 <strong>상속</strong>은 되지만 <strong>재정의</strong>는 되지 않는다.
+    <ul>
+      <li>
+<code class="language-plaintext highlighter-rouge">@objc</code> 키워드를 메서드 앞에 붙이면 재정의도 가능은 하다.</li>
+      <li>Obj-C에서는 가능하기 때문!</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="확장의-장점">확장의 장점</h2>
+<ul>
+  <li>애플이 구현해둔 기능들에  나만의 기능을 추가할 수 있다…!</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">Int</code>, <code class="language-plaintext highlighter-rouge">UIViewController</code>, <code class="language-plaintext highlighter-rouge">UIColor</code> 등</li>
+</ul>
+
+<pre><code class="language-Swift">extension Int {
+	var squared: Int {
+		return self * self
+	}
+}
+
+print(5.squared) // 25
+</code></pre>
+
+<h2 id="확장-가능한-멤버">확장 가능한 멤버</h2>
+<ul>
+  <li>기본적으로 메서드의 형태는 모두 가능하다고 보면 된다.</li>
+</ul>
+
+<ol>
+  <li>계산 속성</li>
+  <li><strong>메서드</strong></li>
+  <li>새로운 생성자
+    <ul>
+      <li>클래스의 경우 <strong>편의생성자</strong>만 추가 가능, 지정생성자/소멸자는 본체에 구현</li>
+    </ul>
+  </li>
+  <li>서브스크립트</li>
+  <li>새로운 중첩 타입 정의 및 사용</li>
+  <li>프로토콜 채택 및 프로토콜 관련 메서드</li>
+</ol>
+
+<h3 id="계산-속성">계산 속성</h3>
+<h4 id="타입-계산-속성-static">타입 계산 속성 (<code class="language-plaintext highlighter-rouge">static</code>)</h4>
+
+<pre><code class="language-Swift">extension Double {
+	static var zero: Double { return 0.0 }
+}
+print(Double.zero) // 0.0
+</code></pre>
+
+<h4 id="인스턴스-계산-속성">인스턴스 계산 속성</h4>
+
+<pre><code class="language-Swift">extension Double {
+	var km: Double { return self * 1000.0 }
+	var m: Double { return self }
+	var cm: Double { return self / 100.0 }
+	var mm: Double { return self / 1000.0}
+	var ft: Double { return self / 3.28084 }
+}
+
+10.0.km // 10000
+</code></pre>
+
+<h3 id="메서드">메서드</h3>
+<h4 id="타입-메서드-static">타입 메서드 (<code class="language-plaintext highlighter-rouge">static</code>)</h4>
+
+<pre><code class="language-Swift">Int.random(in: 1...100)
+
+extension Int {
+	static func prinNumbersFrom1to5() {
+		for i in 1...5 {
+			print(i)
+		}
+	}
+}
+
+Int.printNumbersFrom1to5() // 1 2 3 4 5
+</code></pre>
+
+<h4 id="인스턴스-메서드">인스턴스 메서드</h4>
+
+<pre><code class="language-Swift">extension String {
+	func printHelloRepetitions(of times: Int) {
+		for _ in 0..&lt;times {
+			print("Hello \(self)!")
+		}
+	}
+}
+
+"Steve".printHelloRepetitions(of: 4)
+// "Hello Steve!"
+// "Hello Steve!"
+// "Hello Steve!"
+// "Hello Steve!"
+</code></pre>
+
+<h4 id="mutating-인스턴스-메서드">
+<code class="language-plaintext highlighter-rouge">mutating</code> 인스턴스 메서드</h4>
+
+<pre><code class="language-Swift">extension Int {
+	mutating func square() {
+		self = self * self
+	}
+}
+
+var someInt = 3
+someInt.square()
+print(someInt) // 9
+</code></pre>
+
+<h3 id="생성자">생성자</h3>
+<h4 id="클래스">클래스</h4>
+<ul>
+  <li>클래스의 경우 <strong>편의생성자</strong>만 추가 가능</li>
+</ul>
+
+<pre><code class="language-Swift">UIColor(red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)
+
+extension UIColor {
+	convenience init(color: CGFloat) {
+		self.init(red: color/255, green: color/255, blue: color/255, alpha: 1)
+	}
+}
+
+UIColor.init(color: 1)
+</code></pre>
+
+<h4 id="구조체">구조체</h4>
+
+<pre><code class="language-Swift">struct Dog {
+	var name: String = ""
+	var weight: Int = 0
+	var height: Int = 0
+}
+
+extension Dog {
+	init(name: String) {
+		self.name = name
+	}
+}
+
+// 3개의 생성자를 사용할 수 있다.
+// 원칙적으로 개발자가 생성자를 정의해주었으니
+// 아래의 예시처럼
+// 기본생성자인 Dog()와 
+// 멤버와이즈 생성자인 Dog(name:,weight:,height:)는 제공이 되지 않아야 한다.
+Dog()
+Dog(name: String)
+Dog(name: String, weight: Int, height: Int)
+
+struct Dog {
+	var name: String = ""
+	var weight: Int = 0
+	var height: Int = 0
+
+	init(name: String) {
+		self.name = name
+	}
+}
+
+// 개발자가 정의한 생성자만 제공된다.
+Dog(name: String)
+</code></pre>
+
+<h3 id="서브스크립트">서브스크립트</h3>
+
+<pre><code class="language-Swift">extension Int {
+	// n 자리의 십진수 반환하도록 하는 서브스크립트
+	subscript(digitIndex: Int) -&gt; Int {
+		var decimalBase = 1
+		for _ in 0..&lt;digitIndex {
+			decimalBase *= 10
+		}
+		return (self / decimalBase)  % 10
+	}
+}
+
+746381295[0] // 5
+746381295[1] // 9
+746381295[2] // 2
+746381295[3] // 1
+</code></pre>
+
+<h3 id="중첩-타입-nested-types">중첩 타입 (Nested Types)</h3>
+<ul>
+  <li>중첩 타입이란?
+    <ul>
+      <li>연관이 너무 깊은 타입일 경우 하나의 타입 안에 다른 타입을 정의 가능</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">class Day {
+	enum Weekday {
+		case mon
+		case tue
+		case wed
+	}
+
+	var day: Weekday = .mon
+}
+
+var ddd: Day.Weekday = Day.Weekday.mon
+</code></pre>
+
+<pre><code class="language-Swift">extension Int {
+	enum Kind {
+		case negative, zero, positive
+	}
+
+	var kind: Kind {
+		switch self {
+		case 0:
+			return .zero
+		case let x where x &gt; 0:
+			return .positive
+		case let x where x &lt; 0:
+			return .negative
+		}
+	}
+}
+
+let a = 1
+print(a.kind) // "positive"
+</code></pre>
+</body></html>

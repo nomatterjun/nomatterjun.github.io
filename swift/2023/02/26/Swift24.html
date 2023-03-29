@@ -1,0 +1,286 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1 id="moya">Moya</h1>
+
+<blockquote>
+  <p>모야가 대체 모야?</p>
+</blockquote>
+
+<p>(아마 한국인이 작성한 모야 게시물 80%는 이걸로 시작할듯…)</p>
+
+<p>그래서 모야는 뭘까요?</p>
+
+<p>Moya는 <code class="language-plaintext highlighter-rouge">enum</code> 타입을 적극적으로 활용하여 네트워크 요청 레이어를 <code class="language-plaintext highlighter-rouge">type-safe</code>하게 래핑한 네트워킹 라이브러리입니다.</p>
+
+<p>컴파일 타임에 엔드포인트 접근 관련 에러를 띄워주기 때문에 더욱 안전하고 간편하게 앱을 빌드할 수 있다는 장점이 있다고 해요!</p>
+
+<h2 id="alamofire와의-관계">Alamofire와의 관계?</h2>
+
+<p>Swift 언어를 처음 학습할 때 <code class="language-plaintext highlighter-rouge">URLSession</code>을 공부한 뒤에 네트워크 관련된 유용한 라이브러리가 많다는 사실을 알고 어떤 것이 있나 살펴보던 때가 있었습니다.</p>
+
+<p>모두가 알고 있는 <code class="language-plaintext highlighter-rouge">Alamofire</code>, <code class="language-plaintext highlighter-rouge">Kingfisher</code>, <code class="language-plaintext highlighter-rouge">Moya</code> 등이 있었죠..</p>
+
+<p>그 중에서 <code class="language-plaintext highlighter-rouge">Kingfisher</code>는 이미지 관련 라이브러리니 남는 건 <code class="language-plaintext highlighter-rouge">Alamofire</code>와 <code class="language-plaintext highlighter-rouge">Moya</code>였습니다.</p>
+
+<p>아무것도 모르던 저는 <code class="language-plaintext highlighter-rouge">Moya</code>의 귀여운 이름에 끌려 무작정 공부를 시작했더랩죠..</p>
+
+<p>무슨 말인지 하나도 이해하지 못하고 <code class="language-plaintext highlighter-rouge">Alamofire</code>로 후퇴했었는데요.. 당연한거였습니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Moya</code>의 네트워킹은 사실 <code class="language-plaintext highlighter-rouge">Alamofire</code>이기 때문이죠…!</p>
+
+<p><img src="https://i.imgur.com/nbxtcTj.png" alt=""></p>
+
+<p>Dependency에 떡하니 박혀있는게 보이시죠..</p>
+
+<p><img src="https://i.imgur.com/sjBahL4.png" alt=""></p>
+
+<p>사실 깃허브 설명란의 이미지에도 <code class="language-plaintext highlighter-rouge">Alamofire</code>가 하나의 계층을 떡하니 잡고 있는 걸 볼 수 있습니다..</p>
+
+<h2 id="개념">개념</h2>
+
+<p>모야를 이해하려면 세 가지 핵심 요소를 먼저 알아야합니다.</p>
+
+<h3 id="provider">Provider</h3>
+
+<p><code class="language-plaintext highlighter-rouge">MoyaProvider</code> 객체로 접근할 수 있는 메인 객체입니다.</p>
+
+<p>네트워크 관련 기능을 사용하기 위해서는 무조건 이 <code class="language-plaintext highlighter-rouge">MoyaProvider</code> 객체를 생성하거나 주입받아야 합니다.</p>
+
+<h3 id="target">Target</h3>
+
+<p>API를 제공하는 서비스를 부르는 명칭입니다.</p>
+
+<p>공개된 오픈 API일 수도 있고, 프로젝트 내부에서 사용되는 서버의 API일 수도 있겠죠.</p>
+
+<p>이 <code class="language-plaintext highlighter-rouge">Target</code>은 <code class="language-plaintext highlighter-rouge">TargetType</code> <code class="language-plaintext highlighter-rouge">protocol</code>을 사용해서 정의해줄 수 있습니다.</p>
+
+<h3 id="endpoint">Endpoint</h3>
+
+<p><code class="language-plaintext highlighter-rouge">Endpoint</code>는 네트워킹 요청을 위해 필요한 정보들을 담는 객체입니다.</p>
+
+<p>HTTP 메서드, request body / header 등의 정보들을 담고 있고, <code class="language-plaintext highlighter-rouge">Target</code> 또한 <code class="language-plaintext highlighter-rouge">MoyaProvider</code>에 의해 이 <code class="language-plaintext highlighter-rouge">Endpoint</code>로 변환되어 사용됩니다.</p>
+
+<p>이 <code class="language-plaintext highlighter-rouge">Endpoint</code>를 커스텀하면 모든 종류의 네트워킹에 필요한 데이터 맵핑을 수행할 수 있다고 하네요.</p>
+
+<h2 id="기초">기초</h2>
+
+<p>공식 문서보다는 코데코의 예제가 쉬워보이니까 코데코의 예제로 진행해보겠습니다.</p>
+
+<pre><code class="language-Swift">public enum Marvel {
+  static private let publicKey = "PUBLIC_KEY"
+  static private let privateKey = "PRIVATE_KEY"
+
+  case comics
+}
+</code></pre>
+
+<p>이렇게 <code class="language-plaintext highlighter-rouge">enum</code> 타입으로 API 서비스에 대한 정보를 넣어줄 수 있습니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">case</code>에는 필요한 API 엔드포인트마다 정의해주면 됩니다.</p>
+
+<pre><code class="language-Swift">enum MyService {
+    case zen
+    case showUser(id: Int)
+    case createUser(firstName: String, lastName: String)
+    case updateUser(id: Int, firstName: String, lastName: String)
+    case showAccounts
+}
+</code></pre>
+
+<p>이렇게요..!</p>
+
+<p>연관값으로 넣어준 파라미터들은 리퀘스트시에 파라미터가 필요할 경우 넣어주는 것으로 편하게 사용할 수 있습니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Target</code>으로 사용될 <code class="language-plaintext highlighter-rouge">enum</code>은 반드시 <code class="language-plaintext highlighter-rouge">TargetType</code> 프로토콜을 채택해야 한다고 했었죠?</p>
+
+<pre><code class="language-Swift">extension Marvel: TargetType {
+  public var baseURL: URL {
+	//
+  }
+
+  public var path: String {
+	//
+  }
+
+  public var method: Moya.Method {
+	//
+  }
+
+  public var sampleData: Data {
+	//
+  }
+
+  public var task: Moya.Task {
+	//
+  }
+
+  public var headers: [String : String]? {
+	//
+  }
+}
+</code></pre>
+
+<p>프로토콜을 채택하고 필요한 프로퍼티들을 자동으로 넣어주면 위와 같은 형태가 됩니다.</p>
+
+<pre><code class="language-Swift">extension Marvel: TargetType {
+  public var baseURL: URL {
+    return URL(string: "https://gateway.marvel.com/v1/public")!
+  }
+
+  public var path: String {
+    switch self {
+    case .comics: return "/comics"
+    }
+  }
+
+  public var method: Moya.Method {
+    switch self {
+    case .comics: return .get
+    }
+  }
+
+  public var sampleData: Data {
+    return Data()
+  }
+
+  public var task: Moya.Task { // TODO: 알맞는 옵션으로 변경
+    return .requestPlain
+  }
+
+  public var headers: [String : String]? {
+    return ["Content-Type": "application/json"]
+  }
+
+  public var validationType: ValidationType {
+    return .successCodes
+  }
+}
+</code></pre>
+
+<h3 id="baseurl">baseURL</h3>
+
+<p>API 서비스의 <code class="language-plaintext highlighter-rouge">baseURL</code>을 입력해줍니다.</p>
+
+<h3 id="path">path</h3>
+
+<p><code class="language-plaintext highlighter-rouge">baseURL</code> 뒤에 붙는 요청 API의 <code class="language-plaintext highlighter-rouge">path</code> 주소를 입력해줍니다.</p>
+
+<p>예시의 경우 전체 API 요청 주소는 https://gateway.marvel.com/v1/public/comics 가 되겠죠!</p>
+
+<h3 id="method">method</h3>
+
+<p><code class="language-plaintext highlighter-rouge">path</code>에 맞는 HTTPS 통신 메서드를 반환해줍니다.</p>
+
+<p>ex) <code class="language-plaintext highlighter-rouge">.get</code>, <code class="language-plaintext highlighter-rouge">.delete</code>, <code class="language-plaintext highlighter-rouge">.patch</code> 등</p>
+
+<h3 id="sampledata">sampleData</h3>
+
+<p>유닛 테스트를 할 때나 실제로 서버가 없을 경우, 이 <code class="language-plaintext highlighter-rouge">sampleData</code>로 가상의 데이터를 담아주면 해당 데이터를 반환값으로 받아옵니다.</p>
+
+<p>필요하지 않을 경우  <code class="language-plaintext highlighter-rouge">Data()</code>를 반환하여 비어있는 데이터를 전달해줍니다!</p>
+
+<h3 id="task">task</h3>
+
+<p>요청에 파라미터를 포함하거나, 데이터를 포함하여 요청을 하는 등의 옵션들을 추가적으로 제공하여 HTTP 요청을 전송합니다.</p>
+
+<p>API가 요구하는 양식이나 서버의 상태등에 따라 너무나 다양한 경우가 있으므로 우선 아무런 옵션을 넣지 않는 <code class="language-plaintext highlighter-rouge">.requestPlain</code>을 선택해주었습니다.</p>
+
+<h3 id="headers">headers</h3>
+
+<p>HTTP 헤더를 넣어줍니다.</p>
+
+<p>예시에서는 가장 자주 쓰이는 <code class="language-plaintext highlighter-rouge">Content-Type: application/json</code>을 넣어주었습니다. (JSON 형식의 컨텐트)</p>
+
+<h3 id="validationtype">validationType</h3>
+
+<p>필수적으로 필요한 항목은 아니지만, 자주 쓰이는 항목입니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">.successCodes</code>는 200..&lt;299 사이의 응답 코드를 받으면 통신을 성공했다고 처리하는 <code class="language-plaintext highlighter-rouge">case</code>입니다.</p>
+
+<p>이 <code class="language-plaintext highlighter-rouge">Target</code>만 봐도 <code class="language-plaintext highlighter-rouge">Moya</code>가 대충 어떤 느낌으로 쓰이는 지 알 수 있을 것 같네요.</p>
+
+<p>통신에 필요한 데이터들을 한 군데 모아두고 <code class="language-plaintext highlighter-rouge">switch-case</code>를 통해서 쉽게 요청 항목을 선택할 수 있을 것 같습니다.</p>
+
+<p>https://developer.marvel.com/documentation/authorization</p>
+
+<p>이번에 사용하는 마블 API의 문서를 살펴보고, <code class="language-plaintext highlighter-rouge">task</code> 부분을 채워줍시다.</p>
+
+<p>Client-Side 앱은 사전에 인증이 되어 있어야 한다는군요.</p>
+
+<p>Server-Side 방식으로 진행해줍니다.</p>
+
+<pre><code class="language-Swift">public var task: Task {
+  let ts = "\(Date().timeIntervalSince1970)"
+  let hash = (ts + Marvel.privateKey + Marvel.publicKey).md5
+  let authParams = ["apikey": Marvel.publicKey, "ts": ts, "hash": hash]
+  
+  switch self {
+  case .comics:
+	return .requestParameters(
+	  parameters: [
+		"format": "comic",
+		"formatType": "comic",
+		"orderBy": "-onsaleDate",
+		"dateDescriptor": "lastWeek",
+		"limit": 50] + authParams,
+	  encoding: URLEncoding.default)
+  }
+}
+</code></pre>
+
+<p>이제 실제로 API request를 보내봅시다.</p>
+
+<pre><code class="language-Swift">let provider = MoyaProvider&lt;Marvel&gt;()
+
+provider.request(.comics) { result in
+  switch result {
+  case .success(let response):
+	do {
+	  print(try response.mapJSON())
+	} catch {
+	  // error handling
+	}
+  case .failure:
+	// error handling
+  }
+}
+</code></pre>
+
+<p>위와 같이 짧고 간결하게 통신 요청을 보낼 수 있습니다.</p>
+
+<p><img src="https://i.imgur.com/vxiOPZu.png" alt=""></p>
+
+<p>엄청나게 많은 데이터들이 들어오는군요..</p>
+
+<p>이 데이터들을 감싸고 <code class="language-plaintext highlighter-rouge">View</code>에 적용하는 내용은 다른 HTTP 통신들과 같습니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Moya</code>는 RxSwift와도 아주 잘 어울립니다.</p>
+
+<pre><code class="language-Swift">provider.rx.requestWithProgress(.zen).subscribe { event in
+    switch event {
+    case .next(let progressResponse):
+        if let response = progressResponse.response {
+            // do something with response
+        } else {
+            print("Progress: \(progressResponse.progress)")
+        }
+    case .error(let error):
+        // handle the error
+    default:
+        break
+    }
+}
+</code></pre>
+
+<p>이런식으로 기본적으로 Rx화도 되어있거든요. (패키지를 설치할 때 <code class="language-plaintext highlighter-rouge">Moya/RxSwift</code>도 함께 설치해주어야 합니다.)</p>
+
+<p>대략적인 사용 방법을 알았으니 실전에 적용해보기 위해 떠나보도록 하겠습니다.</p>
+
+<blockquote>
+  <p>참고 문서</p>
+</blockquote>
+
+<p><a href="https://www.kodeco.com/5121-moya-tutorial-for-ios-getting-started">Kodeco - # Moya Tutorial for iOS: Getting Started</a></p>
+
+<p><a href="https://github.com/Moya/Moya/blob/master/docs/Examples/Basic.md">Moya - Basic Usage</a></p>
+</body></html>

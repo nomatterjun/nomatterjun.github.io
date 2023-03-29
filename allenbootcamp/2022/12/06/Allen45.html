@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h1 id="date">Date</h1>
+
+<h2 id="utc-coordinated-universal-time">UTC (Coordinated Universal Time)</h2>
+
+<p>UTC는 국제적인 표준 시간(<strong>협전 세계시</strong>)입니다.</p>
+
+<p>영국의 그리니치 천문대를 기준으로 하여 전세계적인 시간 기준을 맞춰 사용하고 있습니다.</p>
+
+<p>우리나라의 경우 UTC+9의 시간을 가집니다.</p>
+
+<p>앱에서 시간을 다루는 경우는 굳이 생각해보지 않아도 굉장히 많겠죠?</p>
+
+<p>다른 모든 언어들이 날짜를 다루는 라이브러리를 제공하듯이 Swift 또한  <code class="language-plaintext highlighter-rouge">Date</code>라는 구조체를 제공하여 날짜를 사용할 수 있도록 해주었습니다.</p>
+
+<p>가장 단순한 예시를 들자면  <code class="language-plaintext highlighter-rouge">Date()</code>로 파라미터 없이 초기화만 해주어도 현재 시간을 반환해줍니다.</p>
+
+<pre><code class="language-Swift">let now = Date()
+print(now) // 2022-12-08 12:30:00 +0000
+print(now.timeIntervalSinceReferenceDate) // 647786168.423142
+</code></pre>
+
+<h2 id="date-구조체">
+<code class="language-plaintext highlighter-rouge">Date</code> 구조체</h2>
+
+<p><code class="language-plaintext highlighter-rouge">Date</code>를 잘 이해하려면 기준 시간을 인지하고 있어야 합니다.</p>
+
+<p>영국 시간을 기준으로 <code class="language-plaintext highlighter-rouge">2001.01.01. 00:00:00 UTC</code> 시간을 기준으로 잡고 계산을 합니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Date</code> 구조체는 <strong>기준 시간으로부터 시간이 몇 초나 흘렀는지</strong>에 대한 정보를 담고 있습니다.</p>
+
+<p>하지만 기본적으로 사람이 읽기 편하도록 <code class="language-plaintext highlighter-rouge">2022-12-08 12:30:00 +0000</code>와 같이 형식을 변환하여 반환하기 때문에 이 값은 볼 일이 많지 않죠.</p>
+
+<p>초 단위의 값을 보고 싶다면 <code class="language-plaintext highlighter-rouge">.timeIntervalSinceReferenceDate</code>를 통해  알아낼 수 있지만 쓸 일이 많을 것 같진 않네요..!
+<em>참고로 이 함수는 값을 <code class="language-plaintext highlighter-rouge">TimeInterval</code> 타입으로 반환합니다. 이에 대한 건 뒤에 적어두도록 하겠습니다.</em></p>
+
+<p>또한 <code class="language-plaintext highlighter-rouge">+0000</code>을 보면 알 수 있듯이 이 시간은 각 지역의 시간에 맞추어 제공되는 것이 아니라 <strong>UTC+0</strong>시를 기준으로 제공됩니다.</p>
+
+<p>이 값을 지역에 맞게 제대로 사용하려면 달력(<code class="language-plaintext highlighter-rouge">Calendar</code>)이나 타임존(<code class="language-plaintext highlighter-rouge">TimeZone</code>)을 통해 변환해야 하고, <code class="language-plaintext highlighter-rouge">Date</code> 타입으로 제공되기 때문에 <code class="language-plaintext highlighter-rouge">String</code> 타입으로 변환하여 사용해야 합니다.</p>
+
+<blockquote>
+  <p>보통 기준 시간은 1970년으로 잡지 않나요…?</p>
+</blockquote>
+
+<p>유닉스 기준 시간은 1970년 1월 1일이 맞습니다.</p>
+
+<p>그런데 애플은 이 날짜가 너무 오래전이라고 생각한 듯 싶습니다.</p>
+
+<p>기준 시간을 1970년으로 잡는 <code class="language-plaintext highlighter-rouge">.timeIntervalSince1970</code>  메서드도 지원하니 알아두시면 좋을 듯 합니다!</p>
+
+<pre><code class="language-Swift">now.timeIntervalsince1970
+</code></pre>
+
+<h2 id="date-변환하여-날짜와-시간-다루기">
+<code class="language-plaintext highlighter-rouge">Date</code> 변환하여 날짜와 시간 다루기</h2>
+
+<p>Swift에서는 <code class="language-plaintext highlighter-rouge">Date</code> 구조체를 두 가지 방법으로 변환할 수 있습니다.</p>
+
+<p>날짜와 시간을 계산하기 위한 <code class="language-plaintext highlighter-rouge">Calendar</code>와 문자열로 표시하기 위한 <code class="language-plaintext highlighter-rouge">DateFormatter</code>가 두 방법입니다.</p>
+
+<h3 id="calendar">Calendar</h3>
+
+<p><code class="language-plaintext highlighter-rouge">Calendar</code>는 타입 속성의 구조체 타입으로, <code class="language-plaintext highlighter-rouge">Calendar.current</code>로 확인할 수 있습니다.</p>
+
+<p>양력과 음력이 있지만 기본적으로 양력으로 설정되어 있기 때문에 대부분의 경우 기본값으로 사용해도 문제 없습니다.</p>
+
+<pre><code class="language-Swift">var calendar = Calendar.current
+Calendar(identifier: .gregorian) // 양력
+</code></pre>
+
+<h4 id="지역-설정">지역 설정</h4>
+
+<p>지역마다 날짜와 시간을 표기하는 형식이 다르기 때문에 지역 설정을 해주어야 합니다.
+`</p>
+<pre><code class="language-Swift">print(calendar.locale) // en_US (current)
+print(calendar.timeZone) // Asia/Seoul (current)
+
+calendar.locale = Locale(identifier: "ko_KR")
+calendar.timeZone = TimeZone(identifier: "Asia/Seoul")
+</code></pre>
+
+<p><code class="language-plaintext highlighter-rouge">timeZone</code>은 기기로부터 정보를 받아와서 자동으로 서울로 설정된 것 같네요.</p>
+
+<p><code class="language-plaintext highlighter-rouge">identifier</code>는 필요한 값을 그때그때 검색해서 사용하시면 됩니다.</p>
+
+<h4 id="date의-년월일시분초를-확인하는-방법">
+<code class="language-plaintext highlighter-rouge">Date</code>의 년/월/일/시/분/초를 확인하는 방법</h4>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">.component</code> 사용</li>
+</ul>
+
+<pre><code class="language-Swift">let year: Int = calendar.component(.year, from: now)
+let month: Int = calendar.component(.month, from: now)
+let day: Int = calendar.component(.day, from: now)
+let hour: Int = calendar.component(.hour, from: now)
+let minute: Int = calendar.component(.minute, from: now)
+let second: Int = calendar.component(.second, from: now)
+// 요일 (일: 1, 월: 2, ...)
+let weekday: Int = calendar.component(.weekday, from: now)
+</code></pre>
+
+<blockquote>
+  <p>열거형을 사용하여 요일 계산하기</p>
+</blockquote>
+
+<pre><code class="language-Swift">enum Weekday: Int {
+	case sunday = 1, monday, tuesday, wednesday, thursday, friday, saturday
+
+	static var today: Weekday {
+		let weekday: Int = Calendar.current.component(.weekday from: Date())
+		return Weekday(rawValue: weekday)!
+	}
+}
+
+let today = Weekday.today // monday
+</code></pre>
+
+<h4 id="한-번에-여러-데이터를-얻는-방법">한 번에 여러 데이터를 얻는 방법</h4>
+
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">.dateComponents</code> 사용</li>
+</ul>
+
+<pre><code class="language-Swift">var myDateComp = calendar.dateComponents([.year, .month, .day], from: now)
+print(myDateComp.year) // 2022
+print(myDateComp.month) // 12
+print(myDateComp.day) // 6
+</code></pre>
+
+<blockquote>
+  <p>두 날짜 사이의 일 수 계산하기</p>
+</blockquote>
+
+<pre><code class="language-Swift">let startDate = Date()
+let endDate = startDate.addingTimeInterval(3600 * 24 * 60)
+let someDays = Calendar.current.dateComponents([.day], from: startDate, to: endDate).day!
+print(someDays) // 60
+</code></pre>
+
+<h3 id="dateformatter">DateFormatter</h3>
+
+<p><code class="language-plaintext highlighter-rouge">DateFormatter</code>는 날짜와 시간을 원하는 형식의 문자열(<code class="language-plaintext highlighter-rouge">String</code> )으로 변환하는 방법을 제공하는 클래스입니다.</p>
+
+<p>RFC 3339 표준으로 작성되었기 때문에 원하는 형식을 검색해서 사용하면 됩니다.</p>
+
+<pre><code class="language-Swift">let formatter = DateFormatter()
+// 지역 설정
+formatter.locale = Locale(identifier: "ko_KR")
+// 시간대 설정
+formatter.timeZone = TimeZone.current
+// 혹은
+formatter.timeZone = TimeZone(identifier: "Asia/Seoul")
+</code></pre>
+
+<h4 id="애플이-만들어둔-기존-형식으로-생성">애플이 만들어둔 기존 형식으로 생성</h4>
+
+<pre><code class="language-Swift">formatter.dateStyle = .full // "Tuesday, December 6, 2022"
+formatter.dateStyle = .long // "December 6, 2022"
+formatter.dateStyle = .medium // "Dec 6, 2022"
+formatter.dateStyle = .none // ""
+formatter.dateStyle = .short // "12/6/22"
+
+formatter.timeStyle = .full // "2:53:12 PM Korean Standard Time"
+formatter.timeStyle = .long // "2:53:12 PM GMT+9"
+formatter.timeStyle = .medium // "2:53:12 PM"
+formatter.timeStyle = .none // ""
+formatter.timeStyle = .short // "2:55 PM"
+</code></pre>
+</body></html>

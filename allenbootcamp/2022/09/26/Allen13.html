@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h1 id="inout-파라미터">
+<code class="language-plaintext highlighter-rouge">inout</code> 파라미터</h1>
+<ul>
+  <li>함수 내의 파라미터는 기본적으로 <strong>값 타입</strong>이고, 임시 상수이기 때문에 변경이 불가하다.</li>
+</ul>
+
+<pre><code class="language-Swift">var num1 = 123
+var num2 = 456
+
+func swap(a: Int, b: Int) {
+	var temp = a
+	a = b
+	b = temp
+}
+swap(a: num1, b: num2)
+</code></pre>
+
+<p>그렇다면 <strong>참조 타입</strong>으로는 값을 전달하지 못할까요? 그럴리가요.. 여기서 <code class="language-plaintext highlighter-rouge">inout</code> 파라미터가 등장합니다.</p>
+
+<pre><code class="language-Swift">var num1 = 123
+var num2 = 456
+
+func swapNumbers(a: inout Int, b: inout Int) {
+	var temp = a
+	a = b
+	b = temp
+}
+swapNumbers(a: &amp;num1, b: &amp;num2) // &amp;: 주소값
+print(num1, num2) // 456, 123
+</code></pre>
+
+<h2 id="주의점">주의점</h2>
+<ul>
+  <li>상수나 리터럴을 전달하는 것은 불가능</li>
+  <li>파라미터의 기본값 선언을 허용하지 않음</li>
+  <li>가변 파라미터로 선언하는 것 또한 불가능</li>
+</ul>
+</body></html>

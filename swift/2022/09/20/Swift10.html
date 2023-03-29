@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h2 id="구조체struct와-클래스class">구조체(<code class="language-plaintext highlighter-rouge">struct</code>)와 클래스(<code class="language-plaintext highlighter-rouge">class</code>)</h2>
+<p>Swift에는 두 가지 데이터 타입이 있습니다. 바로 <code class="language-plaintext highlighter-rouge">struct</code>와 <code class="language-plaintext highlighter-rouge">class</code>입니다. 어느 정도 감으로 사용하고 있었지만 정확하게 알아보고 싶어서 공부를 해보겠습니다.</p>
+
+<h3 id="값-타입-vs-참조-타입">값 타입 vs 참조 타입</h3>
+<p>정의의 차이로 설명하자면 <code class="language-plaintext highlighter-rouge">class</code>는 참조 타입, <code class="language-plaintext highlighter-rouge">struct</code>는 값 타입입니다. 값 타입인 <code class="language-plaintext highlighter-rouge">struct</code>에 소속된 인스턴스들은 값을 복사하여 새로운 인스턴스를 만들어 사용합니다. 참조 타입인 <code class="language-plaintext highlighter-rouge">class</code>에 소속된 인스턴스들은 참조 값이 전달됩니다.</p>
+
+<h4 id="할당-메모리-영역">할당 메모리 영역</h4>
+
+<h5 id="struct">Struct</h5>
+<p>값 복사 방식을 사용하는 구조체는 메모리의 스택 영역에 할당됩니다. 따라서 스택 영역의 특징들을 갖습니다.</p>
+<ul>
+  <li>Thread-Safe하다. (스레드가 독립적으로 사용)</li>
+  <li>한 번의 명령으로 할당&amp;해제 가능 (스택 포인터 사용)</li>
+  <li>컴파일 시간에 크기 배정</li>
+</ul>
+
+<h5 id="class">Class</h5>
+<p>참조 방식을 사용하는 클래스는 메모리의 힙 영역에 할당됩니다. 따라서 힙 영역의 특징들을 갖습니다.</p>
+<ul>
+  <li>런타임에 크기가 배정된다.</li>
+  <li>Thread-Safe하지 않다. (스레드가 공유하여 사용)</li>
+</ul>
+
+<h5 id="권장하는-타입은">권장하는 타입은?</h5>
+<p>애플은 되도록이면  <code class="language-plaintext highlighter-rouge">struct</code>를 사용하는 것을 권장하고 있습니다. 메모리 관리 시에 별도의 연산 과정이 필요하지 않고 속도도 빠르기 때문입니다. 그렇다면 <code class="language-plaintext highlighter-rouge">class</code> 는 왜 사용할까요?</p>
+
+<h4 id="상속">상속</h4>
+<p><code class="language-plaintext highlighter-rouge">class</code> 는 상속이 가능합니다. <code class="language-plaintext highlighter-rouge">protocol</code>을 사용하여  기존의 <code class="language-plaintext highlighter-rouge">class</code>에서 확장된 버전의 <code class="language-plaintext highlighter-rouge">class</code>를 사용할 수 있습니다. 이 내용은 추후에 따로 다루고 링크를 남겨두도록 하겠습니다!</p>
+
+<h3 id="그럼-언제-뭘-쓸까요">그럼 언제 뭘 쓸까요?</h3>
+<p>그렇다면 언제 <code class="language-plaintext highlighter-rouge">struct</code>를, 언제 <code class="language-plaintext highlighter-rouge">class</code>를 사용해야 할까요?
+위에서 한 번 언급했던대로 애플은 <code class="language-plaintext highlighter-rouge">struct</code>를 사용하는 것을 권장하고 있습니다. Swift의 <code class="language-plaintext highlighter-rouge">struct</code>는 다른 언어에서는 <code class="language-plaintext highlighter-rouge">class</code>만이 갖고 있는 편리한 기능들을 상당 수 지원합니다. Swift의 <code class="language-plaintext highlighter-rouge">struct</code>는 저장/연산 프로퍼티, 메서드, 심지어 프로토콜까지 사용할 수 있습니다. 실제로 애플은 대부분의 표준 라이브러리(숫자, 문자열, 배열, 딕셔너리 등)에 <code class="language-plaintext highlighter-rouge">struct</code>를 사용했습니다.</p>
+
+<h4 id="obj-c-언어와-상호-이용할-때는-class를-이용">obj-c 언어와 상호 이용할 때는 <code class="language-plaintext highlighter-rouge">class</code>를 이용</h4>
+<p>obj-c의 API를 사용하여 데이터를 처리할 때는 <code class="language-plaintext highlighter-rouge">class</code>를 사용해야만 합니다. 따라서 이런 경우에는 클래스를 사용할 수 밖에 없습니다.</p>
+
+<h4 id="고유한-값에-대한-제어가-필요할-때는-class-이용">고유한 값에 대한 제어가 필요할 때는 <code class="language-plaintext highlighter-rouge">class</code> 이용</h4>
+<p><code class="language-plaintext highlighter-rouge">class</code>는 참조 타입이기 때문에 어느 한 곳에서 값을 수정하더라도 앱의 모든 곳에서 변경이 일어납니다. 이런 현상을 의도적으로 원한다면  <code class="language-plaintext highlighter-rouge">class</code>를 사용하면 좋습니다.</p>
+
+<h4 id="상속과-공유를-모델링-할-때는-struct를-이용">상속과 공유를 모델링 할 때는 <code class="language-plaintext highlighter-rouge">struct</code>를 이용</h4>
+<p><code class="language-plaintext highlighter-rouge">class</code>와 <code class="language-plaintext highlighter-rouge">struct</code>는 모두 상속을 지원합니다. 하지만 <code class="language-plaintext highlighter-rouge">struct</code>는 <code class="language-plaintext highlighter-rouge">class</code>로부터 상속되지는 못하고, <code class="language-plaintext highlighter-rouge">protocol</code>로부터만 차용될 수 있습니다. 
+<code class="language-plaintext highlighter-rouge">protocol</code>은 클래스, 구조체, 열거형 데이터들이 상속할 수 있지만 <code class="language-plaintext highlighter-rouge">class</code>는 같은 <code class="language-plaintext highlighter-rouge">class</code>들끼리만 상속이 가능하기 때문에 데이터를 설계할 때 우선 <code class="language-plaintext highlighter-rouge">protocol</code>을 사용해보는 것을 추천합니다.</p>
+
+<h5 id="참고">참고</h5>
+<p><img src="https://developer.apple.com/documentation/swift/choosing-between-structures-and-classes" alt="Choosing Between Structures and Classes"></p>
+</body></html>

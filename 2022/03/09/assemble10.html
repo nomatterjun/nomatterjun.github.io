@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p>오늘은 매번 방법을 모르고 있다가 알게된 Xib 크기 설정법을 메모하기 위해 작성합니다!</p>
+
+<p>iOS 앱개발을 하다보면 CollectionView나 TableView 등에서 작은 하나의 인터페이스를 제작할 때 내용이 복잡해지면 따로 View를 만들어 제작하곤 합니다.</p>
+
+<p>이 때, Xib라는 파일 형식을 사용하게 되는데요, 저는 지금까지 방법을 몰라서 이 Xib의 크기를 고정으로 사용하고 있었죠..</p>
+
+<p>그래서 동적인 크기가 필요할 떄는 그냥 코드로 UI 구성을 하였습니다.</p>
+
+<p>그런데 분명 방법이 있을텐데 제가 찾지 못한 것 같아 다시 한번 방법을 찾아보았습니다.</p>
+
+<p>그리고 알아낸 방법은 생각보다 아주 쉬웠죠..</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>override func awakeFromNib() {
+    super.awakeFromNib()
+    // Initialization code
+    self.translatesAutoresizingMaskIntoConstraints = false
+}
+</code></pre></div></div>
+
+<p>Xib 파일을 불러오는 곳(awakeFromNib, init)에 <strong>self.translatesAutoresizingMaskIntoConstraints = false</strong>를 넣어줍시다.</p>
+
+<p>네.. 오토 레이아웃을 적용할 때 항상 사용했던 그 방법입니다.</p>
+
+<p>그리고 이 Xib 파일로 만든 Custom View를 불러오는 부분에서 오토 레이아웃을 설정해주면 됩니다.</p>
+
+<p>그냥 UIView의 레이아웃을 잡아주던 방법과 동일합니다.</p>
+
+<p>이걸 몰라서 지금까지 고생을..</p>
+</body></html>

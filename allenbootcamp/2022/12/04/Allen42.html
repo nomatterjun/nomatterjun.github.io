@@ -1,0 +1,393 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h1 id="비동기-프로그래밍">비동기 프로그래밍</h1>
+
+<h2 id="비동기-처리가-필요한-이유">비동기 처리가 필요한 이유</h2>
+<h3 id="네트워크-통신과-비동기-처리">네트워크 통신과 비동기 처리</h3>
+<p>대부분의 앱에서는 서버와의 통신이 필요합니다.</p>
+
+<p><img src="https://i.imgur.com/ziUlpZG.png" width="350">
+당근 마켓의 화면입니다. UIKit의 요소만 보자면 단순하게 테이블뷰를 나열한 것이지만, 그 내용은 서버에서 받아온 데이터들로 이루어져 있습니다.</p>
+
+<p>그런데 이 테이블뷰를 스크롤하면 새롭게 화면에 보여지는 내용을 보여주기 위해서 서버와 통신을 해야겠죠.</p>
+
+<p>이 통신 과정을 동기적으로 처리한다면, 스크롤 할 때마다 화면이 버벅이는 현상이 발생합니다.</p>
+
+<h3 id="thread">Thread</h3>
+
+<p>우리가 코드로 적은 프로그램은 CPU의 쓰레드에서 한 줄 씩 실행됩니다.</p>
+
+<p><img src="https://i.imgur.com/2lWdLCE.png" alt=""></p>
+<blockquote>
+  <p>출처: <a href="https://lena-chamna.netlify.app/post/concurrency_programming_thread_and_queue/">레나참나님 블로그</a></p>
+</blockquote>
+
+<p>그런데 별 다른 명시가 없다면(비동기 프로그래밍을 하지 않는다면) 이 코드의 실행이 모두 1번 쓰레드(메인 쓰레드)에서 실행됩니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">print</code>문과 같은 단순한 작업들은 전부 메인 쓰레드에서 동작해도 아무 문제가 없지만, 네트워킹과 같은 비교적 무거운 작업들은 메인 쓰레드에서 동작시키면 상당히 긴 작업시간을 잡아먹어버리게 됩니다.</p>
+
+<p>그러면 이런 무거운 작업들을 놀고 있는 2번 쓰레드, 3번 쓰레드 등에 넘겨주면 메인 쓰레드는 다른 가벼운 작업들을 멈춤 없이 실행할 수 있겠죠!</p>
+
+<p>사실 메인 쓰레드는 우리가 입력한 코드 외에도 할 일이 매우 많습니다.</p>
+
+<h3 id="앱의-시작-과정과-동작-원리">앱의 시작 과정과 동작 원리</h3>
+
+<p>앱의 시작 과정과 동작은 모두 메인 쓰레드에서 담당합니다.</p>
+
+<p>앱을 처음 실행하면, 다른 모든 프로그램들과 마찬가지로 <code class="language-plaintext highlighter-rouge">main</code> 함수가 실행됩니다.</p>
+
+<p>이 <code class="language-plaintext highlighter-rouge">main</code> 함수는 <code class="language-plaintext highlighter-rouge">UIApplicationMain()</code>이라는 앱 객체를 생성하고 UI 구성, 앱 상태 측정등의 앱 준비 과정을 거쳐서 앱이 실행됩니다.</p>
+
+<p>앱이 실행된 후에는 런루프가 생성됩니다. 이 런루프는 무한 반복문으로서 유저의 인터랙션(터치, 핀치 등)을 받아 그 이벤트를 처리하는 객체입니다.</p>
+<ul>
+  <li>ex) <code class="language-plaintext highlighter-rouge">@IBAction</code>, <code class="language-plaintext highlighter-rouge">#selector</code>
+</li>
+</ul>
+
+<p><img src="https://i.imgur.com/7Yo9WFp.png" width="300"></p>
+
+<p>아이폰의 화면은 대부분 60Hz입니다. <em>(최근엔 144Hz까지 지원하는 기종도 있지만)</em></p>
+
+<p>그렇다면 1초에 60번 화면을 출력해야 하는데 이 1초의 과정을 <strong>Update Cycle</strong>이라고 하고, 메인 쓰레드가 담당하여 화면 출력을 위한 연산을 합니다.</p>
+
+<p>그래서 사실 우리가 입력하는 코드는 이 사이클 중간중간에 끼워넣어지는 것이죠..!</p>
+
+<p>화면이 버벅이는 현상은 여기서 발생합니다.</p>
+
+<p>네트워킹과 같은 무거운 작업이 메인 쓰레드를 붙잡고 있어버리면, 이 업데이트 사이클이 돌지 못해버리는 현상이 발생합니다.</p>
+
+<p>따라서 화면이 새로 그려지지 못하고, 멈추는 것과 같은 현상이 발생하는 것이죠.</p>
+
+<p>그래서 화면을 그리는 일을 방해하지 않으면서 무거운 작업을 하기 위해서는 <strong>동시성 프로그래밍</strong>을 해야한다는 것입니다.</p>
+
+<p>다행히 iOS의 동시성 프로그래밍은 매우매우 쉬운 편입니다.</p>
+
+<h3 id="ios에서의-동시성-프로그래밍">iOS에서의 동시성 프로그래밍</h3>
+
+<p>iOS에서는 작업(Task)를 “대기행렬”(Queue)에 보내기만 해주면, iOS가 알아서 순서대로 작업 처리를 해줍니다.</p>
+
+<p>할 일을 iOS에서 관리해주는 <strong>Queue에 던져주기만 하면 알아서 순서대로</strong> 작업을 해준다는 뜻입니다.</p>
+
+<p>조금 더 정확히 설명하면, Queue에 넣어준 작업(Task)들은 FIFO 방식으로 즉시 각각의 쓰레드에 배치됩니다.</p>
+
+<p>iOS는 두 가지 Queue를 제공합니다.</p>
+
+<ol>
+  <li>DispatchQueue
+    <ul>
+      <li>= GCD(Grand Central DispatchQueue)</li>
+    </ul>
+  </li>
+  <li>OperationQueue</li>
+</ol>
+
+<p>여기서 우리가 주목해야할 것은 <code class="language-plaintext highlighter-rouge">DispatchQueue</code>입니다. <code class="language-plaintext highlighter-rouge">OperationQueue</code>는 상당히 어려운 개념이고, 실무에서도 거의 사용되지 않기 때문에 우선 <code class="language-plaintext highlighter-rouge">DispatchQueue</code>만 공부해보도록 하겠습니다!</p>
+
+<h3 id="nsthread">NSThread</h3>
+
+<p>자 그런데, 사실 프로그래밍을 하며 관리하는 소프트웨어적인 쓰레드(NSThread)는 하드웨어의 쓰레드와 1:1 매칭되는 객체는 아닙니다.</p>
+
+<p>물리적인 쓰레드는 하나하나가 굉장히 빠릅니다.</p>
+
+<p>사실 소프트웨어적으로 아무리 작업을 끼워넣어도 하드웨어적인 쓰레드에게는 매우 여유로운 일입니다.</p>
+
+<p>그래서 하드웨어적인 쓰레드는 한가지 NSThread에서만 일하지 않고, 여러 군데에 왔다갔다하면서 작업을 수행합니다.</p>
+
+<p>이 과정은 OS가 알아서 해주는 동작이라서 코딩을 하는 우리는 <strong>NSThread의 개수가 하드웨어적으로 명시된 쓰레드의 개수보다는 훨씬 많겠구나!</strong> 정도만 알아두면 될 것 같습니다.</p>
+
+<h2 id="비동기async-동시concurrent의-개념">비동기(async), 동시(concurrent)의 개념</h2>
+
+<h3 id="동기sync-vs-비동기async">동기(sync) vs 비동기(async)</h3>
+<p><img src="https://i.imgur.com/8Sb5G1i.png" width="500"></p>
+<ul>
+  <li>비동기(asynchronous)
+    <ul>
+      <li>작업을 시작한 후에, 작업이 끝나길 기다리지 않는다</li>
+      <li>작업을 시작시킨 후에 다른 작업을 하러 간다.</li>
+    </ul>
+  </li>
+  <li>동기(synchronous)
+    <ul>
+      <li>작업을 시작한 후에, 작업이 끝날때까지 기다린다.</li>
+      <li>작업이 수행되는 동안 쓰레드는 block된다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="직렬serial-vs-병렬concurrent">직렬(Serial) vs 병렬(concurrent)</h3>
+<ul>
+  <li>직렬(serial)
+    <ul>
+      <li>하나의 쓰레드만 생성하여 하나의 쓰레드로만 작업 전달</li>
+      <li>순서가 중요한 작업을 처리할 때 사용</li>
+    </ul>
+  </li>
+  <li>병렬(concurrent)
+    <ul>
+      <li>여러개의 쓰레드를 생성하여 알아서 알맞는 쓰레드에 작업 전달</li>
+      <li>각자 독립적이지만 유사한 여러개의 작업을 처리할 때 사용</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="gcd의-개념-및-종류">GCD의 개념 및 종류</h2>
+
+<h3 id="큐queue의-종류">큐(Queue)의 종류</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th colspan="2">:큐의 종류</th>
+      <th>생성 코드</th>
+      <th>특징</th>
+      <th>직렬/동시</th>
+      
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Dispatch  Queue</td>
+      <td>.main</td>
+      <td><code class="language-plaintext highlighter-rouge">DispatchQueue.main</code></td>
+      <td>메인큐 = 메인쓰레드</td>
+      <td>Serial</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td>.global()</td>
+      <td><code class="language-plaintext highlighter-rouge">DispatchQueue.global(qos:)</code></td>
+      <td>6가지 Qos (작업에 따라 Qos 상승 가능)</td>
+      <td>Concurrent</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td>custom</td>
+      <td><code class="language-plaintext highlighter-rouge">DispatchQueue(label: "...")</code></td>
+      <td>Qos추론 / 설정 가능</td>
+      <td>Both</td>
+    </tr>
+    <tr>
+      <td colspan="2">:OperationQueue</td>
+      <td><code class="language-plaintext highlighter-rouge">let opQ = OperationQueue()</code></td>
+      <td>디폴트: .background, underlying 디스패치큐에 영향</td>
+      <td>Both</td>
+      
+    </tr>
+  </tbody>
+</table>
+
+<pre><code class="language-Swift">// 직렬 Queue
+let privateQueue = DispatchQueue(label: "com.inflearn.serial")
+
+let concurrentQueue = DispatchQueue(label: "custom", attributes: .concurrent)
+</code></pre>
+
+<h2 id="gcd-사용-시-주의해야-할-사항">GCD 사용 시 주의해야 할 사항</h2>
+
+<h3 id="1-반드시-메인큐에서-처리해야하는-작업">1) 반드시 메인큐에서 처리해야하는 작업</h3>
+
+<p>화면을 그리는 <strong>UI와 관련된 작업들은 메인쓰레드</strong>에서 동작해야합니다.</p>
+
+<p>따라서 GCD를 사용하여 메인쓰레드가 아닌 쓰레드에서 동작하던 코드 중간에 UI와 관련된 작업이 필요하다면, 메인 쓰레드에 이 작업을 보내주는 작업이 필요합니다.</p>
+
+<pre><code class="language-Swift">// URLSession은 내부적으로 비동기 작업
+URLSession.shared.dataTask(with: url) { data, response, error in
+	if let error = error {
+		print("에러")
+	}
+
+	guard let imageData = data else { return }
+	let photoImage = UIImage(data: imageData)
+	DispatchQueue.main.async { // UI 관련 작업은 main thread에서
+		imageView?.image = photoImage
+	}
+}.resume()
+</code></pre>
+
+<h3 id="2-컴플리션-핸들러의-존재-이유---올바른-콜백-함수의-사용">2) 컴플리션 핸들러의 존재 이유 - 올바른 콜백 함수의 사용</h3>
+
+<p>비동기 처리를 사용하다보면 발생하는 문제점이 하나 있습니다.</p>
+
+<p>비동기적이라고 하면 일을 시작시키고 작업이 끝날때까지 기다리지 않고 다른 일을 처리하러 간다는 장점이 있었습니다.</p>
+
+<p>비동기적으로 처리시킨 작업이 끝나는 시점에 필요한 작업이 있다면 어떻게 해야할까요? 예를 들면 작업이 끝났을 때 나온 결과를 <code class="language-plaintext highlighter-rouge">return</code>해야할 경우가 있습니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">return</code> 구문을 사용한다면 작업이 끝나기 전에 끝나버리기 때문에 항상 <code class="language-plaintext highlighter-rouge">nil</code> 값을 받아올 것입니다.</p>
+
+<pre><code class="language-Swift">func getImages(str: String) -&gt; UIImage? {
+	URLSession.shared.dataTask(...) {
+	}.resume()
+	return photoImage // nil (작업이 끝나지 않았는데 return)
+}
+</code></pre>
+
+<p>이 때 바로 <strong><code class="language-plaintext highlighter-rouge">@escaping</code> 클로저</strong>가 등장합니다.</p>
+
+<pre><code class="language-Swift">func getImage(str: String, completion: @escaping ((UIImage?) -&gt; Void) {
+	URLSession.shared.dataTask(...) {
+		completion(photoImage) // 내부 작업이 끝나면 escaping closure 호출
+	}.resume()
+}
+
+getImage("url") { image in
+	imageView?.setImage(image)
+}
+</code></pre>
+
+<p><code class="language-plaintext highlighter-rouge">@escaping</code> 클로저의 파라미터로 데이터를 받아 처리를 하면, 해당 함수가 “끝난” 시점에 클로저를 호출할 수 있기 때문에 이런 방식으로 사용해야합니다.</p>
+
+<h3 id="3-weak-strong-캡처의-주의">3) weak, strong 캡처의 주의</h3>
+
+<pre><code class="language-Swift">DispatchQueue.global(qos: .utility).async { [weak self] in
+	guard let self = self else { return }
+	DispatchQueue.main.async {
+		self.textLabel.text = "New posts updated."
+	}
+}
+</code></pre>
+
+<p>대부분의 경우, 캡처리스트 안에서 <code class="language-plaintext highlighter-rouge">weak self</code>로 선언하는 것이 권장됩니다.</p>
+
+<h3 id="4-동기함수를-비동기적으로-동작하는-함수로-변형">4) 동기함수를 비동기적으로 동작하는 함수로 변형</h3>
+
+<pre><code class="language-Swift">func longTimePrint(name: String) -&gt; String {
+	print("1")
+	sleep(1)
+	print("2")
+	sleep(2)
+	print("3")
+	sleep(3)
+	return "작업 종료"
+}
+
+func asyncLongTimePrint(name: String, completion: @escaping (String -&gt; Void) {
+	DispatchQueue.global().async {
+		let n = longtimePrint(name: name)
+		completion(n)
+	}
+}
+</code></pre>
+
+<h2 id="비동기-함수메서드의-이해">비동기 함수/메서드의 이해</h2>
+
+<h3 id="urlsession">URLSession</h3>
+
+<p>대표적으로 <code class="language-plaintext highlighter-rouge">URLSesison</code>은 이미 내부적으로 GCD를 이용해서 비동기적으로 처리하는 메서드로 생각해야 합니다.</p>
+
+<p>따라서 굳이 <code class="language-plaintext highlighter-rouge">DispatchQueue</code>로 감싸주지 않아도 됩니다.</p>
+
+<p>그런데 비슷한 동작을 하는 <code class="language-plaintext highlighter-rouge">Data(contentsOf: url)</code>의 경우에는 비동기적으로 만들어져 있지 않습니다.</p>
+
+<p>애플 공식 문서를 보고 비동기적으로 구현된 함수인지 아닌지 확인하면서 사용해야할 것 같습니다!</p>
+
+<h2 id="asyncawait의-도입">async/await의 도입</h2>
+
+<p>Swift 5.5이후 <code class="language-plaintext highlighter-rouge">async</code>와 <code class="language-plaintext highlighter-rouge">await</code>가 도입되었습니다. 파이썬과 자바스크립트에서 사용되던 패턴을 Swift에 맞게 가져온 개념입니다.</p>
+
+<pre><code class="language-Swift">func processImageData(completion: (_ result: Image) -&gt; Void) {
+	loadWebResource("dataprofile.txt") { dataResource in
+		loadWebResource("imagedata.dat") { imageResource in
+			decodeImage(dataResource, imageResource) { imageTmp in
+				dewarpAndCleanupImage(imageTmp) { imageResult in
+					completion(imageResult)
+				}
+			}
+		}
+	}
+}
+</code></pre>
+
+<p>와우.. 보기만해도 숨이 막히죠</p>
+
+<p><code class="language-plaintext highlighter-rouge">async</code>, <code class="language-plaintext highlighter-rouge">await</code>를 사용하면 이런 들여쓰기의 반복을 해소할 수 있습니다. 또한 <code class="language-plaintext highlighter-rouge">return</code>을 사용할 수 있게 됩니다..!</p>
+
+<pre><code class="language-Swift">func processImageData() async throws -&gt; Image {
+	let dataResource = try await loadWebResource("dataprofile.txt")
+	let imageResource = try await loadWebResource("imagedata.dat")
+	let imageTmp = try await decodeImage(dataResource, imageResource)
+	let imageResult = try await dewarpAndCleanupImage(imageTmp)
+	return imageResult
+}
+</code></pre>
+
+<h2 id="동시성-프로그래밍의-메모리-구조">동시성 프로그래밍의 메모리 구조</h2>
+
+<p>코드-데이터-힙-스택의 메모리 구조 중에서 <strong>“스택”</strong> 영역을 쓰레드마다 각각 가지게 됩니다.</p>
+
+<p>동작이 할당될때마다 각자의 스택 영역에 해당 메서드를 쌓아두면서 실행합니다.</p>
+
+<p>반면 코드-데이터-힙 영역은 모든 쓰레드가 공유하는 자원입니다.</p>
+
+<h2 id="동시성-프로그래밍과-관련된-문제점">동시성 프로그래밍과 관련된 문제점</h2>
+
+<h3 id="1-경쟁-상황--경쟁-조건-race--condition">1) 경쟁 상황 / 경쟁 조건 (Race  Condition)</h3>
+
+<p>같은 시점에 여러개의 쓰레드에서 하나의 메모리에 동시 접근하는 문제입니다.</p>
+
+<p>메모리에 쓰고 있는 동안에는 여러 쓰레드에서 접근하지 못하도록 해당 메모리를 잠구는 기능을 Thread-Safe 처리한다 라고 합니다.</p>
+
+<h3 id="2-교착-상태-deadlocks">2) 교착 상태 (Deadlocks)</h3>
+
+<p>Thread-Safe 처리한다고 해서 모든 문제점이 사라지는 건 아닙니다.</p>
+
+<p>Thread2와 Thread3이 있다고 가정하고, 각각이 <code class="language-plaintext highlighter-rouge">person1.name = "홍길동"</code>, <code class="language-plaintext highlighter-rouge">persone2.name = "임꺽정"</code>과 같이 정의하고 Thread-Safe 처리했다고 합시다.</p>
+
+<p><img src="https://i.imgur.com/yQuo3q9.png" width="450"></p>
+
+<p>Thread2와 Thread3이 같은 시점에 서로의 데이터 영역에 있는 값에 접근을 하면, 두 값 모두 잠겨있기 때문에 두 쓰레드 모두 작업을 종료하지 못하고 앱이 충돌하며 강제종료되게 됩니다.</p>
+
+<h2 id="동시성-프로그래밍-문제점의-해결">동시성 프로그래밍 문제점의 해결</h2>
+
+<h3 id="동시큐에서-직렬큐로-보내기">동시큐에서 직렬큐로 보내기</h3>
+
+<p>아주 간단한 해결방법이 있습니다. 동시큐에서 각자 작업을 한 뒤에, 데이터 영역이나 힙 영역에 접근을 하는 부분에서만 직렬큐로 작업을 보내주어서 처리하는 방법입니다.</p>
+
+<p>직렬큐는 하나의 일만 할 수 있기 때문에, 경쟁 상황을 해소할 수 있습니다.</p>
+
+<pre><code class="language-Swift">var array = [String]()
+
+let serialQueue = DispatchQueue(label: "serial")
+
+for i in 1...20 {
+	DispatchQueue.global().async { // 여러개의 쓰레드
+		print("\(i)")
+		array.append("\(i)") // 동시 다발적으로 배열의 메모리에 접근
+	}
+}
+
+DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+	print(array) // ["2", "6", "4", ..., "1", "19"] 빠지는 숫자가 생긴다
+}
+</code></pre>
+
+<pre><code class="language-Swift">var array = [String]()
+
+let serialQueue = DispatchQueue(label: "serial")
+
+for i in 1...20 {
+	DispatchQueue.global().async { // 여러개의 쓰레드
+		print("\(i)")
+		serialQueue.async {
+			array.append("\(i)") // 한 번에 하나의 작업만 접근
+		}
+	}
+}
+
+DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+	print(array) // ["2", "6", "4", ..., "1", "19"] 모든 숫자가 제대로 들어간다
+}
+</code></pre>
+
+<blockquote>
+  <p>왜 UI를 메인쓰레드에서만 업데이트 해야 할까?</p>
+</blockquote>
+
+<ol>
+  <li>UIKit의 모든 속성을 Thread-Safe하게 설계하면, 느려짐과 같은 성능 저하가 발생할 수 있기 때문에 그렇게 설계할 수 없다. (<strong>Thread-Safe하지 않게 설계한 것은 애플의 의도</strong>이다!)</li>
+  <li>
+<strong>메인 런루프(Runloop)</strong> 가 뷰의 업데이트를 관리하는 <strong>View Drawing Cycle</strong>을 통해 뷰를 동시에 업데이트 하고 있는데, 백그라운드 쓰레드가 각자의  런루프로  동작을 하면 뷰가 제멋대로 동작할 수 있다.</li>
+  <li>iOS가 그림을 그리는 <strong>렌더링 프로세스</strong>에서 여러 쓰레드가 각자의 변경사항을 <strong>GPU</strong>로 보내면, GPU는 각각의 정보를 모두 해석해야해서 느려지거나 비효율적이다.</li>
+</ol>
+</body></html>

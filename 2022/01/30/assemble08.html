@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p>DB의 데이터를 자동으로 채우고 api로 불러오는 작업을 계속 진행하던 중에 Lambda 함수에서 다른 Lambda 함수를 불러오면 간단하게 끝낼 수 있는 작업을 마주치게 되었습니다. 방법을 찾아보니 AWS에서 Invoke 함수를 제공하고 있었습니다.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import boto3
+
+lambda_client = boto3.client('lambda',
+                             region_name='ap-northeast-2', # 서울 (본인이 설정한 지역 코드)
+                             aws_access_key_id='YOUR ACCESS KEY',
+                             aws_secret_access_key='YOUR SECRET KEY') 
+</code></pre></div></div>
+
+<p>lambda 함수에만 사용하는 함수는 아니기 때문에 클라이언트 유형을 lambda로 설정해주고, 본인의 환경에 맞게 값들을 입력해줍니다.
+<strong>region_name</strong>: 사용하고 있는 AWS 리전 코드를 입력해줍니다. AWS 콘솔 우측 상단에서 확인 가능합니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220130_08/cap01.png?raw=true" alt="server" width="300"></p>
+
+<p><strong>aws_access_key_id</strong>: AWS 계정의 보안자격키를 입력해줍니다.
+<strong>aws_secret_access_key</strong>: AWS 계정의 보안자격 시크릿키를 입력해줍니다.
+이 두가지 값은 AWS의 IAM 서비스에서 발급/조회할 수 있습니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220130_08/cap02.png?raw=true" alt="IAM" width="550"></p>
+
+<p>IAM 서비스의 사용자 탭에서 사용자가 없다면 새로운 사용자를 추가하거나, 있다면 수정하여 얻을 수 있습니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220130_08/cap03.png?raw=true" alt="add auth" width="550">
+<img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220130_08/cap04.png?raw=true" alt="add auth2" width="550"></p>
+
+<p>권한 탭의 권한 추가에서 <strong>기존 정책 직접 연결</strong>을 선택해주고, 정책 필터에 “<strong>lambda</strong>“를 검색해줍니다. 그럼 아래에 <strong>AWSLambda_FullAccess</strong>라는 항목이 나올텐데, 위 캡처에는 이미 적용된 권한이라 표시되지 않았습니다. 이름 그대로 Lambda에 대한 모든 권한을 부여해주는 권한입니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220130_08/cap05.png?raw=true" alt="key" width="550"></p>
+
+<p>보안 자격 증명 탭에서 액세스 키를 조회하거나 생성할 수 있습니다. 액세스 키 만들기 버튼을 통해 새로운 키를 만들 수 있는데, 이때 주의할 점은 시크릿 키는 이때 말고는 조회할 수 있는 방법이 없으므로 .csv파일로 저장해서 잘 보관해두거나, 따로 다른 곳에 적어두어 보관해둡시다.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>response = lambda_client.invoke(
+    FunctionName='updateActors', 
+    InvocationType='Event', 
+    Payload=json.dumps("")
+)
+</code></pre></div></div>
+<p>invoke 함수로 다른 Lambda 함수를 실행할 수 있습니다. 
+<strong>FunctionName</strong></p>
+<ul>
+  <li>
+<strong>함수 이름</strong>: updateActors(이름만), updateActors:v1(별칭포함)</li>
+  <li>
+<strong>함수 ARN</strong>: arn:aws:lambda:us-west-2:123456789012:function:my-function</li>
+  <li>
+<strong>부분적 ARN</strong>: 123456789012:function:my-function</li>
+</ul>
+
+<p><strong>InvocationType</strong></p>
+<ul>
+  <li>
+<strong>RequestResponse</strong>(default): 동기적 함수 호출</li>
+  <li>
+<strong>Event</strong>: 비동기적 함수 호출</li>
+  <li>
+<strong>DryRun</strong>: 파라미터 유효성 검사, 권한 확인</li>
+</ul>
+
+<p><strong>Payload</strong>: 입력으로 들어가는 값들을 지정 (json 형식)</p>
+</body></html>

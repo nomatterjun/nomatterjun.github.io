@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h3 id="erd-작성하기">ERD 작성하기</h3>
+
+<p>나름 학기중에 DB 과목을 배웠으니 설계 단계부터 제대로 해보기로 했습니다. 이전 프로젝트 때는 DB 개념을 제대로 몰랐기 때문에 막무가내로 DB를 구현했었는데 덕분에 엔티티나 속성을 새로 추가하거나 수정할 때마다 곤욕을 치뤘습니다.
+우선 ERD가 무엇인지부터 다시 정리해보면 아래와 같이 말할 수 있을 것 같습니다.</p>
+
+<blockquote>
+  <h5 id="erd-entity-relation-diagram--">ERD (Entity Relation Diagram) -</h5>
+  <p>ERM(Entity Relation Model, 관계형모델)을 다이어그램으로 시각화하여 데이터의 구조를 파악하기 쉽게 해주는 그림이다. 엔티티의 속성과 엔티티간의 관계를 한 눈에 보기 쉽게 표현한다.</p>
+</blockquote>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220110_03/erd.png?raw=true" alt="erd" width="550"></p>
+
+<p>ERD를 그릴 수 있는 프로그램은 매우 다양하지만 가장 보편적으로 사용되는 MySQL Workbench 프로그램을 사용해보았습니다. <a href="https://dev.mysql.com/downloads/workbench/">MySQL 공식 홈페이지</a>에서 다운받을 수 있습니다.</p>
+
+<p>Workbench를 실행한 초기화면에서 MySQL Connections 옆에 있는 + 버튼을 눌러 새로운 연결을 만들어 주겠습니다.
+<img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220110_03/cap01.png?raw=true" alt="connection" width="550"></p>
+
+<p>그러면 이런 화면이 나오는데, 미리 만들어둔 AWS의 RDS 정보를 입력해줍니다. 새로운 RDS를 생성하는 방법은 구글에 “AWS RDS EC2”만 검색해도 많이 나옵니다. 저도 처음 다루어보는 것이기 때문에 정확하게 설명한 분들의 게시물과 본인의 상황에 맞게 생성해보는 것을 추천합니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220110_03/cap02.png?raw=true" alt="connection" width="550"></p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220110_03/cap03.png?raw=true" alt="endpoint" width="550"></p>
+
+<p>간단하게만 설명하면,</p>
+
+<p><strong>RDS</strong>: 아마존이 제공하는 DB 서비스</p>
+
+<p><strong>EC2</strong>: 아마존이 제공하는 가상 서버 서비스</p>
+
+<p>위의 두 가지 서비스를 연결하여 EC2를 통해 RDS DB에 접근하는 방식입니다. EC2를 생성할 때 우분투 등의 os 환경을 지정하여 사용할 수 있고, RDS 또한 SQL 외에도 MariaDB, Aurora 등을 선택하여 생성할 수 있습니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220110_03/cap04.png?raw=true" alt="reverse engineer" width="550"></p>
+
+<p>성공적으로 연결이 되면, ERD를 작성하기 위해 메뉴의 <strong>Database -&gt; Reverse Engineer</strong>에 들어갑니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220110_03/cap05.png?raw=true" alt="diagram" width="300"></p>
+
+<p>가장 상단의 EER Diagrams 탭의 <strong>Add Diagram</strong>을 통해 ERD 설계를 할 수 있습니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220110_03/cap06.png?raw=true" alt="tools" width="550"></p>
+
+<p>왼쪽에 있는 도구들의 목록을 보면 도구 아이콘들이 이렇게 있습니다. 가장 기본이 되는 테이블부터 추가해보겠습니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220110_03/cap07.png?raw=true" alt="table" width="550"></p>
+
+<p>테이블 추가 도구를 통해 <strong>테이블</strong>을 추가하고, 추가된 테이블을 더블 클릭하면 테이블을 수정할 수 있습니다. 테이블의 column과 datatype, Priority Key(PK), Not Null(NN) 등을 설정할 수 있습니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220110_03/cap08.png?raw=true" alt="FK" width="550"></p>
+
+<p><strong>Foreign Key</strong>는 테이블 선택 상태에서 하단의 메뉴를 보면 탭이 따로 있습니다. 이곳에서 참조하는 테이블을 설정하고, 어떤 column이 참조하는 테이블의 어떤 column을 참조하는지 설정할 수 있습니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220110_03/cap09.png?raw=true" alt="relation" width="550"></p>
+
+<p>Foreign Key를 설정하면 다이어그램에 화살표가 생기는 것을 확인할 수 있는데, 이 화살표를 더블클릭하면 <strong>Relation</strong> 또한 수정할 수 있습니다. 마찬가지로 하단의 Foreign Key 탭을 보면 Relation이 1:n 관계인지, n:m 관계인지 설정할 수 있는 것을 확인할 수 있습니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220110_03/cap10.png?raw=true" alt="diagram" width="550"></p>
+
+<p>우선 이 정도로 구성해두고 추후에 수정하면서 진행하도록 했습니다. 이전 프로젝트와는 다르게 다이어그램이 있으니 추후에 수정할 때도 난잡하지 않게 다시 정리할 수 있기를 바랍니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220110_03/cap11.png?raw=true" alt="forward" width="550"></p>
+
+<p>이제 이 db 모델을 RDS에 적용해보겠습니다. Reverse Engineering을 열었던 메뉴에서 이번에는 <strong>Forward Engineer</strong>를 선택해줍니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220110_03/cap12.png?raw=true" alt="forward1" width="550">
+<img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220110_03/cap13.png?raw=true" alt="forward2" width="550">
+<img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220110_03/cap14.png?raw=true" alt="forward3" width="550">
+<img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220110_03/cap15.png?raw=true" alt="forward3" width="550"></p>
+
+<p>이미 RDS에 연결을 한 상태에서 Forward를 하고 있기 때문에 특별히 건들여줄 것은 없습니다. 두 번째 단계에서 원하는 옵션이 따로 있다면 선택해주고, 네 번째 단계에서 스크립트를 점검할 수 있습니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220110_03/cap16.png?raw=true" alt="forward3" width="550"></p>
+
+<p>한두번의 실패 후에 이렇게 성공했다는 메시지가 떴습니다! 이제 스키마가 RDS에 정상적으로 적용 됐는지 확인해보겠습니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220110_03/cap17.png?raw=true" alt="result" width="300"></p>
+
+<p>왼쪽 사이드바의 Schemas에서 마우스 오른쪽 버튼을 누르고 Refresh를 해보았습니다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220110_03/cap18.png?raw=true" alt="result2" width="300"></p>
+
+<p>이렇게 스키마가 추가되었고 테이블을 살펴보면 ERD로 설계했던 테이블이 그대로 들어간 것을 확인할 수 있습니다! 이제부터는 gui던 cli던 편한대로 사용하면서 수정을 해보겠습니다.</p>
+</body></html>

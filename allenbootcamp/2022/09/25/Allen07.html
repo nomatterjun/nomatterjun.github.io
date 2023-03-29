@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h1 id="튜플tuple">튜플(Tuple)</h1>
+
+<h2 id="튜플-기본">튜플 기본</h2>
+<blockquote>
+  <p>(여러가지로 이루어진) 연관된 데이터를 어떻게 저장할까?
+	- 홍길동(String), 20세(Int), 서울(String)</p>
+</blockquote>
+
+<ul>
+  <li>
+<strong>튜플</strong>: 원하는 연관된 데이터의 조합으로 어떤 조합이던 만들 수 있는 타입
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">("홍길동", 20, "서울")</code></li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">let twoNumbers = (1, 2)
+let threeNumbers: (Int, Int, Int) = (1, 2, 5)
+
+var threeValues = ("홍길동", 20, "서울")
+type(of: threeValues) // (String, Int, String).Type
+threeValues = ("임꺽정", 30, "부산")
+// threeValues = ("임꺽정", "부산") 얘는 불가능
+</code></pre>
+
+<h3 id="튜플의-각각의-데이터의-접근">튜플의 각각의 데이터의 접근</h3>
+
+<pre><code class="language-Swift">threeValues.0 // "임꺽정"
+threeValues.1 // 30
+threeValues.2 // "부산"
+</code></pre>
+
+<h3 id="이름이-매겨진-튜플-named-tuple">이름이 매겨진 튜플 (Named Tuple)</h3>
+<ul>
+  <li>튜플 사용 시의 가독성을 높일 수 있다.</li>
+</ul>
+
+<pre><code class="language-Swift">let iOS = (language: "Swift", version: "5")
+
+iOS.language // "Swift"
+iOS.version // "5"
+</code></pre>
+
+<h3 id="튜플의-분해-decomposition">튜플의 분해 (Decomposition)</h3>
+<ul>
+  <li>튜플의 각 원소를 하나씩 분해해 상수나 변수에 대입할 수 있다.</li>
+</ul>
+
+<pre><code class="language-Swift">let (first, second, third) = threeValues
+first // "임꺽정"
+second // 30
+third // "부산"
+
+typealias profile = (String, Int, String) // typealias도 사용 가능
+</code></pre>
+
+<h3 id="튜플값의-비교">튜플값의 비교</h3>
+<ul>
+  <li>튜플의 비교는 가장 왼쪽 값을 비교한다.</li>
+  <li>가장 왼쪽 값이 같다면 그 오른쪽 값을 비교한다.</li>
+</ul>
+
+<pre><code class="language-Swift">(1, "zebra") &lt; (2, "apple") // true
+(3, "apple") &lt; (3, "bird") // true
+(4, "dog") == (4, "dog") // true
+("blue", false) &lt; ("purple", true) // Error (bool 값은 대소비교가 불가능)
+</code></pre>
+
+<h2 id="튜플의-활용">튜플의 활용</h2>
+
+<h3 id="튜플과-switch문">튜플과 <code class="language-plaintext highlighter-rouge">switch</code>문</h3>
+
+<h4 id="튜플의-매칭">튜플의 매칭</h4>
+
+<pre><code class="language-Swift">let iOS = (language: "Swift", version: "5")
+
+if iOS.0 == "Swift" &amp;&amp; iOS.1 == "5" {
+	print("Swift 버전 5입니다.")
+}
+if iOS == ("Swift", "5") {
+	print("Swift 버전 5입니다.")
+}
+
+switch iOS {
+case ("Swift", "5"):
+	print("Swift 버전 5입니다.")
+case ("Swift", "4"):
+	print("Swift 버전 4입니다.")
+default:
+	break
+}
+</code></pre>
+
+<h4 id="튜플의-바인딩">튜플의 바인딩</h4>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">(0, let distance) = (0, 10)</code>: 앞이 0일경우, distance에 10 바인딩</li>
+</ul>
+
+<pre><code class="language-Swift">var coordinate = (9, 0)
+
+switch coordinate {
+case (let distance, 0), (0, let distance):
+	print("X 또는 Y축 위에 위치하며, \(distance)만큼의 거리가 떨어져 있음.")
+default:
+	print("축 위에 있지 않음")
+}
+// coordinate = (0, 7) : distance == 7
+// coordinate = (5, 5) : 축 위에 있지 않음
+</code></pre>
+
+<h4 id="튜플의-where절-활용">튜플의 <code class="language-plaintext highlighter-rouge">where</code>절 활용</h4>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">switch</code>문 안에서 <code class="language-plaintext highlighter-rouge">where</code>절을 활용하여 분리시켜 사용도 가능하다.</li>
+</ul>
+
+<pre><code class="language-Swift">coordinate = (1, -1)
+
+switch coordinate {
+case let (x, y) where x == y:
+	print("(\(x), \(y))의 좌표는 y = x 1차함수 그래프 위에 있다.")
+case let (x, y) where x == -y:
+	print("(\(x), \(y))의 좌표는 y = -x 1차함수 그래프 위에 있다.")
+case let (x, y):
+	print("(\(x), \(y))의 좌표는 y = x, 또는 y = -x 그래프가 아닌 임의의 지점에 있다.")
+}
+</code></pre>
+
+<h2 id="튜플을-사용하는-이유">튜플을 사용하는 이유</h2>
+<ul>
+  <li>함수는 <code class="language-plaintext highlighter-rouge">return</code>값이 하나만 존재하기 때문에 여러 개의 값을 반환할 수 없지만, 튜플을 사용하면 가능하다.</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">var a: (Int, String)</code> = <code class="language-plaintext highlighter-rouge">foo(a: String)</code>
+    <ul>
+      <li>ex) <code class="language-plaintext highlighter-rouge">(404, "Not Found")</code>
+</li>
+    </ul>
+  </li>
+</ul>
+</body></html>

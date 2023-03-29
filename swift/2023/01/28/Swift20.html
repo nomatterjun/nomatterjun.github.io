@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<h1 id="rxflow">RxFlow</h1>
+
+<p>험난한 길이 예상되지만 가봅시다..</p>
+
+<p>깃허브와 같은 순서대로 해봅시다.</p>
+
+<h3 id="step-정의">Step 정의</h3>
+
+<pre><code class="language-Swift">import RxFlow
+
+enum FavorStep: Step {
+	case signInIsRequired
+}
+</code></pre>
+
+<p>우선 로그인 Step만 만들어주었습니다.</p>
+
+<h3 id="flow-정의">Flow 정의</h3>
+
+<pre><code class="language-Swift">import UIKit
+
+import RxFlow
+
+final class AppFlow: Flow {
+
+	var root: Presentable { self.rootViewController }
+
+	private lazy var rootViewController: UINavigationController = {
+		let navigationController = UINavigationController()
+		return navigationController
+	}()
+
+	init() { }
+
+	func navigate(to step: Step) -&gt; FlowContributors {
+		guard let step = step as? FavorStep else { return .none }
+
+		switch step {
+			case .signInIsRequired:
+				return self.navigateToAuth()
+		}
+	}
+}
+
+private extension AppFlow {
+
+	func navigateToAuth() -&gt; FlowContributors {
+		let selectSignInVC = SelectSignInViewController()
+		return .one(
+			flowContributor: .contribute(
+				withNextPresentable: selectSignInVC, 
+				withNextStepper: OneStepper(withSingleStep: FavorStep.signInIsRequired)
+			)
+		)
+	}
+
+}
+</code></pre>
+
+<hr>
+
+<p>학습 중… 🚜</p>
+
+<hr>
+</body></html>

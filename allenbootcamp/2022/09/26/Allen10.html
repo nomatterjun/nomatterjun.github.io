@@ -1,0 +1,293 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p><a href="https://www.inflearn.com/course/%EC%8A%A4%EC%9C%84%ED%94%84%ED%8A%B8-%EB%AC%B8%EB%B2%95-%EB%A7%88%EC%8A%A4%ED%84%B0-%EC%8A%A4%EC%BF%A8">앨런 Swift문법 마스터 스쿨 (온라인 BootCamp - 2개월과정)</a></p>
+
+<h1 id="함수">함수</h1>
+
+<blockquote>
+  <p>입력 ➡️ 함수 ➡️ 출력</p>
+</blockquote>
+
+<ul>
+  <li>프로그래밍에서의 함수: 어떤 기능을 하는 코드의 모음
+    <ul>
+      <li>
+<strong>명령어들에 이름을 붙여 묶어둔 것!</strong>
+        <ul>
+          <li>
+<code class="language-plaintext highlighter-rouge">threeAndFour:</code>
+            <ul>
+              <li><code class="language-plaintext highlighter-rouge">MOV (A, B)</code></li>
+              <li><code class="language-plaintext highlighter-rouge">MOV (C, B)</code></li>
+              <li><code class="language-plaintext highlighter-rouge">ADD (A, C)</code></li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">func [함수 이름]() { [코드] }</code></li>
+</ul>
+
+<h2 id="함수의-기본-개념">함수의 기본 개념</h2>
+<ul>
+  <li>함수는 2단계에 걸쳐 실행된다.
+    <ol>
+      <li>정의</li>
+      <li>호출(실행)</li>
+    </ol>
+  </li>
+  <li>함수는 왜 사용할까?
+    <ul>
+      <li>반복되는 동작을 단순화하여 재사용</li>
+      <li>논리적 단위로 구분</li>
+      <li>길이가 긴 코드를 단순화</li>
+      <li>미리 주어진 코드의 기능을 개발자는 사용만 하면 된다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="함수의-형태">함수의 형태</h2>
+
+<h3 id="함수에-인풋이-있는-경우">함수에 인풋이 있는 경우</h3>
+<ul>
+  <li>
+<strong>인자(parameter)</strong> = 매개변수 = 인풋(input)
+    <ul>
+      <li>함수의 정의에 입력값으로 사용되는 상수</li>
+    </ul>
+  </li>
+  <li>
+<strong>인수(argument)</strong>: 함수의 호출에 사용되는 실제 값</li>
+  <li><code class="language-plaintext highlighter-rouge">func [함수 이름]([인자]: [인자 타입]) { [코드] }</code></li>
+</ul>
+
+<pre><code class="language-Swift">func saySomething(name: String) {
+	print(name)
+}
+saySomething(name: "Steve") // "Steve"
+</code></pre>
+
+<h3 id="함수에-아웃풋이-있는-경우">함수에 아웃풋이 있는 경우</h3>
+<ul>
+  <li>아웃풋 앞에 <code class="language-plaintext highlighter-rouge">return</code> 키워드 사용</li>
+  <li><code class="language-plaintext highlighter-rouge">func [함수 이름]() -&gt; [아웃풋 타입] { [코드] }</code></li>
+</ul>
+
+<pre><code class="language-Swift">func sayYes() -&gt; String {
+	return "Yes"
+}
+var isYes = sayYes()
+print(isYes) // "Yes"
+</code></pre>
+
+<h3 id="함수에-인풋과-아웃풋-둘-다-있는-경우">함수에 인풋과 아웃풋 둘 다 있는 경우</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">func [함수 이름]([인자]: [인자 타입]) -&gt; [아웃풋 타입] { [코드] }</code></li>
+</ul>
+
+<pre><code class="language-Swift">func sayHello(cnt: Int) -&gt; String {
+	for _ in 0..&lt;cnt {
+		print("Hello")
+	}
+	return "Swift"
+}
+print(sayHello(cnt: 3))
+// "Hello" \n "Hello" \n "Hello" \n "Swift"
+</code></pre>
+
+<h4 id="void-type이란">Void Type이란?</h4>
+<ul>
+  <li>아웃풋이 없는 경우</li>
+</ul>
+
+<pre><code class="language-Swift">func foo() {
+	print("Something")
+}
+</code></pre>
+
+<p>위 코드는 아래와 같다.</p>
+
+<pre><code class="language-Swift">func foo() -&gt; () {
+	print("Something")
+}
+
+func foo() -&gt; Void {
+	print("Something")
+}
+</code></pre>
+
+<ul>
+  <li>사실은 <code class="language-plaintext highlighter-rouge">Void</code> 타입이 생략되어 있는 것.</li>
+</ul>
+
+<h2 id="함수의-파라미터와-아규먼트">함수의 파라미터와 아규먼트</h2>
+
+<h3 id="아규먼트-레이블-argument-label">아규먼트 레이블 (Argument Label)</h3>
+<ul>
+  <li>겉에서 볼 때의 파라미터 이름과 안에서 사용할 때의 파라미터 이름을 각각 설정</li>
+</ul>
+
+<pre><code class="language-Swift">func printName(first name: String) {
+	print("나의 이름은 \(name) 입니다.")
+}
+// 밖에서 볼 때는 `first`, 안에서 사용할 떄는 `name`
+
+printName(first: "Alex")
+</code></pre>
+
+<h4 id="장점">장점</h4>
+<ul>
+  <li>함수를 사용할 때 더 명확하게 요구하는 바를 개발자에게 알려줄 수 있다.</li>
+  <li>
+<code class="language-plaintext highlighter-rouge">func someFunction(yourFirstNumber a: Int) { print(a) }</code>
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">someFunction(yourFirstNumber: 12)</code></li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="아규먼트-레이블을-생략하는-것도-가능-와일드카드">아규먼트 레이블을 생략하는 것도 가능 (와일드카드)</h3>
+
+<pre><code class="language-Swift">func addPrintFunction(_ firstNumber: Int, _ secondNumber: Int) {
+	print(firstNumber + secondNumber)
+}
+addPrintFunction(1, 2) // 3
+</code></pre>
+
+<h3 id="가변-파라미터-variadic-parameters">가변 파라미터 (Variadic Parameters)</h3>
+<ul>
+  <li>함수의 파라미터에 정해지지 않은 여러가지 값을 대입
+    <ul>
+      <li>하나의 파라미터로 2개 이상의 아규먼트 전달</li>
+      <li>아규먼트는 배열의 형태로 전달</li>
+      <li>가변 파라미터는 개별 함수마다 하나씩만 선언 가능</li>
+      <li>가변 파라미터는 기본값을 가질 수 없다.</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">Type...</code></li>
+</ul>
+
+<pre><code class="language-Swift">func arithmeticAverage(_ numbers: Double...) -&gt; Double {
+	var total = 0.0
+	for number in numbers {
+		total += number
+	}
+	return total / Double(numbers.count)
+}
+
+arithmeticAverage(2.5, 1.5) // 2.0
+</code></pre>
+
+<h3 id="함수의-파라미터에-기본값default-부여-가능">함수의 파라미터에 기본값(default) 부여 가능</h3>
+
+<pre><code class="language-Swift">func someFunction(num1: Int, num2: Int = 5) -&gt; Int {
+	var result = num1 + num2
+	return result
+}
+print(someFunction(num1: 3)) // 8
+print(someFunction(num1: 3, num2: 4)) // 7
+</code></pre>
+
+<ul>
+  <li>애플이 만들어둔 함수에는 기본값이 포함되어 있는 경우가 매우 많다!
+    <ul>
+      <li>ex) <code class="language-plaintext highlighter-rouge">print()</code>: <code class="language-plaintext highlighter-rouge">seperator: ""</code>, <code class="language-plaintext highlighter-rouge">terminator: "\n"</code>
+</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="함수-사용-시의-주의점">함수 사용 시의 주의점</h2>
+
+<h3 id="함수의-파라미터에-대한-정확한-이해">함수의 파라미터에 대한 정확한 이해</h3>
+<ul>
+  <li>함수의 파라미터는 함수 안에서 <strong>상수</strong>이다.</li>
+</ul>
+
+<pre><code class="language-Swift">func someAdd(a: Int) -&gt; Int {
+	a += 1 // Error: 'a' is a 'let' constant
+	return a
+}
+</code></pre>
+
+<h3 id="함수-내의-변수의-scope범위">함수 내의 변수의 Scope(범위)</h3>
+<ul>
+  <li>함수 내에서 선언한 변수의 범위는 해당 함수 안이다.</li>
+</ul>
+
+<pre><code class="language-Swift">func sumOfNum(a: Int) -&gt; Int {
+	var sum = 0
+	sum += a
+	return sum
+}
+sum += 1 // Error: cannot find 'sum' in a scope
+</code></pre>
+
+<h3 id="return-키워드의-정확한-이해">
+<code class="language-plaintext highlighter-rouge">return</code> 키워드의 정확한 이해</h3>
+<ul>
+  <li>리턴 타입이 있는 함수의 경우
+    <ul>
+      <li>리턴 키워드 다음의 표현식을 평가한 후에 그 결과를 리턴하며 함수를 벗어남</li>
+    </ul>
+  </li>
+  <li>리턴 타입이 없는 함수의 경우
+    <ul>
+      <li>함수의 실행을 중지하고 함수를 벗어남</li>
+    </ul>
+  </li>
+</ul>
+
+<pre><code class="language-Swift">func numberPrint(n num: Int) {
+	if num &gt;= 5 {
+		print("숫자가 5 이상입니다.")
+		return
+	}
+	print("숫자가 5 미만입니다.")
+}
+numberPrint(n: 6) // "숫자가 5 이상입니다."
+// return이 없다면?
+// 함수를 아직 벗어나지 않았기 때문에 뒤에 있는
+// "숫자가 5 미만입니다." 도 출력됨
+</code></pre>
+
+<h3 id="return-타입이-있는-경우-함수의-실행문의-의미">
+<code class="language-plaintext highlighter-rouge">return</code> 타입이 있는 경우, 함수의 실행문의 의미</h3>
+<ul>
+  <li>
+<code class="language-plaintext highlighter-rouge">return</code> 타입이 있는 함수를 호출하는 경우, 함수를 호출하는 것은 표현식</li>
+</ul>
+
+<pre><code class="language-Swift">func nameString() -&gt; String {
+	return "Steve"
+}
+var yourName: String = nameString()
+if nameString() == "Steve" {
+	print("이름이 일치합니다.")
+}
+</code></pre>
+
+<h3 id="중첩-함수-nested-function">중첩 함수 (Nested Function)</h3>
+<ul>
+  <li>함수 안에 함수 정의도 가능</li>
+</ul>
+
+<pre><code class="language-Swift">func chooseStepFunction(backward: Bool, value: Int) -&gt; Int {
+	func stepForward(input: Int) -&gt; Int {
+		return input + 1
+	}
+	func stepBackward(input: Int) -&gt; Int {
+		return input - 1
+	}
+
+	if backward {
+		return stepBackward(input: value)
+	} else {
+		return stepForward(input: value)
+	}
+}
+
+print(chooseStepFunction(backward: true, value: 3)) // 2
+</code></pre>
+</body></html>

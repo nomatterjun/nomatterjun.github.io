@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html><body>
+<p>이전에 진행하고 있던 프로젝트가 엎어졌다..   서드파티 앱이였는데 해당 기능이 서비스에 직접 도입되어 개발 필요성이 사라져버렸다.   개발사가 일을 너무 열심히 해도 문제다..   거의 완성이였던 프로젝트를 급하게 마무리하고 나만의 보관소에 모셔두었다.</p>
+
+<p>새롭게 진행할 프로젝트가 필요해졌지만 주제를 고르는 것은 어렵지 않았다. 약 보름전에 개봉했던 “스파이더맨:노웨이홈”이 코로나 시국에도 불구하고 대흥행을 거두었다. 스파이더맨 팬이였던 나는 한동안 영화에서 헤어나오지 못했고, 이 넘쳐흐르는 스파뽕을 가만히 둘 수 없었다.</p>
+
+<p><img src="https://github.com/StanSign/StanSign.github.io/blob/main/_posts/Assemble/220105_01/movie_image_Large.png?raw=true" alt="drawing" width="550"></p>
+
+<p>히어로 영화 관련된 앱을 만들어야겠다는 생각이 들었다. 노웨이홈과 디즈니플러스 드라마를 중심으로 MCU, SSU, DCU까지 히어로 작품 제작에 박차를 가하고 있다. 히어로 작품들은 쏟아져 나올 것이고 정보들도 범람할 것이다.</p>
+
+<blockquote>
+  <p>그렇다면 쏟아져 나오는 히어로 작품 정보들을 한 곳에 모아 제공하는 앱을 만들면 어떨까?</p>
+</blockquote>
+
+<p>개발 측면에서 봤을 때도 다양한 기능들(API 활용, 서버 DB, 인앱 웹브라우저 등)을 연습해 볼 수 있을 것 같아 바로 실행하게 되었다.</p>
+
+<hr>
+
+<h3 id="정보모음앱이니-api부터-알아보자">🧐 정보모음앱이니 API부터 알아보자</h3>
+
+<ol>
+  <li>
+    <p><a href="https://developers.naver.com/docs/search/movie/">네이버 영화 API</a></p>
+
+    <p>국내 정보는 역시 네이버, 카카오</p>
+  </li>
+  <li>
+    <p><a href="http://www.kobis.or.kr/kobisopenapi/homepg/apiservice/searchServiceInfo.do">영화진흥위원회 API</a></p>
+
+    <p>다양한 정보를 상세하게 나눠 제공한다. 유용하게 활용할 수 있을 것 같다.</p>
+  </li>
+  <li>3대 평론사이트 API
+    <ul>
+      <li>
+        <p>로튼토마토</p>
+
+        <p><a href="https://developer.fandango.com/rotten_tomatoes">Welcome to the Rotten Tomatoes® Developer Network</a></p>
+      </li>
+      <li>
+        <p>IMDB</p>
+
+        <p><a href="https://imdb-api.com/">API for IMDb, TMDb, Subscene, Wikipedia and more - IMDb-API</a></p>
+      </li>
+      <li>
+        <p>메타크리틱</p>
+
+        <p><a href="https://www.internetvideoarchive.com/apis/metacritic-api/">Metacritic API</a></p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p><a href="https://superheroapi.com/">SuperHero API</a></p>
+
+    <p>각 히어로별로 스탯이나 인물 관계를 제공하는 것 같다.</p>
+  </li>
+</ol>
+
+<hr>
+
+<h3 id="그렇다면-개발환경은">💻 그렇다면 개발환경은?</h3>
+
+<ol>
+  <li>
+<strong>개발언어</strong>: Swift (iOS 네이티브)</li>
+  <li>
+<strong>DB</strong>: SQL 혹은 Realm (realm이 익숙하지만 학기중에 배운 sql을 활용해보고자 한다)</li>
+  <li>
+<strong>서버</strong>: AWS (로컬만으로는 절대 구현할 수 없는 기능들이 있다)</li>
+</ol>
+
+<hr>
+
+<h3 id="어떤-기능을-구현할-것인가">📱 어떤 기능을 구현할 것인가?</h3>
+
+<ol>
+  <li>각 작품들의 정보 제공 (출연진, 등장 히어로, 예고편, 평점, 선행 작품 등)</li>
+  <li>히어로 별 커뮤니티 게시판</li>
+  <li>개봉 디데이 위젯</li>
+</ol>
+</body></html>
